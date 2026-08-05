@@ -32,6 +32,7 @@ class DetectTests(unittest.TestCase):
         etfs = {e["code"]: e for e in registry.detect_etfs(load_rows())}
         self.assertEqual(etfs["00988A"]["market"], "foreign")  # 主動統一全球創新
         self.assertEqual(etfs["00402A"]["market"], "foreign")  # 主動安聯美國科技
+        self.assertEqual(etfs["00983A"]["market"], "foreign")  # 中信ARK創新實持美股
         self.assertEqual(etfs["00981A"]["market"], "tw")
 
     def test_issuer_and_adapter_mapping(self):

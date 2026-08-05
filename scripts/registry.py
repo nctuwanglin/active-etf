@@ -12,8 +12,9 @@ from pathlib import Path
 
 CODE_RE = re.compile(r"^00\d{3}A$")
 
-# 名稱含這些關鍵字視為海外型,排除於追蹤(registry 可手動覆寫 market)
-FOREIGN_KEYWORDS = ("美國", "全球", "日本", "越南", "世界", "印度")
+# 名稱含這些關鍵字視為海外型,排除於追蹤(registry 可手動覆寫 market)。
+# "ARK":00983A 主動中信ARK創新名稱無地區字樣但實持美股(2026-08-05 實查)。
+FOREIGN_KEYWORDS = ("美國", "全球", "日本", "越南", "世界", "印度", "ARK")
 
 # ETF 名稱一律「主動<投信><系列名>」,以投信名前綴對照 adapter 模組名
 ISSUER_ADAPTERS = [
