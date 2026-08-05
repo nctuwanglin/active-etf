@@ -12,7 +12,9 @@ import requests
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
 
-WEIGHT_SUM_MIN = 95.0   # 容忍現金部位
+# 主動式 ETF 現金/期貨部位可觀(實測 00403A 股票僅 84%),此檢查只為抓解析錯誤
+# (權重尺度錯置、整批漏列),不是投資組合完整性檢查。
+WEIGHT_SUM_MIN = 50.0
 WEIGHT_SUM_MAX = 105.0
 
 
@@ -75,6 +77,27 @@ def validate_holdings(holdings, etf_code):
         out.append(Holding(code=code, name=x.name.strip(), shares=int(x.shares),
                            weight=float(x.weight)))
     return out
+
+
+def parse_dotnet_date(s):
+    """解析 .NET JSON 日期,兩種形式都出現過:
+    '2026-08-04T00:00:00' 或 '/Date(1785772800000)/'(ms epoch,UTC)。
+    回傳 'YYYY-MM-DD'。"""
+    import datetime
+    import re as _re
+    m = _re.match(r"/Date\((\d+)\)/", s)
+    if m:
+        # ms 值實測為台灣午夜之 epoch(如 1785772800000 → 2026-08-04 00:00 台北)
+        # 用 UTC 解會少一天,必須以 +8 時區解
+        tz = datetime.timezone(datetime.timedelta(hours=8))
+        dt = datetime.datetime.fromtimestamp(int(m.group(1)) / 1000, tz)
+        return dt.strftime("%Y-%m-%d")
+    return s[:10]
+
+
+def roc_date(dt):
+    """datetime.date → 民國年字串 '115/08/05'"""
+    return "{}/{:02d}/{:02d}".format(dt.year - 1911, dt.month, dt.day)
 
 
 # adapter 註冊表:模組 import 時自行填入
