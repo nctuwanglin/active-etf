@@ -24,7 +24,7 @@
   "issuer": "安聯",
   "market": "foreign",
   "name": "主動安聯美國科技",
-  "status": "unsupported"
+  "status": "active"
  },
  "00403A": {
   "adapter": "president",
@@ -138,7 +138,8 @@
   "issuer": "安聯",
   "market": "tw",
   "name": "主動安聯台灣高息",
-  "status": "unsupported"
+  "status": "active",
+  "tw_weight": 96.77
  },
  "00985A": {
   "adapter": "nomura",
@@ -222,7 +223,8 @@
   "issuer": "安聯",
   "market": "tw",
   "name": "主動安聯台灣",
-  "status": "unsupported"
+  "status": "active",
+  "tw_weight": 95.6
  },
  "00994A": {
   "adapter": "firstsec",
