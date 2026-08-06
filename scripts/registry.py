@@ -60,24 +60,24 @@ def tw_weight(holdings):
     return sum(h.weight for h in holdings if TW_CODE_RE.match(h.code))
 
 
-def reclassify_by_holdings(path, results):
-    """以實際持股的台股權重覆寫 market,並寫回 registry。
+def reclassify_by_holdings(path, reg, results):
+    """以實際持股的台股權重覆寫 market,**就地更新傳入的 reg** 再寫回檔案。
 
     名稱關鍵字判不出來的海外型只有看持股才知道,故抓到資料後一律以持股為準。
-    回傳 {code: tw_weight}。
+    必須改傳入的那份 reg(而不是自己重讀一份),否則本次執行的 active.json 仍會
+    沿用舊分類,改判要等下一次執行才生效。回傳 {code: tw_weight}。
     """
-    path = Path(path)
-    reg = json.loads(path.read_text()) if path.exists() else {}
     weights = {}
     for code, r in results.items():
         if r.get("status") != "ok" or not r.get("holdings"):
             continue
-        w = tw_weight(r["holdings"])
-        weights[code] = round(w, 2)
+        w = round(tw_weight(r["holdings"]), 2)
+        weights[code] = w
         if code in reg:
             reg[code]["market"] = "tw" if w >= TW_WEIGHT_MIN else "foreign"
-            reg[code]["tw_weight"] = round(w, 2)
-    path.write_text(json.dumps(reg, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
+            reg[code]["tw_weight"] = w
+    Path(path).write_text(
+        json.dumps(reg, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
     return weights
 
 

@@ -97,7 +97,8 @@ class ReclassifyTests(unittest.TestCase):
                     Holding("LITE US", "LUMENTUM", 100, 60.0),
                     Holding("2330", "台積電", 100, 18.0)]},
             }
-            w = registry.reclassify_by_holdings(p, results)
+            reg = json.loads(p.read_text())
+            w = registry.reclassify_by_holdings(p, reg, results)
             reg = json.loads(p.read_text())
             self.assertEqual(reg["00981A"]["market"], "tw")
             self.assertEqual(reg["00990A"]["market"], "foreign")
@@ -135,3 +136,22 @@ class StatusDerivationTests(unittest.TestCase):
                 ensure_ascii=False))
             registry.load_and_update(p, [])
             self.assertEqual(json.loads(p.read_text())["00981A"]["status"], "disabled")
+
+
+class ReclassifyUpdatesInMemoryTests(unittest.TestCase):
+    """改判必須改到傳入的 reg 本身,否則本次執行的 active.json 仍是舊分類。"""
+
+    def test_in_memory_reg_is_mutated(self):
+        import tempfile
+        from adapters.base import Holding
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "reg.json"
+            reg = {"00986A": {"code": "00986A", "name": "主動台新龍頭成長",
+                              "market": "tw"}}
+            p.write_text(json.dumps(reg, ensure_ascii=False))
+            results = {"00986A": {"status": "ok", "holdings": [
+                Holding("MU US", "MICRON", 1, 70.0),
+                Holding("2330", "台積電", 1, 8.9)]}}
+            registry.reclassify_by_holdings(p, reg, results)
+            self.assertEqual(reg["00986A"]["market"], "foreign")
+            self.assertAlmostEqual(reg["00986A"]["tw_weight"], 8.9, places=1)
