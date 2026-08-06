@@ -71,3 +71,67 @@ class RegistryFileTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReclassifyTests(unittest.TestCase):
+    """名稱看不出海外型時,以實際持股的台股權重為準(00990A 類案例)。"""
+
+    def _reg(self, tmp):
+        p = Path(tmp) / "reg.json"
+        p.write_text(json.dumps({
+            "00981A": {"code": "00981A", "name": "主動統一台股增長", "market": "tw"},
+            "00990A": {"code": "00990A", "name": "主動元大AI新經濟", "market": "tw"},
+        }, ensure_ascii=False))
+        return p
+
+    def test_foreign_heavy_etf_demoted(self):
+        import tempfile
+        from adapters.base import Holding
+        with tempfile.TemporaryDirectory() as tmp:
+            p = self._reg(tmp)
+            results = {
+                "00981A": {"status": "ok", "holdings": [
+                    Holding("2330", "台積電", 100, 60.0),
+                    Holding("2454", "聯發科", 100, 25.0)]},
+                "00990A": {"status": "ok", "holdings": [
+                    Holding("LITE US", "LUMENTUM", 100, 60.0),
+                    Holding("2330", "台積電", 100, 18.0)]},
+            }
+            w = registry.reclassify_by_holdings(p, results)
+            reg = json.loads(p.read_text())
+            self.assertEqual(reg["00981A"]["market"], "tw")
+            self.assertEqual(reg["00990A"]["market"], "foreign")
+            self.assertAlmostEqual(w["00990A"], 18.0, places=1)
+
+    def test_tw_weight_ignores_foreign_codes(self):
+        from adapters.base import Holding
+        self.assertAlmostEqual(registry.tw_weight([
+            Holding("2330", "台積電", 1, 10.0),
+            Holding("TSLA US", "TESLA", 1, 5.0),
+            Holding("00878", "國泰永續高股息", 1, 2.0)]), 12.0, places=1)
+
+
+class StatusDerivationTests(unittest.TestCase):
+    """補完 adapter 後,既有 ETF 的 status 必須自動由 unsupported 轉 active。"""
+
+    def test_status_refreshes_when_adapter_implemented(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "reg.json"
+            p.write_text(json.dumps({"00980A": {
+                "code": "00980A", "name": "主動野村臺灣優選", "market": "tw",
+                "issuer": "野村", "adapter": "nomura", "status": "unsupported"}},
+                ensure_ascii=False))
+            registry.load_and_update(p, [])
+            self.assertEqual(json.loads(p.read_text())["00980A"]["status"], "active")
+
+    def test_disabled_is_preserved(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "reg.json"
+            p.write_text(json.dumps({"00981A": {
+                "code": "00981A", "name": "主動統一台股增長", "market": "tw",
+                "issuer": "統一", "adapter": "president", "status": "disabled"}},
+                ensure_ascii=False))
+            registry.load_and_update(p, [])
+            self.assertEqual(json.loads(p.read_text())["00981A"]["status"], "disabled")

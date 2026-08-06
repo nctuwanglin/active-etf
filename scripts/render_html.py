@@ -20,8 +20,9 @@ header{border-bottom:1px solid var(--line);padding:1.25rem 0 1rem;
   background:linear-gradient(180deg,rgba(59,130,246,.06),transparent)}
 h1{margin:0;font-size:1.3rem;letter-spacing:.02em}
 .sub{color:var(--ink-dim);font-size:.8rem;margin-top:.35rem}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-  gap:.6rem;margin:1rem 0}
+/* 固定 4 欄:auto-fit 在中等寬度會排成 3+1 落單 */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1rem 0}
+@media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
 .kpi{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:.7rem .85rem}
 .kpi .n{font-size:1.35rem;font-weight:700}
 .kpi .l{color:var(--ink-mute);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase}
@@ -66,7 +67,8 @@ input:focus,select:focus{outline:none;border-color:var(--blue)}
 .bar-row{display:flex;align-items:center;gap:.5rem;margin:.22rem 0;font-size:.76rem}
 .bar-row .nm{width:5.5rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar-track{flex:1;height:9px;background:var(--panel-2);border-radius:2px;overflow:hidden}
-.bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),#60a5fa)}
+/* span 預設 display:inline,寬高與背景都不會生效,必須 block */
+.bar-fill{display:block;height:100%;background:linear-gradient(90deg,var(--blue),#60a5fa)}
 .bar-row .pc{width:3.2rem;text-align:right;color:var(--ink-dim)}
 details summary{cursor:pointer;color:var(--ink-dim);font-size:.78rem;margin-top:.6rem}
 .empty{color:var(--ink-mute);font-size:.83rem;padding:1rem 0;text-align:center}

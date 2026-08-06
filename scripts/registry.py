@@ -48,6 +48,39 @@ def _classify(name):
     return "tw"
 
 
+TW_CODE_RE = re.compile(r"^\d{4,6}$")  # 台股代號純數字;海外持股形如 'TSLA US'
+
+# 台股權重低於此比例視為海外型(名稱看不出來的,如 00990A「主動元大AI新經濟」
+# 實為美股 61%/台股 18%)。名稱關鍵字只是抓不到持股前的初判。
+TW_WEIGHT_MIN = 50.0
+
+
+def tw_weight(holdings):
+    """持股中台股代號的權重合計(%)。"""
+    return sum(h.weight for h in holdings if TW_CODE_RE.match(h.code))
+
+
+def reclassify_by_holdings(path, results):
+    """以實際持股的台股權重覆寫 market,並寫回 registry。
+
+    名稱關鍵字判不出來的海外型只有看持股才知道,故抓到資料後一律以持股為準。
+    回傳 {code: tw_weight}。
+    """
+    path = Path(path)
+    reg = json.loads(path.read_text()) if path.exists() else {}
+    weights = {}
+    for code, r in results.items():
+        if r.get("status") != "ok" or not r.get("holdings"):
+            continue
+        w = tw_weight(r["holdings"])
+        weights[code] = round(w, 2)
+        if code in reg:
+            reg[code]["market"] = "tw" if w >= TW_WEIGHT_MIN else "foreign"
+            reg[code]["tw_weight"] = round(w, 2)
+    path.write_text(json.dumps(reg, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
+    return weights
+
+
 def _issuer_adapter(name):
     base = name[2:] if name.startswith("主動") else name  # 去「主動」前綴
     for issuer, adapter in ISSUER_ADAPTERS:
@@ -85,16 +118,20 @@ def load_and_update(path, fetched):
         if code in reg:
             for k, v in e.items():  # 只補新欄位(如改名不覆寫手動值)
                 reg[code].setdefault(k, v)
-            continue
-        issuer = e.get("issuer", "")
-        adapter = e.get("adapter", "")
-        if not (issuer and adapter):
-            issuer, adapter = _issuer_adapter(e.get("name", ""))
-        entry = dict(e)
-        entry["issuer"] = issuer
-        entry["adapter"] = adapter
-        entry["status"] = "active" if adapter in IMPLEMENTED_ADAPTERS else "unsupported"
-        entry.setdefault("first_snapshot_date", None)
-        reg[code] = entry
+        else:
+            issuer, adapter = e.get("issuer", ""), e.get("adapter", "")
+            if not (issuer and adapter):
+                issuer, adapter = _issuer_adapter(e.get("name", ""))
+            entry = dict(e)
+            entry["issuer"] = issuer
+            entry["adapter"] = adapter
+            entry.setdefault("first_snapshot_date", None)
+            reg[code] = entry
+    # status 一律由 adapter 是否已實作推導,不沿用舊值——否則補完 adapter 後既有
+    # ETF 會永遠卡在 unsupported。掃全表(不只本次偵測到的)。手動停用設 "disabled"。
+    for entry in reg.values():
+        if entry.get("status") != "disabled":
+            entry["status"] = ("active" if entry.get("adapter") in IMPLEMENTED_ADAPTERS
+                               else "unsupported")
     path.write_text(json.dumps(reg, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
     return reg

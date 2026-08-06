@@ -172,6 +172,12 @@ def main():
         log("✗ 持股檔數驟降 >50%:{}(疑似解析錯誤,--force 可強制)".format(anomalies))
         return 1
 
+    tw_weights = registry_mod.reclassify_by_holdings(REGISTRY_PATH, results)
+    demoted = [c for c, w in sorted(tw_weights.items()) if w < registry_mod.TW_WEIGHT_MIN]
+    if demoted:
+        log("依實際持股改判為海外型(不列入台股型統計):{}".format(
+            ", ".join("{} 台股僅{:.0f}%".format(c, tw_weights[c]) for c in demoted)))
+
     prev_snapshot = outputs.load_prev_snapshot(HISTORY, data_date)
     carry_stale(results, reg, prev_snapshot)
     compute_all_events(results, prev_snapshot)
