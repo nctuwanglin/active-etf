@@ -27,7 +27,8 @@ import quotes as quotes_mod
 import registry as registry_mod
 import render_html
 from adapters import base
-from adapters import capital, ctbc, fubon, fuhhwa, president  # noqa: F401 註冊 ADAPTERS
+from adapters import (capital, ctbc, fubon, fuhhwa, nomura,  # noqa: F401 註冊 ADAPTERS
+                      president)
 from diffengine import compute_events
 
 ROOT = Path(__file__).resolve().parents[1]
