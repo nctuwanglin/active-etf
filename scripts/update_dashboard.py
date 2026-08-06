@@ -28,7 +28,7 @@ import registry as registry_mod
 import render_html
 from adapters import base
 from adapters import (allianz, capital, ctbc, fubon,  # noqa: F401 註冊 ADAPTERS
-                      fuhhwa, nomura, president)
+                      fuhhwa, kgi, nomura, president)
 from diffengine import compute_events
 
 ROOT = Path(__file__).resolve().parents[1]
