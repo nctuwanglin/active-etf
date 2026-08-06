@@ -102,3 +102,32 @@ class OutputsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReverseIndexAggregateTests(unittest.TestCase):
+    """反查索引的規模指標:total_value(股數×收盤價)才有量綱意義。"""
+
+    def _build(self):
+        reg = {"00981A": {"name": "A", "issuer": "統一", "market": "tw"},
+               "00991A": {"name": "B", "issuer": "復華", "market": "tw"}}
+        results = {
+            "00981A": {"status": "ok", "data_date": "2026-08-05", "events": [],
+                       "holdings": [Holding("2330", "台積電", 1000, 9.5)]},
+            "00991A": {"status": "ok", "data_date": "2026-08-05", "events": [],
+                       "holdings": [Holding("2330", "台積電", 500, 14.6)]},
+        }
+        return outputs.build_active_json("2026-08-05", reg, results, {},
+                                         quotes={"2330": 1200.0})
+
+    def test_total_shares_and_value(self):
+        s = self._build()["stocks"]["2330"]
+        self.assertEqual(s["total_shares"], 1500)
+        self.assertEqual(s["total_value"], 1800000)
+        self.assertEqual(s["etf_count"], 2)
+
+    def test_total_value_none_without_quote(self):
+        reg = {"00981A": {"name": "A", "issuer": "統一", "market": "tw"}}
+        results = {"00981A": {"status": "ok", "data_date": "2026-08-05", "events": [],
+                              "holdings": [Holding("9999", "無報價", 100, 1.0)]}}
+        s = outputs.build_active_json("2026-08-05", reg, results, {}, quotes={})["stocks"]["9999"]
+        self.assertIsNone(s["total_value"])

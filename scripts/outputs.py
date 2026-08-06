@@ -91,9 +91,11 @@ def append_events(perf_stats_path, date, etf_results, quotes):
     return doc
 
 
-def build_active_json(date, registry, etf_results, fundamentals, crosslinks=None):
+def build_active_json(date, registry, etf_results, fundamentals, crosslinks=None,
+                      quotes=None):
     """下游 API 主檔。schema 見 README。"""
     crosslinks = crosslinks or {}
+    quotes = quotes or {}
     etfs, stocks, cons_inc, cons_dec = {}, {}, {}, {}
     for code, reg in sorted(registry.items()):
         if reg.get("market") != "tw":
@@ -113,21 +115,29 @@ def build_active_json(date, registry, etf_results, fundamentals, crosslinks=None
         etfs[code] = entry
         for h in entry["holdings"]:
             s = stocks.setdefault(h["code"], {
-                "name": h["name"], "total_weight": 0.0, "etfs": [],
-                "recent_events": []})
+                "name": h["name"], "total_weight": 0.0, "total_shares": 0,
+                "etfs": [], "recent_events": []})
+            # total_weight 是各檔權重「相加」,跨基金相加無量綱意義,只當熱度指標;
+            # 要比較個股被主動式 ETF 持有的實際規模請用 total_value(股數×收盤價)。
             s["total_weight"] = round(s["total_weight"] + h["weight"], 4)
+            s["total_shares"] += h["shares"]
             s["etfs"].append({"etf": code, "weight": h["weight"],
                               "shares": h["shares"]})
         for ev in entry["events"]:
             s = stocks.setdefault(ev["code"], {
-                "name": ev["name"], "total_weight": 0.0, "etfs": [],
-                "recent_events": []})
+                "name": ev["name"], "total_weight": 0.0, "total_shares": 0,
+                "etfs": [], "recent_events": []})
             s["recent_events"].append({"etf": code, "type": ev["type"],
                                        "date": date})
             if ev["type"] in ("INCREASE", "ADD"):
                 cons_inc.setdefault(ev["code"], {"name": ev["name"], "etfs": []})["etfs"].append(code)
             elif ev["type"] in ("DECREASE", "REMOVE"):
                 cons_dec.setdefault(ev["code"], {"name": ev["name"], "etfs": []})["etfs"].append(code)
+    for scode, s_ in stocks.items():
+        px = quotes.get(scode)
+        s_["close"] = px
+        s_["total_value"] = round(s_["total_shares"] * px) if px else None
+        s_["etf_count"] = len(s_["etfs"])
     consensus = {
         "increase": [{"code": c, **v} for c, v in sorted(cons_inc.items())
                      if len(v["etfs"]) >= 2],

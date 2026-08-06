@@ -191,7 +191,8 @@ def main():
 
     outputs.write_snapshot(data_date, results, HISTORY)
     outputs.append_events(PERF_STATS, data_date, results, all_quotes)
-    active = outputs.build_active_json(data_date, reg, results, fundamentals, links)
+    active = outputs.build_active_json(data_date, reg, results, fundamentals, links,
+                                       quotes=all_quotes)
     ACTIVE_JSON.write_text(
         json.dumps(active, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
     INDEX_HTML.write_text(render_html.render(active, reg))

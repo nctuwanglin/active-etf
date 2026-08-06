@@ -1,0 +1,99 @@
+name: 每日自動更新主動式 ETF 儀表板
+
+on:
+  schedule:
+    # 各投信 PCF(申購買回清單)於交易日「早上」公告，內容是「前一交易日收盤」的持股，
+    # 故資料日恆為 T-1；只要在台灣營業日白天跑到，就能取到最新一份。
+    # GitHub scheduled workflows 為 best-effort，實測延遲 5-6.5 小時，故排兩班互為備援
+    # （腳本冪等且有「資料日未更新就跳過」守則，重跑無害）。
+    - cron: "17 1 * * 1-5"   # 台灣 09:17 主跑（PCF 已公告）
+    - cron: "47 5 * * 1-5"   # 台灣 13:47 補跑
+  workflow_dispatch:
+
+jobs:
+  update-dashboard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run adapter tests
+        run: python -m unittest discover -s tests -q
+
+      - name: Run update script
+        run: python scripts/update_dashboard.py
+
+      - name: Check for changes
+        id: diff
+        run: |
+          # 先 stage 再比對，untracked 的每日快照（data/history/新檔）才會被偵測到
+          git add index.html active.json data/
+          if git diff --cached --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          DATE=$(TZ=Asia/Taipei date "+%Y/%m/%d %H:%M")
+          git commit -m "auto: 更新主動式 ETF 持股與異動 ${DATE}"
+          git push
+
+      # Pages 部署間歇性失敗時 workflow 會綠燈但線上是舊資料（處置股儀表板已踩過兩次）。
+      # 以 repo 內 index.html 的資料日為基準驗證線上頁面，不符時依序：
+      # 等待 → Pages API 重建 → 空 commit 觸發全新部署 → 仍失敗才亮紅燈。
+      - name: Verify live deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -u
+          URL="https://nctuwanglin.github.io/active-etf/"
+          EXPECTED=$(grep -oE 'Updated [0-9]{4}-[0-9]{2}-[0-9]{2}' index.html | head -1)
+          echo "預期線上版本: $EXPECTED"
+
+          check_live() {
+            curl -fsS --max-time 20 "${URL}?nocache=$(date +%s)" 2>/dev/null \
+              | grep -oE 'Updated [0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1
+          }
+
+          poll() {  # poll <次數> <間隔秒>
+            for i in $(seq 1 "$1"); do
+              sleep "$2"
+              LIVE=$(check_live || true)
+              echo "  第 $i 次檢查: live='$LIVE'"
+              if [ "$LIVE" = "$EXPECTED" ]; then return 0; fi
+            done
+            return 1
+          }
+
+          if poll 10 15; then echo "✅ 線上已是最新"; exit 0; fi
+
+          echo "⚠️ 線上未更新，透過 Pages API 觸發重建..."
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
+          if poll 8 15; then echo "✅ 重建後已更新"; exit 0; fi
+
+          echo "⚠️ 重建仍未生效，推空 commit 觸發全新部署..."
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: 觸發 Pages 重新部署（自動補救）"
+          git push
+          if poll 12 15; then echo "✅ 空 commit 部署後已更新"; exit 0; fi
+
+          echo "❌ 部署驗證失敗：線上仍為 '$(check_live || echo 無法取得)'，預期 '$EXPECTED'"
+          exit 1
