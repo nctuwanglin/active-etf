@@ -9,7 +9,8 @@
     data.stocks[] {stocNo, stocName, weight, share}。
     站點有 Incapsula,但帶一般 UA 的 JSON POST 可直接通(2026-08-05 實測)。
 """
-from .base import ADAPTERS, AdapterError, Holding, post, validate_holdings
+from .base import (ADAPTERS, AdapterError, Holding, post, to_num,
+                   validate_holdings)
 
 ITEMS = "https://www.capitalfund.com.tw/CFWeb/api/etf/items"
 BUYBACK = "https://www.capitalfund.com.tw/CFWeb/api/etf/buyback"
@@ -23,6 +24,7 @@ def parse_fund_map(items_json):
 
 
 def parse_buyback(d, etf_code):
+    """buyback 回應 → (data_date, [Holding], meta)"""
     data = d.get("data") or {}
     stocks = data.get("stocks") or []
     pcf = data.get("pcf") or {}
@@ -31,7 +33,10 @@ def parse_buyback(d, etf_code):
     holdings = [Holding(code=str(x["stocNo"]), name=str(x["stocName"]).strip(),
                         shares=int(x["share"]), weight=float(x["weight"]))
                 for x in stocks]
-    return pcf["date2"], validate_holdings(holdings, etf_code)
+    meta = {"scale": to_num(pcf.get("nav")), "units": to_num(pcf.get("totUnit")),
+            "nav_per_unit": to_num(pcf.get("pUnit")),
+            "holders": to_num(pcf.get("numberPeople"))}
+    return pcf["date2"], validate_holdings(holdings, etf_code), meta
 
 
 def fetch_holdings(etf):

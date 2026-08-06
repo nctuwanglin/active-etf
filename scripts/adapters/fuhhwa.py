@@ -11,7 +11,8 @@
 """
 import datetime
 
-from .base import ADAPTERS, AdapterError, Holding, get, validate_holdings
+from .base import (ADAPTERS, AdapterError, Holding, get, to_num,
+                   validate_holdings)
 
 FUNDLIST = "https://www.fhtrust.com.tw/api/fundList?ec001=3"
 ASSETS = "https://www.fhtrust.com.tw/api/assets"
@@ -25,21 +26,27 @@ def parse_fund_map(fundlist_json):
 
 
 def parse_assets(d, etf_code):
-    """assets 回應 → (data_date, [Holding]);detail 空回 (None, None) 供重試。"""
+    """assets 回應 → (data_date, [Holding], meta);無資料回 (None, None, None) 供重試。
+
+    復華 assets 端點不含受益人數(holders 給 None)。"""
     results = d.get("result") or []
     if not results:
-        return None, None
+        return None, None, None
     r = results[0]
     detail = r.get("detail") or []
     rows = [x for x in detail if x.get("ftype") == "股票" and (x.get("stockid") or "").strip()]
     if not rows or not r.get("dDate"):
-        return None, None
+        return None, None, None
     holdings = [Holding(code=x["stockid"], name=x["stockname"],
                         shares=int(x["qshare"].replace(",", "")),
                         weight=float(x["prate_addaccint"].rstrip("%")))
                 for x in rows]
     data_date = r["dDate"].replace("/", "-")
-    return data_date, validate_holdings(holdings, etf_code)
+    meta = {"scale": to_num(r.get("pcf_FundNav")),
+            "units": to_num(r.get("pcf_FundQissue")),
+            "nav_per_unit": to_num(r.get("pcf_Fundpnav")),
+            "holders": None}
+    return data_date, validate_holdings(holdings, etf_code), meta
 
 
 def fetch_holdings(etf):
@@ -54,9 +61,9 @@ def fetch_holdings(etf):
     for back in range(8):
         q = (day - datetime.timedelta(days=back)).strftime("%Y/%m/%d")
         d = get(ASSETS, params={"fundID": fund_id, "qDate": q}).json()
-        data_date, holdings = parse_assets(d, code)
+        data_date, holdings, meta = parse_assets(d, code)
         if holdings:
-            return data_date, holdings
+            return data_date, holdings, meta
     raise AdapterError("fuhhwa: {} 連續 8 日無持股資料".format(code))
 
 

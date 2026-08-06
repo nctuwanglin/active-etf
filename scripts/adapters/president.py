@@ -18,7 +18,7 @@ import json
 import re
 
 from .base import (ADAPTERS, AdapterError, Holding, get, post,
-                   parse_dotnet_date, roc_date, validate_holdings)
+                   parse_dotnet_date, roc_date, to_num, validate_holdings)
 
 PCF_PAGE = "https://www.ezmoney.com.tw/ETF/Transaction/PCF"
 GETPCF = "https://www.ezmoney.com.tw/ETF/Transaction/GetPCF"
@@ -37,8 +37,17 @@ def parse_fund_map(page_html):
             for f in funds if f.get("sStockNo")}
 
 
+def parse_meta(d):
+    """pcf[] 以 PCFCode 為鍵取基本面。"""
+    amt = {r.get("PCFCode"): r.get("Amount") for r in (d.get("pcf") or [])}
+    return {"scale": to_num(amt.get("NAV")),
+            "units": to_num(amt.get("OUT_UNIT")),
+            "nav_per_unit": to_num(amt.get("P_UNIT")),
+            "holders": to_num(amt.get("NAV_PEOPLE"))}
+
+
 def parse_pcf(d, etf_code):
-    """GetPCF 回應 → (data_date, [Holding])"""
+    """GetPCF 回應 → (data_date, [Holding], meta)"""
     stock_assets = [a for a in d.get("asset", []) if a.get("AssetCode") == "ST"]
     if not stock_assets or not stock_assets[0].get("Details"):
         raise AdapterError("{}: GetPCF 無股票明細".format(etf_code))
@@ -49,7 +58,7 @@ def parse_pcf(d, etf_code):
     if not pcf:
         raise AdapterError("{}: GetPCF 無 pcf 摘要(資料日不明)".format(etf_code))
     data_date = parse_dotnet_date(pcf[0]["TranDate"])
-    return data_date, validate_holdings(holdings, etf_code)
+    return data_date, validate_holdings(holdings, etf_code), parse_meta(d)
 
 
 def fetch_holdings(etf):

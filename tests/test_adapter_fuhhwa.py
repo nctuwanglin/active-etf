@@ -16,7 +16,9 @@ FIX = Path(__file__).parent / "fixtures" / "fuhhwa"
 class FuhhwaTests(unittest.TestCase):
     def test_parse_assets(self):
         d = json.loads((FIX / "assets_00991A.json").read_text())
-        data_date, holdings = fuhhwa.parse_assets(d, "00991A")
+        data_date, holdings, meta = fuhhwa.parse_assets(d, "00991A")
+        self.assertGreater(meta["scale"], 1e9)
+        self.assertGreater(meta["nav_per_unit"], 0)
         self.assertEqual(data_date, "2026-08-05")
         self.assertGreater(len(holdings), 40)
         by_code = {h.code: h for h in holdings}
@@ -28,7 +30,7 @@ class FuhhwaTests(unittest.TestCase):
 
     def test_empty_returns_none(self):
         d = {"result": [{"dDate": None, "detail": []}]}
-        data_date, holdings = fuhhwa.parse_assets(d, "00991A")
+        data_date, holdings, meta = fuhhwa.parse_assets(d, "00991A")
         self.assertIsNone(holdings)
 
     def test_registered(self):

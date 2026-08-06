@@ -77,6 +77,7 @@ def detect_etfs(rows):
 def load_and_update(path, fetched):
     """讀取並更新 registry 檔。新代號加入;既有代號只補缺漏欄位,不覆寫。"""
     path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     reg = json.loads(path.read_text()) if path.exists() else {}
     for e in fetched:
         code = e["code"]

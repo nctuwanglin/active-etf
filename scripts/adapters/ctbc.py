@@ -16,7 +16,8 @@
 import datetime
 import json
 
-from .base import ADAPTERS, AdapterError, Holding, post, validate_holdings
+from .base import (ADAPTERS, AdapterError, Holding, post, to_num,
+                   validate_holdings)
 
 AUTH = "https://www.ctbcinvestments.com.tw/API/home/AuthToken"
 ETFLIST = "https://www.ctbcinvestments.com.tw/API/etf/ETFList"
@@ -45,22 +46,29 @@ def parse_etflist(d):
 
 
 def parse_holding(d, etf_code):
-    """ETFHoldingWeight 回應 → (data_date, [Holding]);失敗回 (None, None) 供重試。"""
+    """ETFHoldingWeight → (data_date, [Holding], meta);失敗回三個 None 供重試。
+
+    中信端點不含受益人數(holders 給 None)。"""
     if d.get("ResultCode") != 0:
-        return None, None
+        return None, None, None
     data = d.get("Data") or {}
     assets = data.get("FundAssets") or []
     groups = [g for g in (data.get("FundAssetsDetail") or [])
               if g.get("Code") == "STOCK"]
     rows = groups[0].get("Data") or [] if groups else []
     if not assets or not rows:
-        return None, None
+        return None, None, None
     holdings = [Holding(code=str(r["code_"]).strip(), name=str(r["name_"]).strip(),
                         shares=int(float(r["qty_"].replace(",", ""))),
                         weight=float(r["weights_"]))
                 for r in rows]
-    data_date = assets[0]["資料日期"].replace("/", "-")
-    return data_date, validate_holdings(holdings, etf_code)
+    a = assets[0]
+    data_date = a["資料日期"].replace("/", "-")
+    meta = {"scale": to_num(a.get("基金淨資產")),
+            "units": to_num(a.get("基金在外流通單位數")),
+            "nav_per_unit": to_num(a.get("基金每單位淨值")),
+            "holders": None}
+    return data_date, validate_holdings(holdings, etf_code), meta
 
 
 def fetch_holdings(etf):
@@ -77,9 +85,9 @@ def fetch_holdings(etf):
         q = (day - datetime.timedelta(days=back)).strftime("%Y/%m/%d")
         d = _decode(post(HOLDING, params={"token": tk},
                          json={"FID": fid, "StartDate": q}))
-        data_date, holdings = parse_holding(d, code)
+        data_date, holdings, meta = parse_holding(d, code)
         if holdings:
-            return data_date, holdings
+            return data_date, holdings, meta
     raise AdapterError("ctbc: {} 連續 8 日無持股資料".format(code))
 
 

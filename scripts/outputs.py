@@ -105,7 +105,7 @@ def build_active_json(date, registry, etf_results, fundamentals, crosslinks=None
             "status": (r or {}).get("status", reg.get("status", "unsupported")),
             "data_date": (r or {}).get("data_date"),
             "scale": f.get("scale"), "holders": f.get("holders"),
-            "nav": f.get("nav"), "close": f.get("close"),
+            "nav": f.get("nav_per_unit"), "close": f.get("close"),
             "premium_pct": f.get("premium_pct"),
             "holdings": holdings_to_json((r or {}).get("holdings") or []),
             "events": (r or {}).get("events") or [],

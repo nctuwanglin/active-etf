@@ -16,7 +16,10 @@ FIX = Path(__file__).parent / "fixtures" / "president"
 class PresidentTests(unittest.TestCase):
     def test_parse_holdings(self):
         d = json.loads((FIX / "getpcf_00981A.json").read_text())
-        data_date, holdings = president.parse_pcf(d, "00981A")
+        data_date, holdings, meta = president.parse_pcf(d, "00981A")
+        self.assertGreater(meta["scale"], 1e9)
+        self.assertGreater(meta["holders"], 1000)
+        self.assertGreater(meta["nav_per_unit"], 0)
         self.assertEqual(data_date, "2026-08-04")
         self.assertEqual(len(holdings), 51)
         by_code = {h.code: h for h in holdings}

@@ -1,0 +1,263 @@
+{
+ "00400A": {
+  "adapter": "cathay",
+  "code": "00400A",
+  "first_snapshot_date": null,
+  "issuer": "國泰",
+  "market": "tw",
+  "name": "主動國泰動能高息",
+  "status": "unsupported"
+ },
+ "00401A": {
+  "adapter": "jpmorgan",
+  "code": "00401A",
+  "first_snapshot_date": null,
+  "issuer": "摩根",
+  "market": "tw",
+  "name": "主動摩根台灣鑫收",
+  "status": "unsupported"
+ },
+ "00402A": {
+  "adapter": "allianz",
+  "code": "00402A",
+  "first_snapshot_date": null,
+  "issuer": "安聯",
+  "market": "foreign",
+  "name": "主動安聯美國科技",
+  "status": "unsupported"
+ },
+ "00403A": {
+  "adapter": "president",
+  "code": "00403A",
+  "first_snapshot_date": null,
+  "issuer": "統一",
+  "market": "tw",
+  "name": "主動統一升級50",
+  "status": "active"
+ },
+ "00404A": {
+  "adapter": "ab",
+  "code": "00404A",
+  "first_snapshot_date": null,
+  "issuer": "聯博",
+  "market": "tw",
+  "name": "主動聯博動能50",
+  "status": "unsupported"
+ },
+ "00405A": {
+  "adapter": "fubon",
+  "code": "00405A",
+  "first_snapshot_date": null,
+  "issuer": "富邦",
+  "market": "tw",
+  "name": "主動富邦台灣龍耀",
+  "status": "active"
+ },
+ "00406A": {
+  "adapter": "ctbc",
+  "code": "00406A",
+  "first_snapshot_date": null,
+  "issuer": "中信",
+  "market": "tw",
+  "name": "主動中信台灣收益",
+  "status": "active"
+ },
+ "00407A": {
+  "adapter": "kgi",
+  "code": "00407A",
+  "first_snapshot_date": null,
+  "issuer": "凱基",
+  "market": "tw",
+  "name": "主動凱基台灣",
+  "status": "unsupported"
+ },
+ "00408A": {
+  "adapter": "firstsec",
+  "code": "00408A",
+  "first_snapshot_date": null,
+  "issuer": "第一金",
+  "market": "tw",
+  "name": "主動第一金優股息",
+  "status": "unsupported"
+ },
+ "00410A": {
+  "adapter": "sinopac",
+  "code": "00410A",
+  "first_snapshot_date": null,
+  "issuer": "永豐",
+  "market": "tw",
+  "name": "主動永豐科技趨勢",
+  "status": "unsupported"
+ },
+ "00980A": {
+  "adapter": "nomura",
+  "code": "00980A",
+  "first_snapshot_date": null,
+  "issuer": "野村",
+  "market": "tw",
+  "name": "主動野村臺灣優選",
+  "status": "unsupported"
+ },
+ "00981A": {
+  "adapter": "president",
+  "code": "00981A",
+  "first_snapshot_date": null,
+  "issuer": "統一",
+  "market": "tw",
+  "name": "主動統一台股增長",
+  "status": "active"
+ },
+ "00982A": {
+  "adapter": "capital",
+  "code": "00982A",
+  "first_snapshot_date": null,
+  "issuer": "群益",
+  "market": "tw",
+  "name": "主動群益台灣強棒",
+  "status": "active"
+ },
+ "00983A": {
+  "adapter": "ctbc",
+  "code": "00983A",
+  "first_snapshot_date": null,
+  "issuer": "中信",
+  "market": "foreign",
+  "name": "主動中信ARK創新",
+  "status": "active"
+ },
+ "00984A": {
+  "adapter": "allianz",
+  "code": "00984A",
+  "first_snapshot_date": null,
+  "issuer": "安聯",
+  "market": "tw",
+  "name": "主動安聯台灣高息",
+  "status": "unsupported"
+ },
+ "00985A": {
+  "adapter": "nomura",
+  "code": "00985A",
+  "first_snapshot_date": null,
+  "issuer": "野村",
+  "market": "tw",
+  "name": "主動野村台灣50",
+  "status": "unsupported"
+ },
+ "00986A": {
+  "adapter": "taishin",
+  "code": "00986A",
+  "first_snapshot_date": null,
+  "issuer": "台新",
+  "market": "tw",
+  "name": "主動台新龍頭成長",
+  "status": "unsupported"
+ },
+ "00987A": {
+  "adapter": "taishin",
+  "code": "00987A",
+  "first_snapshot_date": null,
+  "issuer": "台新",
+  "market": "tw",
+  "name": "主動台新優勢成長",
+  "status": "unsupported"
+ },
+ "00988A": {
+  "adapter": "president",
+  "code": "00988A",
+  "first_snapshot_date": null,
+  "issuer": "統一",
+  "market": "foreign",
+  "name": "主動統一全球創新",
+  "status": "active"
+ },
+ "00989A": {
+  "adapter": "jpmorgan",
+  "code": "00989A",
+  "first_snapshot_date": null,
+  "issuer": "摩根",
+  "market": "foreign",
+  "name": "主動摩根美國科技",
+  "status": "unsupported"
+ },
+ "00990A": {
+  "adapter": "yuanta",
+  "code": "00990A",
+  "first_snapshot_date": null,
+  "issuer": "元大",
+  "market": "tw",
+  "name": "主動元大AI新經濟",
+  "status": "unsupported"
+ },
+ "00991A": {
+  "adapter": "fuhhwa",
+  "code": "00991A",
+  "first_snapshot_date": null,
+  "issuer": "復華",
+  "market": "tw",
+  "name": "主動復華未來50",
+  "status": "active"
+ },
+ "00992A": {
+  "adapter": "capital",
+  "code": "00992A",
+  "first_snapshot_date": null,
+  "issuer": "群益",
+  "market": "tw",
+  "name": "主動群益科技創新",
+  "status": "active"
+ },
+ "00993A": {
+  "adapter": "allianz",
+  "code": "00993A",
+  "first_snapshot_date": null,
+  "issuer": "安聯",
+  "market": "tw",
+  "name": "主動安聯台灣",
+  "status": "unsupported"
+ },
+ "00994A": {
+  "adapter": "firstsec",
+  "code": "00994A",
+  "first_snapshot_date": null,
+  "issuer": "第一金",
+  "market": "tw",
+  "name": "主動第一金台股優",
+  "status": "unsupported"
+ },
+ "00995A": {
+  "adapter": "ctbc",
+  "code": "00995A",
+  "first_snapshot_date": null,
+  "issuer": "中信",
+  "market": "tw",
+  "name": "主動中信台灣卓越",
+  "status": "active"
+ },
+ "00996A": {
+  "adapter": "megafunds",
+  "code": "00996A",
+  "first_snapshot_date": null,
+  "issuer": "兆豐",
+  "market": "tw",
+  "name": "主動兆豐台灣豐收",
+  "status": "unsupported"
+ },
+ "00997A": {
+  "adapter": "capital",
+  "code": "00997A",
+  "first_snapshot_date": null,
+  "issuer": "群益",
+  "market": "foreign",
+  "name": "主動群益美國增長",
+  "status": "active"
+ },
+ "00999A": {
+  "adapter": "nomura",
+  "code": "00999A",
+  "first_snapshot_date": null,
+  "issuer": "野村",
+  "market": "tw",
+  "name": "主動野村臺灣高息",
+  "status": "unsupported"
+ }
+}

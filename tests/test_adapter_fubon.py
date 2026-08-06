@@ -25,6 +25,14 @@ class FubonTests(unittest.TestCase):
         total = sum(h.weight for h in holdings)
         self.assertTrue(50 <= total <= 105, total)
 
+    def test_parse_pcf_meta(self):
+        html_text = (FIX / "pcf_00405A.html").read_text()
+        meta = fubon.parse_pcf_meta(html_text)
+        self.assertEqual(meta["scale"], 30372771968.0)
+        self.assertEqual(meta["nav_per_unit"], 8.10)
+        self.assertEqual(meta["holders"], 171105.0)
+        self.assertEqual(meta["units"], 3749745000.0)
+
     def test_registered(self):
         self.assertIn("fubon", ADAPTERS)
 

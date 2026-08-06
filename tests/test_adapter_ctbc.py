@@ -16,7 +16,9 @@ FIX = Path(__file__).parent / "fixtures" / "ctbc"
 class CtbcTests(unittest.TestCase):
     def test_parse_holding(self):
         d = json.loads((FIX / "holding_00406A.json").read_text())
-        data_date, holdings = ctbc.parse_holding(d, "00406A")
+        data_date, holdings, meta = ctbc.parse_holding(d, "00406A")
+        self.assertGreater(meta["scale"], 1e8)
+        self.assertGreater(meta["nav_per_unit"], 0)
         self.assertEqual(data_date, "2026-08-05")
         self.assertEqual(len(holdings), 56)
         by_code = {h.code: h for h in holdings}
@@ -31,7 +33,7 @@ class CtbcTests(unittest.TestCase):
         self.assertEqual(fm["00995A"], "E0036")
 
     def test_resultcode_fail_returns_none(self):
-        data_date, holdings = ctbc.parse_holding({"ResultCode": 1}, "00406A")
+        data_date, holdings, meta = ctbc.parse_holding({"ResultCode": 1}, "00406A")
         self.assertIsNone(holdings)
 
     def test_registered(self):

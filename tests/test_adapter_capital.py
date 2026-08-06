@@ -16,7 +16,9 @@ FIX = Path(__file__).parent / "fixtures" / "capital"
 class CapitalTests(unittest.TestCase):
     def test_parse_buyback(self):
         d = json.loads((FIX / "buyback_00982A.json").read_text())
-        data_date, holdings = capital.parse_buyback(d, "00982A")
+        data_date, holdings, meta = capital.parse_buyback(d, "00982A")
+        self.assertGreater(meta["scale"], 1e9)
+        self.assertGreater(meta["holders"], 1000)
         self.assertEqual(data_date, "2026-08-05")
         self.assertEqual(len(holdings), 55)
         by_code = {h.code: h for h in holdings}

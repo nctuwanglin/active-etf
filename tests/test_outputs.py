@@ -83,8 +83,14 @@ class OutputsTests(unittest.TestCase):
                           "market": "tw", "status": "active"},
                "00988A": {"name": "主動統一全球創新", "issuer": "統一",
                           "market": "foreign", "status": "active"}}
-        doc = outputs.build_active_json("2026-08-05", reg, results(), {})
+        fundamentals = {"00981A": {"scale": 3.07e11, "nav_per_unit": 27.75,
+                                   "holders": 1052004, "close": 27.63,
+                                   "premium_pct": -0.42}}
+        doc = outputs.build_active_json("2026-08-05", reg, results(), fundamentals)
         self.assertNotIn("00988A", doc["etfs"])  # 海外型排除
+        # 基本面 key 對映(meta 用 nav_per_unit,對外欄位名 nav)
+        self.assertEqual(doc["etfs"]["00981A"]["nav"], 27.75)
+        self.assertEqual(doc["etfs"]["00981A"]["holders"], 1052004)
         s = doc["stocks"]["2330"]
         self.assertAlmostEqual(s["total_weight"], 35.0)
         self.assertEqual(len(s["etfs"]), 2)

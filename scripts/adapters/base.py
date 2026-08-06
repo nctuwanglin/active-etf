@@ -1,8 +1,17 @@
 # -*- coding: utf-8 -*-
 """adapter 共用層:資料結構、HTTP 工具、持股驗證、adapter 註冊表。
 
-每家投信 adapter 模組需提供 fetch_holdings(etf: dict) -> (data_date, [Holding])
+每家投信 adapter 模組需提供
+    fetch_holdings(etf: dict) -> (data_date, [Holding], meta)
 並以 ADAPTERS["<name>"] = fetch_holdings 註冊(name 同 registry 的 adapter 欄位)。
+
+meta 為該檔基本面 dict(缺漏欄位給 None,不影響主流程):
+    scale        基金淨資產(元)
+    units        已發行受益權單位總數
+    nav_per_unit 每受益權單位淨值
+    holders      受益人數
+基本面一律取自各投信 PCF 原始回應——那是官方公告值,且與持股同一份資料,
+不另外去第三方湊。
 """
 import time
 from dataclasses import dataclass
@@ -93,6 +102,21 @@ def parse_dotnet_date(s):
         dt = datetime.datetime.fromtimestamp(int(m.group(1)) / 1000, tz)
         return dt.strftime("%Y-%m-%d")
     return s[:10]
+
+
+def to_num(v):
+    """'30,372,771,968' / 'NT$8.10' / 8.1 / None → float 或 None。"""
+    if v is None:
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    s = str(v).replace(",", "").replace("NT$", "").replace("$", "").strip()
+    if not s or s in ("-", "—"):
+        return None
+    try:
+        return float(s)
+    except ValueError:
+        return None
 
 
 def roc_date(dt):
