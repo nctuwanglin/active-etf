@@ -91,7 +91,8 @@
   "issuer": "永豐",
   "market": "tw",
   "name": "主動永豐科技趨勢",
-  "status": "unsupported"
+  "status": "active",
+  "tw_weight": 91.74
  },
  "00980A": {
   "adapter": "nomura",
@@ -111,7 +112,7 @@
   "market": "tw",
   "name": "主動統一台股增長",
   "status": "active",
-  "tw_weight": 90.02
+  "tw_weight": 90.63
  },
  "00982A": {
   "adapter": "capital",
@@ -121,7 +122,7 @@
   "market": "tw",
   "name": "主動群益台灣強棒",
   "status": "active",
-  "tw_weight": 98.79
+  "tw_weight": 98.35
  },
  "00983A": {
   "adapter": "ctbc",
@@ -217,7 +218,7 @@
   "market": "tw",
   "name": "主動群益科技創新",
   "status": "active",
-  "tw_weight": 95.56
+  "tw_weight": 97.55
  },
  "00993A": {
   "adapter": "allianz",

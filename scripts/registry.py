@@ -38,7 +38,8 @@ ISSUER_ADAPTERS = [
 
 # 第一階段已實作的 adapter(其餘投信標 unsupported,陸續補)
 IMPLEMENTED_ADAPTERS = {"president", "fuhhwa", "fubon", "capital", "ctbc",
-                        "nomura", "allianz", "kgi", "taishin"}
+                        "nomura", "allianz", "kgi", "taishin",
+                        "sinopac"}
 
 
 def _classify(name):
