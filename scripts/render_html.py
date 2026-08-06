@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """產生 index.html(自包含:資料內嵌、無外部依賴)。
 
-版面沿用 twse-disposition 深色系與站內慣例:綠=加碼/新增,紅=減碼/剔除。
+深色版面,站內慣例綠漲紅跌(綠=加碼/新增,紅=減碼/剔除)。
+配色不是憑感覺挑的,每個顏色都跑過 dataviz 的六項檢查(OKLab ΔE、Machado CVD
+模擬、WCAG 對比,基準面板色 #111827);詳細理由寫在 CSS 內的註解。三個重點色
+(藍/琥珀/洋紅)負責結構、活動、訊號三種角色,漲跌綠紅只用於狀態,兩組不混用。
 """
 import json
 
@@ -9,10 +12,20 @@ CSS = """
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);
   font-family:'Inter','Noto Sans TC',sans-serif;font-feature-settings:"tnum" 1}
-:root{--bg:#0a0e17;--panel:#111827;--panel-2:#1a2233;--line:#1f2937;
-  --ink:#e5e7eb;--ink-dim:#94a3b8;--ink-mute:#64748b;
-  --green:#10b981;--green-dim:#34d399;--red:#ef4444;--red-dim:#f87171;
-  --amber:#f59e0b;--blue:#3b82f6}
+/* 配色以 dataviz 六項檢查實算過(OKLab ΔE、Machado CVD 模擬、WCAG 對比),
+   面板色 #111827 為基準,不是憑眼睛挑的:
+   - 三個重點色 blue/amber/magenta 全對(all-pairs CVD ΔE 13.2、常色視覺 19.3)
+   - 藍色 sequential ramp 只用對比 >=3:1 的 100-500 階(550 以下在深色面板看不見)
+   - 綠↔紅 deutan ΔE 僅 6.5(紅綠色盲的典型弱點),故四種異動 pill 一律配
+     ▲▼✚✕ 字符 + 文字,色相絕不單獨承載方向 */
+:root{--bg:#080b12;--panel:#111827;--panel-2:#1a2233;--line:#243044;
+  --ink:#e8ebf0;--ink-dim:#9aa8bd;--ink-mute:#6b7a91;
+  /* 狀態色:綠漲紅跌(站內慣例) */
+  --up:#34d399;--up-deep:#059669;--down:#f87171;--down-deep:#dc2626;
+  /* 三個重點色 */
+  --blue:#3987e5;--blue-lt:#7cb2f0;--amber:#fab219;--magenta:#e879a8;
+  /* 權重 bar 的 sequential 藍階(低→高) */
+  --seq-lo:#256abf;--seq-hi:#9ec5f4}
 a{color:inherit}
 .mono{font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace}
 .wrap{max-width:78rem;margin:0 auto;padding:0 1rem}
@@ -23,9 +36,23 @@ h1{margin:0;font-size:1.3rem;letter-spacing:.02em}
 /* 固定 4 欄:auto-fit 在中等寬度會排成 3+1 落單 */
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1rem 0}
 @media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
-.kpi{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:.7rem .85rem}
-.kpi .n{font-size:1.35rem;font-weight:700}
-.kpi .l{color:var(--ink-mute);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase}
+/* 每塊各自的重點色只上在頂條與數字;標籤文字一律用 ink token 不染色。
+   四塊的識別靠文字標籤,顏色是強調不是識別通道——所以不受類別色 CVD 門檻約束,
+   但仍只用實算通過的三個重點色(藍/琥珀/洋紅),避免與漲跌綠紅混淆。 */
+.kpi{position:relative;background:var(--panel);border:1px solid var(--line);
+  border-radius:8px;padding:.8rem .9rem .75rem;overflow:hidden}
+.kpi::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;
+  background:var(--accent,var(--blue))}
+.kpi .n{font-size:1.5rem;font-weight:700;color:var(--accent,var(--ink));
+  line-height:1.15;letter-spacing:-.01em}
+.kpi .l{color:var(--ink-dim);font-size:.71rem;letter-spacing:.06em;margin-top:.1rem}
+.k-etf{--accent:var(--blue)}
+.k-stock{--accent:var(--blue-lt)}
+.k-move{--accent:var(--amber)}
+.k-cons{--accent:var(--magenta)}
+/* 今日無異動時不該用亮色喊「0」——沒事發生就該安靜下來 */
+.kpi.zero .n{color:var(--ink-mute)}
+.kpi.zero::before{background:var(--line)}
 nav{display:flex;gap:.4rem;margin:1rem 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
 nav button{background:none;border:none;color:var(--ink-dim);padding:.6rem .9rem;
   font:inherit;font-size:.9rem;cursor:pointer;border-bottom:2px solid transparent}
@@ -41,16 +68,20 @@ th{text-align:left;color:var(--ink-mute);font-weight:600;font-size:.72rem;
 td{padding:.42rem .5rem;border-bottom:1px solid rgba(31,41,55,.5);white-space:nowrap}
 tr:hover td{background:rgba(148,163,184,.04)}
 .num{text-align:right}
-.up{color:var(--green-dim)}.down{color:var(--red-dim)}
-.pill{display:inline-flex;align-items:center;padding:1px 7px;font-size:.68rem;
-  font-weight:600;border-radius:3px;letter-spacing:.03em}
-.p-add{background:rgba(16,185,129,.16);color:#6ee7b7;border:1px solid rgba(16,185,129,.35)}
-.p-inc{background:rgba(16,185,129,.10);color:#34d399;border:1px solid rgba(16,185,129,.25)}
-.p-rem{background:rgba(239,68,68,.16);color:#fca5a5;border:1px solid rgba(239,68,68,.35)}
-.p-dec{background:rgba(239,68,68,.10);color:#f87171;border:1px solid rgba(239,68,68,.25)}
-.p-dispo{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(239,68,68,.4)}
-.p-stale{background:rgba(245,158,11,.14);color:#fcd34d;border:1px solid rgba(245,158,11,.3)}
-.p-gray{background:rgba(148,163,184,.1);color:#cbd5e1;border:1px solid rgba(148,163,184,.2)}
+.up{color:var(--up)}.down{color:var(--down)}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:1.5px 7px;font-size:.69rem;
+  font-weight:600;border-radius:4px;letter-spacing:.03em;white-space:nowrap}
+.pill .g{font-size:.62rem;line-height:1}
+/* 方向用色相(綠漲紅跌)、強度用實心/淡底:進出場實心,加減碼淡底。
+   色相對紅綠色盲不可靠,所以 ▲▼✚✕ 字符是必要的第二通道,不是裝飾。 */
+.p-add{background:var(--up-deep);color:#eafff6;border:1px solid var(--up)}
+.p-inc{background:rgba(52,211,153,.13);color:var(--up);border:1px solid rgba(52,211,153,.4)}
+.p-rem{background:var(--down-deep);color:#fff1f1;border:1px solid var(--down)}
+.p-dec{background:rgba(248,113,113,.13);color:var(--down);border:1px solid rgba(248,113,113,.4)}
+.p-dispo{background:rgba(250,178,25,.15);color:var(--amber);border:1px solid rgba(250,178,25,.45)}
+.p-stale{background:rgba(250,178,25,.12);color:var(--amber);border:1px solid rgba(250,178,25,.3)}
+.p-note{background:rgba(57,135,229,.14);color:var(--blue-lt);border:1px solid rgba(57,135,229,.4)}
+.p-gray{background:rgba(154,168,189,.1);color:var(--ink-dim);border:1px solid rgba(154,168,189,.22)}
 .controls{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:.85rem}
 input,select{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
   border-radius:5px;padding:.4rem .6rem;font:inherit;font-size:.83rem}
@@ -66,10 +97,19 @@ input:focus,select:focus{outline:none;border-color:var(--blue)}
 .etf-meta b{color:var(--ink);font-weight:600}
 .bar-row{display:flex;align-items:center;gap:.5rem;margin:.22rem 0;font-size:.76rem}
 .bar-row .nm{width:5.5rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar-track{flex:1;height:9px;background:var(--panel-2);border-radius:2px;overflow:hidden}
-/* span 預設 display:inline,寬高與背景都不會生效,必須 block */
-.bar-fill{display:block;height:100%;background:linear-gradient(90deg,var(--blue),#60a5fa)}
+.bar-track{flex:1;height:10px;background:rgba(154,168,189,.09);border-radius:2px;
+  overflow:hidden;position:relative}
+/* span 預設 display:inline,寬高與背景都不會生效,必須 block。
+   顏色是 sequential(權重越大越亮),不是按名次配色——名次配色會讓同一檔股票
+   在不同 ETF 卡片上換色。資料端末圓角 4px 是 dataviz 的 mark spec。 */
+.bar-fill{display:block;height:100%;border-radius:0 4px 4px 0;
+  background:var(--c,var(--blue))}
+/* 今日有異動的持股,在 bar 末端加一道方向色記號(色相+位置雙通道) */
+.bar-row.moved .bar-track::after{content:'';position:absolute;top:0;bottom:0;right:0;
+  width:3px;background:var(--mv)}
+.bar-row.up{--mv:var(--up)}.bar-row.down{--mv:var(--down)}
 .bar-row .pc{width:3.2rem;text-align:right;color:var(--ink-dim)}
+.bar-row.moved .pc{color:var(--mv);font-weight:600}
 details summary{cursor:pointer;color:var(--ink-dim);font-size:.78rem;margin-top:.6rem}
 .empty{color:var(--ink-mute);font-size:.83rem;padding:1rem 0;text-align:center}
 .note{color:var(--ink-mute);font-size:.74rem;line-height:1.6}
@@ -85,16 +125,28 @@ const fmt = n => n == null ? '—' : n.toLocaleString('en-US');
 const pct = n => n == null ? '—' : n.toFixed(2) + '%';
 const money = n => n == null ? '—' : (n >= 1e8 ? (n/1e8).toFixed(1)+' 億'
   : n >= 1e4 ? (n/1e4).toFixed(0)+' 萬' : fmt(n));
-const TYPE = {ADD:['新增','p-add'],INCREASE:['加碼','p-inc'],
-              REMOVE:['剔除','p-rem'],DECREASE:['減碼','p-dec']};
+// [文字, class, 字符]。字符不是裝飾:綠↔紅在紅綠色盲下 deutan ΔE 只有 6.5,
+// 方向必須有色相以外的第二通道才讀得出來。
+const TYPE = {ADD:['新增','p-add','✚'],INCREASE:['加碼','p-inc','▲'],
+              REMOVE:['剔除','p-rem','✕'],DECREASE:['減碼','p-dec','▼']};
+const pill = t => '<span class="pill ' + TYPE[t][1] + '"><span class="g">'
+  + TYPE[t][2] + '</span>' + TYPE[t][0] + '</span>';
+// 權重 → sequential 藍階(低→高越亮)。只走對比 >=3:1 的區段,深色面板才看得見。
+const SEQ_LO = [37,106,191], SEQ_HI = [158,197,244];
+const seqColor = (w, max) => {
+  const t = max > 0 ? Math.min(1, Math.max(0, w / max)) : 0;
+  const c = SEQ_LO.map((lo, i) => Math.round(lo + (SEQ_HI[i] - lo) * t));
+  return 'rgb(' + c.join(',') + ')';
+};
 const etfName = c => (DATA.etfs[c] || {}).name || c;
 const dispoSet = new Set(DATA.crosslinks.dispo || []);
 const notes = DATA.crosslinks.notes || {};
 
 function stockCell(code, name) {
   let h = '<span class="mono">' + code + '</span> ' + (name || '');
-  if (dispoSet.has(code)) h += ' <span class="pill p-dispo">處置</span>';
-  if (notes[code]) h += ' <a href="' + notes[code] + '" target="_blank" title="研究筆記">📝</a>';
+  if (dispoSet.has(code)) h += ' <span class="pill p-dispo"><span class="g">!</span>處置</span>';
+  if (notes[code]) h += ' <a href="' + notes[code] + '" target="_blank" title="研究筆記"'
+    + ' class="pill p-note" style="text-decoration:none"><span class="g">◆</span>筆記</a>';
   return h;
 }
 
@@ -114,7 +166,8 @@ function renderConsensus() {
   return '<div class="scroll"><table><thead><tr><th>個股</th><th>方向</th>' +
     '<th class="num">檔數</th><th>ETF</th></tr></thead><tbody>' +
     rows.map(r => '<tr><td>' + stockCell(r.code, r.name) + '</td>' +
-      '<td><span class="pill ' + (r.dir === 'inc' ? 'p-inc">同步加碼' : 'p-dec">同步減碼') +
+      '<td><span class="pill ' + (r.dir === 'inc'
+        ? 'p-inc"><span class="g">▲</span>同步加碼' : 'p-dec"><span class="g">▼</span>同步減碼') +
       '</span></td><td class="num ' + (r.dir === 'inc' ? 'up' : 'down') + '">' +
       r.etfs.length + '</td><td style="white-space:normal">' +
       r.etfs.map(e => '<span class="mono">' + e + '</span> ' + etfName(e)).join('、') +
@@ -133,12 +186,11 @@ function renderEvents() {
   return '<div class="scroll"><table><thead><tr><th>ETF</th><th>個股</th><th>異動</th>' +
     '<th class="num">權重</th><th class="num">權重變化</th><th class="num">股數變化</th>' +
     '</tr></thead><tbody>' + rows.map(e => {
-      const [label, cls] = TYPE[e.type];
       const dw = e.weight_delta, ds = e.shares_delta_pct;
       const dir = (e.type === 'ADD' || e.type === 'INCREASE') ? 'up' : 'down';
       return '<tr><td><span class="mono">' + e.etf + '</span> <span style="color:var(--ink-dim)">' +
         etfName(e.etf) + '</span></td><td>' + stockCell(e.code, e.name) + '</td>' +
-        '<td><span class="pill ' + cls + '">' + label + '</span></td>' +
+        '<td>' + pill(e.type) + '</td>' +
         '<td class="num mono">' + (e.weight != null ? pct(e.weight) : pct(e.prev_weight)) + '</td>' +
         '<td class="num mono ' + dir + '">' + (dw != null ? (dw > 0 ? '+' : '') + dw.toFixed(2) : '—') + '</td>' +
         '<td class="num mono ' + dir + '">' + (ds != null ? (ds > 0 ? '+' : '') + ds.toFixed(1) + '%' : '—') + '</td></tr>';
@@ -154,10 +206,18 @@ function paintTab1() {
 function etfCard(code, e) {
   const top = [...e.holdings].sort((a, b) => b.weight - a.weight).slice(0, 10);
   const max = top.length ? top[0].weight : 1;
-  const bars = top.map(h => '<div class="bar-row"><span class="nm">' + h.name + '</span>' +
-    '<span class="bar-track"><span class="bar-fill" style="width:' +
-    (h.weight / max * 100).toFixed(1) + '%"></span></span>' +
-    '<span class="pc mono">' + h.weight.toFixed(2) + '%</span></div>').join('');
+  // 這檔 ETF 今日動過的標的:bar 末端加方向色記號,一眼看出經理人改了哪幾檔
+  const moves = {};
+  for (const ev of e.events || [])
+    moves[ev.code] = (ev.type === 'ADD' || ev.type === 'INCREASE') ? 'up' : 'down';
+  const bars = top.map(h => {
+    const mv = moves[h.code];
+    return '<div class="bar-row' + (mv ? ' moved ' + mv : '') + '">' +
+      '<span class="nm">' + h.name + '</span>' +
+      '<span class="bar-track"><span class="bar-fill" style="width:' +
+      (h.weight / max * 100).toFixed(1) + '%;--c:' + seqColor(h.weight, max) + '"></span></span>' +
+      '<span class="pc mono">' + h.weight.toFixed(2) + '%</span></div>';
+  }).join('');
   const stale = e.status === 'stale'
     ? ' <span class="pill p-stale">資料未更新</span>' : '';
   const prem = e.premium_pct;
@@ -225,8 +285,8 @@ function lookup(q) {
     '<th class="num">股數</th><th>近期異動</th></tr></thead><tbody>' +
     rows.map(r => {
       const ev = evs.find(e => e.etf === r.etf);
-      const tag = ev ? '<span class="pill ' + TYPE[ev.type][1] + '">' + TYPE[ev.type][0] +
-        '</span> <span style="color:var(--ink-mute);font-size:.72rem">' + ev.date + '</span>' : '—';
+      const tag = ev ? pill(ev.type) +
+        ' <span style="color:var(--ink-mute);font-size:.72rem">' + ev.date + '</span>' : '—';
       return '<tr><td><span class="mono">' + r.etf + '</span> ' + etfName(r.etf) + '</td>' +
         '<td class="num mono">' + r.weight.toFixed(2) + '%</td>' +
         '<td class="num mono">' + fmt(r.shares) + '</td><td>' + tag + '</td></tr>';
@@ -290,10 +350,10 @@ def render(active, registry):
 
 <div class="wrap">
   <div class="kpis">
-    <div class="kpi"><div class="n">{n_etf}</div><div class="l">追蹤 ETF</div></div>
-    <div class="kpi"><div class="n">{n_stock}</div><div class="l">涵蓋個股</div></div>
-    <div class="kpi"><div class="n">{n_events}</div><div class="l">今日異動</div></div>
-    <div class="kpi"><div class="n">{n_cons}</div><div class="l">共識進出</div></div>
+    <div class="kpi k-etf"><div class="n">{n_etf}</div><div class="l">追蹤 ETF</div></div>
+    <div class="kpi k-stock"><div class="n">{n_stock}</div><div class="l">涵蓋個股</div></div>
+    <div class="kpi k-move{z_events}"><div class="n">{n_events}</div><div class="l">今日異動</div></div>
+    <div class="kpi k-cons{z_cons}"><div class="n">{n_cons}</div><div class="l">共識進出</div></div>
   </div>
   {stale_note}
 
@@ -355,4 +415,5 @@ def render(active, registry):
            stale_note=stale_note,
            n_etf=len(tracked), n_stock=len(active["stocks"]),
            n_events=n_events, n_cons=n_cons,
+           z_events="" if n_events else " zero", z_cons="" if n_cons else " zero",
            data=json.dumps(active, ensure_ascii=False, sort_keys=True))
