@@ -72,7 +72,8 @@
   "issuer": "凱基",
   "market": "tw",
   "name": "主動凱基台灣",
-  "status": "unsupported"
+  "status": "active",
+  "tw_weight": 95.81
  },
  "00408A": {
   "adapter": "firstsec",
@@ -156,9 +157,10 @@
   "code": "00986A",
   "first_snapshot_date": null,
   "issuer": "台新",
-  "market": "tw",
+  "market": "foreign",
   "name": "主動台新龍頭成長",
-  "status": "unsupported"
+  "status": "active",
+  "tw_weight": 8.87
  },
  "00987A": {
   "adapter": "taishin",
@@ -167,7 +169,8 @@
   "issuer": "台新",
   "market": "tw",
   "name": "主動台新優勢成長",
-  "status": "unsupported"
+  "status": "active",
+  "tw_weight": 94.8
  },
  "00988A": {
   "adapter": "president",
