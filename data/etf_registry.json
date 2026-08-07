@@ -83,6 +83,7 @@
   "issuer": "第一金",
   "market": "tw",
   "name": "主動第一金優股息",
+  "source_id": "183",
   "status": "unsupported"
  },
  "00410A": {
@@ -238,6 +239,7 @@
   "issuer": "第一金",
   "market": "tw",
   "name": "主動第一金台股優",
+  "source_id": "182",
   "status": "unsupported"
  },
  "00995A": {
