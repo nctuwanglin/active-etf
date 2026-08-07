@@ -27,9 +27,9 @@ import quotes as quotes_mod
 import registry as registry_mod
 import render_html
 from adapters import base
-from adapters import (allianz, capital, cathay, ctbc,  # noqa: F401 註冊 ADAPTERS
-                      firstsec, fubon, fuhhwa, kgi, megafunds,
-                      nomura, president, sinopac, taishin)
+from adapters import (ab, allianz, capital, cathay,  # noqa: F401 註冊 ADAPTERS
+                      ctbc, firstsec, fubon, fuhhwa, kgi,
+                      megafunds, nomura, president, sinopac, taishin)
 from diffengine import compute_events
 
 ROOT = Path(__file__).resolve().parents[1]
