@@ -28,8 +28,9 @@ import registry as registry_mod
 import render_html
 from adapters import base
 from adapters import (ab, allianz, capital, cathay,  # noqa: F401 註冊 ADAPTERS
-                      ctbc, firstsec, fubon, fuhhwa, kgi,
-                      megafunds, nomura, president, sinopac, taishin)
+                      ctbc, firstsec, fubon, fuhhwa, jpmorgan,
+                      kgi, megafunds, nomura, president, sinopac,
+                      taishin)
 from diffengine import compute_events
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -40,7 +40,7 @@ ISSUER_ADAPTERS = [
 IMPLEMENTED_ADAPTERS = {"president", "fuhhwa", "fubon", "capital", "ctbc",
                         "nomura", "allianz", "kgi", "taishin",
                         "sinopac", "cathay", "megafunds",
-                        "firstsec", "ab"}
+                        "firstsec", "ab", "jpmorgan"}
 
 
 def _classify(name):
