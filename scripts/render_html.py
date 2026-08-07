@@ -187,11 +187,24 @@ for (const [etf, e] of Object.entries(DATA.etfs))
 
 let filterType = '', filterEtf = '', filterQ = '';  // filterType 空字串=全部(單選)
 
+// 該檔今日的淨買賣金額(絕對值)。沒有收盤價就回 null,排序時排在最後。
+function consAmount(r) {
+  const px = (DATA.stocks[r.code] || {}).close;
+  return (r.shares_delta != null && px) ? Math.abs(r.shares_delta * px) : null;
+}
+
 function renderConsensus() {
   const c = DATA.consensus;
-  const rows = [...c.increase.map(x => ({...x, dir: 'inc'})),
-                ...c.decrease.map(x => ({...x, dir: 'dec'}))]
-    .sort((a, b) => b.etfs.length - a.etfs.length);
+  // 先分加碼/減碼兩組(加碼在前),組內再依金額由大到小
+  const byAmount = (a, b) => {
+    const x = consAmount(a), y = consAmount(b);
+    if (x == null && y == null) return b.etfs.length - a.etfs.length;
+    if (x == null) return 1;
+    if (y == null) return -1;
+    return y - x;
+  };
+  const rows = [...c.increase.map(x => ({...x, dir: 'inc'})).sort(byAmount),
+                ...c.decrease.map(x => ({...x, dir: 'dec'})).sort(byAmount)];
   if (!rows.length) return '<div class="empty">今日沒有 2 檔以上 ETF 同步進出的標的</div>';
   return '<div class="scroll"><table><thead><tr><th>個股</th><th>方向</th>' +
     '<th class="num">檔數</th><th class="num">張數</th><th class="num">金額</th>' +
@@ -201,7 +214,7 @@ function renderConsensus() {
       // shares_delta 是這幾檔 ETF 對該股的淨買賣股數,除以 1000 換算成張
       const lots = r.shares_delta == null ? null : r.shares_delta / 1000;
       const px = (DATA.stocks[r.code] || {}).close;
-      const amt = (r.shares_delta != null && px) ? r.shares_delta * px : null;
+      const amt = (r.shares_delta != null && px) ? r.shares_delta * px : null;  // 帶正負號
       return '<tr><td>' + stockCell(r.code, r.name) + '</td>' +
       '<td><span class="pill ' + (r.dir === 'inc'
         ? 'p-inc"><span class="g">▲</span>同步加碼' : 'p-dec"><span class="g">▼</span>同步減碼') +
