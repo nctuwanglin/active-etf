@@ -8,6 +8,12 @@
 """
 import json
 
+# 篩選 chip 的字符,與 JS 端 TYPE 表一致(綠↔紅對紅綠色盲不可靠,方向一律配字符)
+GLYPH = {"ADD": "✚", "INCREASE": "▲", "DECREASE": "▼", "REMOVE": "✕"}
+
+# counterapi.dev 的命名空間,沿用 credit-card-guide 的做法(免帳號、純前端)
+COUNTER_NS = "wanglin-active-etf-2026"
+
 CSS = """
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);
@@ -84,11 +90,27 @@ tr:hover td{background:rgba(148,163,184,.04)}
 .p-gray{background:rgba(154,168,189,.1);color:var(--ink-dim);border:1px solid rgba(154,168,189,.22)}
 .controls{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:.85rem}
 input,select{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
-  border-radius:5px;padding:.4rem .6rem;font:inherit;font-size:.83rem}
+  border-radius:5px;padding:.4rem .7rem;font:inherit;font-size:.83rem}
+/* 中文 placeholder 用 size 屬性算出來的寬度會不夠(size 以英數字寬為準),
+   一律改用 min-width,否則「搜尋個股代號/名稱」會貼齊邊框甚至被裁掉。 */
+#evQ{min-width:13rem}
+#lookupQ{min-width:22rem}
+@media(max-width:640px){#evQ,#lookupQ{min-width:100%}}
 input:focus,select:focus{outline:none;border-color:var(--blue)}
-.chip{background:var(--panel-2);border:1px solid var(--line);color:var(--ink-dim);
-  border-radius:99px;padding:.25rem .75rem;font-size:.76rem;cursor:pointer}
-.chip.on{background:rgba(59,130,246,.16);border-color:rgba(59,130,246,.45);color:#bfdbfe}
+/* 篩選 chip 是「單選」:點另一個就換過去,再點同一個取消回到全部。
+   選取態要一眼看得出來,故未選為描邊、選取為實心底色,並各自帶事件類型的顏色
+   (新增/加碼綠、減碼/剔除紅),與異動 pill 同一套視覺語言。 */
+.chip{background:transparent;border:1px solid var(--line);color:var(--ink-dim);
+  border-radius:99px;padding:.28rem .8rem;font-size:.76rem;cursor:pointer;
+  display:inline-flex;align-items:center;gap:4px;user-select:none;
+  transition:background .12s,color .12s,border-color .12s}
+.chip .g{font-size:.62rem;line-height:1}
+.chip:hover{border-color:var(--c,var(--blue));color:var(--ink)}
+.chip.on{background:var(--c,var(--blue));border-color:var(--c,var(--blue));
+  color:#0a0e17;font-weight:700}
+.chip[data-t="ADD"],.chip[data-t="INCREASE"]{--c:var(--up)}
+.chip[data-t="REMOVE"],.chip[data-t="DECREASE"]{--c:var(--down)}
+.chip-hint{color:var(--ink-mute);font-size:.72rem;margin-left:.15rem}
 .etf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:.85rem}
 .etf-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:.9rem}
 .etf-card h3{margin:0 0 .15rem;font-size:.92rem}
@@ -115,6 +137,11 @@ details summary{cursor:pointer;color:var(--ink-dim);font-size:.78rem;margin-top:
 .note{color:var(--ink-mute);font-size:.74rem;line-height:1.6}
 footer{border-top:1px solid var(--line);margin-top:2rem;padding:1rem 0 2rem;
   color:var(--ink-mute);font-size:.74rem;line-height:1.7}
+.visits{display:flex;justify-content:center;gap:1.2rem;margin-top:1rem;
+  padding-top:.9rem;border-top:1px solid var(--line);
+  font-family:'JetBrains Mono','SF Mono',ui-monospace,monospace;
+  font-size:.72rem;color:var(--ink-mute)}
+.visits b{color:var(--ink-dim);font-weight:700}
 .scroll{overflow-x:auto}
 @media(max-width:640px){.etf-grid{grid-template-columns:1fr}}
 """
@@ -125,6 +152,9 @@ const fmt = n => n == null ? '—' : n.toLocaleString('en-US');
 const pct = n => n == null ? '—' : n.toFixed(2) + '%';
 const money = n => n == null ? '—' : (n >= 1e8 ? (n/1e8).toFixed(1)+' 億'
   : n >= 1e4 ? (n/1e4).toFixed(0)+' 萬' : fmt(n));
+// 買賣金額/張數一律帶正負號。money() 收的是絕對值,負號由這裡補,
+// 否則減碼會顯示成「1.9 億」看起來像買進。
+const signed = (text, v) => (v > 0 ? '+' : v < 0 ? '−' : '') + String(text).replace(/^-/, '');
 // [文字, class, 字符]。字符不是裝飾:綠↔紅在紅綠色盲下 deutan ΔE 只有 6.5,
 // 方向必須有色相以外的第二通道才讀得出來。
 const TYPE = {ADD:['新增','p-add','✚'],INCREASE:['加碼','p-inc','▲'],
@@ -155,7 +185,7 @@ const allEvents = [];
 for (const [etf, e] of Object.entries(DATA.etfs))
   for (const ev of e.events || []) allEvents.push({etf, ...ev});
 
-let filterTypes = new Set(), filterEtf = '', filterQ = '';
+let filterType = '', filterEtf = '', filterQ = '';  // filterType 空字串=全部(單選)
 
 function renderConsensus() {
   const c = DATA.consensus;
@@ -164,19 +194,31 @@ function renderConsensus() {
     .sort((a, b) => b.etfs.length - a.etfs.length);
   if (!rows.length) return '<div class="empty">今日沒有 2 檔以上 ETF 同步進出的標的</div>';
   return '<div class="scroll"><table><thead><tr><th>個股</th><th>方向</th>' +
-    '<th class="num">檔數</th><th>ETF</th></tr></thead><tbody>' +
-    rows.map(r => '<tr><td>' + stockCell(r.code, r.name) + '</td>' +
+    '<th class="num">檔數</th><th class="num">張數</th><th class="num">金額</th>' +
+    '<th>ETF</th></tr></thead><tbody>' +
+    rows.map(r => {
+      const cls = r.dir === 'inc' ? 'up' : 'down';
+      // shares_delta 是這幾檔 ETF 對該股的淨買賣股數,除以 1000 換算成張
+      const lots = r.shares_delta == null ? null : r.shares_delta / 1000;
+      const px = (DATA.stocks[r.code] || {}).close;
+      const amt = (r.shares_delta != null && px) ? r.shares_delta * px : null;
+      return '<tr><td>' + stockCell(r.code, r.name) + '</td>' +
       '<td><span class="pill ' + (r.dir === 'inc'
         ? 'p-inc"><span class="g">▲</span>同步加碼' : 'p-dec"><span class="g">▼</span>同步減碼') +
-      '</span></td><td class="num ' + (r.dir === 'inc' ? 'up' : 'down') + '">' +
-      r.etfs.length + '</td><td style="white-space:normal">' +
+      '</span></td><td class="num ' + cls + '">' + r.etfs.length + '</td>' +
+      '<td class="num mono ' + cls + '">' +
+        (lots == null ? '—' : signed(Math.round(lots).toLocaleString('en-US'), lots)) +
+      '</td><td class="num mono ' + cls + '">' +
+        (amt == null ? '—' : signed(money(Math.abs(amt)), amt)) +
+      '</td><td style="white-space:normal">' +
       r.etfs.map(e => '<span class="mono">' + e + '</span> ' + etfName(e)).join('、') +
-      '</td></tr>').join('') + '</tbody></table></div>';
+      '</td></tr>';
+    }).join('') + '</tbody></table></div>';
 }
 
 function renderEvents() {
   let rows = allEvents.filter(e =>
-    (!filterTypes.size || filterTypes.has(e.type)) &&
+    (!filterType || e.type === filterType) &&
     (!filterEtf || e.etf === filterEtf) &&
     (!filterQ || e.code.includes(filterQ) || (e.name || '').includes(filterQ)));
   if (!rows.length) return '<div class="empty">沒有符合條件的異動</div>';
@@ -302,16 +344,34 @@ function tab(n) {
 }
 document.querySelectorAll('nav button').forEach((b, i) =>
   b.onclick = () => tab(i));
+// 單選:點另一個就換過去,再點同一個則取消回到「全部」
 document.querySelectorAll('#typeChips .chip').forEach(c => c.onclick = () => {
   const t = c.dataset.t;
-  if (filterTypes.has(t)) filterTypes.delete(t); else filterTypes.add(t);
-  c.classList.toggle('on');
+  filterType = (filterType === t) ? '' : t;
+  document.querySelectorAll('#typeChips .chip').forEach(
+    x => x.classList.toggle('on', x.dataset.t === filterType));
   $('#events').innerHTML = renderEvents();
 });
 $('#etfSel').onchange = e => { filterEtf = e.target.value; $('#events').innerHTML = renderEvents(); };
 $('#evQ').oninput = e => { filterQ = e.target.value.trim(); $('#events').innerHTML = renderEvents(); };
 $('#lookupQ').oninput = e => lookup(e.target.value);
 paintTab1(); paintTab2(); paintRanking(); lookup(''); tab(0);
+
+/* 瀏覽計數:counterapi.dev,免帳號、純前端,與信用卡儀表板同一套做法。
+   /total/up 與 /day-YYYYMMDD/up 各遞增一次並回傳計數;抓不到就整塊不顯示,
+   不要在頁尾留一行壞掉的字。 */
+(function () {
+  const base = 'https://api.counterapi.dev/v1/__NS__';
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const el = $('#visits');
+  Promise.all([
+    fetch(base + '/total/up').then(r => r.json()),
+    fetch(base + '/day-' + today + '/up').then(r => r.json()),
+  ]).then(([total, day]) => {
+    el.innerHTML = '<span>今日瀏覽 <b>' + (day.count || 0).toLocaleString('en-US') +
+      '</b></span><span>累計瀏覽 <b>' + (total.count || 0).toLocaleString('en-US') + '</b></span>';
+  }).catch(() => { el.style.display = 'none'; });
+})();
 """
 
 
@@ -326,7 +386,8 @@ def render(active, registry):
     opts = "".join('<option value="{}">{} {}</option>'.format(c, c, e["name"])
                    for c, e in sorted(tracked.items()))
     chips = "".join(
-        '<span class="chip" data-t="{}">{}</span>'.format(t, label)
+        '<span class="chip" data-t="{0}"><span class="g">{2}</span>{1}</span>'.format(
+            t, label, GLYPH[t])
         for t, label in (("ADD", "新增"), ("INCREASE", "加碼"),
                          ("DECREASE", "減碼"), ("REMOVE", "剔除")))
     stale_note = ('<div class="note" style="margin-top:.5rem">⚠️ '
@@ -371,9 +432,9 @@ def render(active, registry):
     <div class="panel">
       <h2>今日持股異動明細</h2>
       <div class="controls">
-        <span id="typeChips">{chips}</span>
+        <span id="typeChips">{chips}</span><span class="chip-hint">(點選篩選一種,再點一次看全部)</span>
         <select id="etfSel"><option value="">全部 ETF</option>{opts}</select>
-        <input id="evQ" placeholder="搜尋個股代號/名稱" size="16">
+        <input id="evQ" placeholder="搜尋個股代號 / 名稱">
       </div>
       <div id="events"></div>
       <div class="note" style="margin-top:.7rem">
@@ -390,7 +451,7 @@ def render(active, registry):
   <section style="display:none">
     <div class="panel">
       <h2>個股反向查詢<span class="hint">查某檔股票被哪些主動式 ETF 持有、各佔多少</span></h2>
-      <div class="controls"><input id="lookupQ" placeholder="輸入股票代號或名稱,如 2330 或 台積電" size="30"></div>
+      <div class="controls"><input id="lookupQ" placeholder="輸入股票代號或名稱,如 2330 或 台積電"></div>
       <div id="lookup"></div>
     </div>
     <div class="panel">
@@ -403,15 +464,16 @@ def render(active, registry):
     資料來源:各投信官網每日公告之申購買回清單(PCF)/基金資產明細,收盤價取自 TWSE / TPEx。
     本頁每交易日盤後自動更新,僅供研究參考,不構成投資建議。<br>
     相關儀表板:<a href="https://nctuwanglin.github.io/twse-disposition/">台股處置股</a> ·
-    <a href="https://nctuwanglin.github.io/stock-research-notes/">個股研究筆記</a> ·
-    下游可讀 <a href="./active.json">active.json</a>
+    <a href="https://nctuwanglin.github.io/stock-research-notes/">個股研究筆記</a>
   </footer>
+  <div class="visits" id="visits"></div>
 </div>
 <script>const DATA = {data};</script>
 <script>{js}</script>
 </body>
 </html>
-""".format(date=date, css=CSS, js=JS, chips=chips, opts=opts,
+""".format(date=date, css=CSS, js=JS.replace("__NS__", COUNTER_NS),
+           chips=chips, opts=opts,
            stale_note=stale_note,
            n_etf=len(tracked), n_stock=len(active["stocks"]),
            n_events=n_events, n_cons=n_cons,

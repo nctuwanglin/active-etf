@@ -17,6 +17,12 @@ def _ev(h, typ, prev=None, adj=None):
     if prev is not None:
         e["prev_weight"] = prev.weight
         e["weight_delta"] = round(h.weight - prev.weight, 4)
+        e["prev_shares"] = prev.shares
+        # 絕對股數變化(未扣規模效應)。shares_delta_pct 是扣掉申購贖回後的
+        # 主動幅度,適合判定;要顯示「買了幾張」則需要這個原始差額。
+        e["shares_delta"] = h.shares - prev.shares
+    else:
+        e["shares_delta"] = h.shares  # ADD:整個部位都是新建的
     if adj is not None:
         e["shares_delta_pct"] = round(adj * 100, 2)
     return e
@@ -42,5 +48,6 @@ def compute_events(prev, curr, shares_thr=SHARES_THR, weight_thr=WEIGHT_THR):
     for c, p in prev.items():
         if c not in curr:
             events.append({"code": p.code, "name": p.name, "type": "REMOVE",
-                           "prev_weight": p.weight, "prev_shares": p.shares})
+                           "prev_weight": p.weight, "prev_shares": p.shares,
+                           "shares_delta": -p.shares})  # 出清:全數賣出
     return events

@@ -129,10 +129,19 @@ def build_active_json(date, registry, etf_results, fundamentals, crosslinks=None
                 "etfs": [], "recent_events": []})
             s["recent_events"].append({"etf": code, "type": ev["type"],
                                        "date": date})
+            # shares_delta 累加成「今日全體主動式 ETF 對這檔的淨買賣股數」,
+            # 讓共識榜能顯示張數而不只是檔數。
+            delta = ev.get("shares_delta") or 0
             if ev["type"] in ("INCREASE", "ADD"):
-                cons_inc.setdefault(ev["code"], {"name": ev["name"], "etfs": []})["etfs"].append(code)
+                c = cons_inc.setdefault(ev["code"], {"name": ev["name"], "etfs": [],
+                                                     "shares_delta": 0})
+                c["etfs"].append(code)
+                c["shares_delta"] += delta
             elif ev["type"] in ("DECREASE", "REMOVE"):
-                cons_dec.setdefault(ev["code"], {"name": ev["name"], "etfs": []})["etfs"].append(code)
+                c = cons_dec.setdefault(ev["code"], {"name": ev["name"], "etfs": [],
+                                                     "shares_delta": 0})
+                c["etfs"].append(code)
+                c["shares_delta"] += delta
     for scode, s_ in stocks.items():
         px = quotes.get(scode)
         s_["close"] = px
