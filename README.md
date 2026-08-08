@@ -109,8 +109,9 @@ scripts/run_local.sh
 
 ## 自動更新
 
-`.github/workflows/update.yml` 每個營業日跑兩班（台灣 09:17 主跑、13:47 補跑，
-GitHub 排程為 best-effort，實測延遲 5-6.5 小時，故排兩班互為備援）。
+`.github/workflows/update.yml` 每個營業日跑兩班（台灣 14:20 主跑、18:00 補跑，
+皆在收盤 13:30 之後）。GitHub 排程為 best-effort，實測延遲 1-3 小時
+（設 09:17 實際 12:03、設 13:47 實際 14:53），故排兩班互為備援。
 末端 `Verify live deployment` 比對線上資料日，不符時自動觸發 Pages 重建 → 空 commit → 仍失敗才亮紅燈。
 
 **判斷「有沒有真的更新」要看 run log 的實際輸出**（找「跳過更新」字樣），
