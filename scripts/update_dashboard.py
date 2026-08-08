@@ -82,22 +82,29 @@ def fetch_all_holdings(reg):
     return results
 
 
-def carry_stale(results, reg, prev_snapshot):
-    """抓失敗的 ETF 沿用前日快照並標 stale(不產生事件)。"""
-    if not prev_snapshot:
-        return
+def carry_stale(results, reg, prev_snapshot, today_snapshot=None):
+    """抓失敗的 ETF 沿用既有快照並標 stale(不產生事件)。
+
+    **沿用來源取「前日快照」與「本日快照既有內容」中資料日較新的那一份。**
+    只看前日會造成資料倒退:同一個資料日重跑時,若某檔這次抓失敗、但先前那次
+    (例如 Actions)已經成功寫入較新的持股,只從前日複製會把好資料蓋成更舊的。
+    2026-08-08 實際踩到:本機連不上野村,重跑把 Actions 抓到的 08-06 蓋回 08-05。
+    """
     for code, r in sorted(reg.items()):
         if r.get("market") != "tw" or r.get("status") != "active":
             continue
         if code in results:
             continue
-        prev = (prev_snapshot.get("etfs") or {}).get(code)
-        if not prev or not prev.get("holdings"):
+        cands = [s for s in ((today_snapshot or {}).get("etfs", {}).get(code),
+                             (prev_snapshot or {}).get("etfs", {}).get(code))
+                 if s and s.get("holdings")]
+        if not cands:
             continue
-        holdings = [base.Holding(**h) for h in prev["holdings"]]
-        results[code] = {"status": "stale", "data_date": prev.get("data_date"),
-                         "holdings": holdings, "meta": {}}
-        log("  ↺ {}: 沿用 {} 快照(標記 stale)".format(code, prev.get("data_date")))
+        best = max(cands, key=lambda s: s.get("data_date") or "")
+        holdings = [base.Holding(**h) for h in best["holdings"]]
+        results[code] = {"status": "stale", "data_date": best.get("data_date"),
+                         "holdings": holdings, "meta": best.get("meta") or {}}
+        log("  ↺ {}: 沿用 {} 快照(標記 stale)".format(code, best.get("data_date")))
 
 
 def resolve_data_date(results):
@@ -181,7 +188,9 @@ def main():
             ", ".join("{} 台股僅{:.0f}%".format(c, tw_weights[c]) for c in demoted)))
 
     prev_snapshot = outputs.load_prev_snapshot(HISTORY, data_date)
-    carry_stale(results, reg, prev_snapshot)
+    # 同一資料日重跑時,本日既有快照可能比前日快照更新(見 carry_stale 說明)
+    carry_stale(results, reg, prev_snapshot,
+                outputs.load_snapshot(HISTORY, data_date))
     compute_all_events(results, prev_snapshot)
 
     quote_date, all_quotes = quotes_mod.fetch_all()

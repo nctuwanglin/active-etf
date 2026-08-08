@@ -131,3 +131,48 @@ class ReverseIndexAggregateTests(unittest.TestCase):
                               "holdings": [Holding("9999", "無報價", 100, 1.0)]}}
         s = outputs.build_active_json("2026-08-05", reg, results, {}, quotes={})["stocks"]["9999"]
         self.assertIsNone(s["total_value"])
+
+
+class CarryStaleNoRegressionTests(unittest.TestCase):
+    """同一資料日重跑、某檔抓失敗時,不可把先前那次抓到的較新持股蓋成更舊的。
+
+    2026-08-08 實際事故:本機連不上野村,--force 重跑把 Actions 已寫入的
+    08-06 持股蓋回前日快照的 08-05。
+    """
+
+    def _reg(self):
+        return {"00980A": {"code": "00980A", "market": "tw", "status": "active"}}
+
+    def test_prefers_newer_today_snapshot(self):
+        import update_dashboard as ud
+        prev = {"etfs": {"00980A": {"data_date": "2026-08-05", "status": "ok",
+                                    "holdings": [{"code": "2330", "name": "台積電",
+                                                  "shares": 100, "weight": 5.0}]}}}
+        today = {"etfs": {"00980A": {"data_date": "2026-08-06", "status": "ok",
+                                     "holdings": [{"code": "2330", "name": "台積電",
+                                                   "shares": 200, "weight": 6.0}]}}}
+        results = {}
+        ud.carry_stale(results, self._reg(), prev, today)
+        self.assertEqual(results["00980A"]["data_date"], "2026-08-06")
+        self.assertEqual(results["00980A"]["holdings"][0].shares, 200)
+        self.assertEqual(results["00980A"]["status"], "stale")
+
+    def test_falls_back_to_prev_when_no_today(self):
+        import update_dashboard as ud
+        prev = {"etfs": {"00980A": {"data_date": "2026-08-05", "status": "ok",
+                                    "holdings": [{"code": "2330", "name": "台積電",
+                                                  "shares": 100, "weight": 5.0}]}}}
+        results = {}
+        ud.carry_stale(results, self._reg(), prev, None)
+        self.assertEqual(results["00980A"]["data_date"], "2026-08-05")
+
+    def test_successful_fetch_is_never_overwritten(self):
+        import update_dashboard as ud
+        prev = {"etfs": {"00980A": {"data_date": "2026-08-05", "status": "ok",
+                                    "holdings": [{"code": "2330", "name": "台積電",
+                                                  "shares": 100, "weight": 5.0}]}}}
+        results = {"00980A": {"status": "ok", "data_date": "2026-08-07",
+                              "holdings": [], "meta": {}}}
+        ud.carry_stale(results, self._reg(), prev, None)
+        self.assertEqual(results["00980A"]["status"], "ok")
+        self.assertEqual(results["00980A"]["data_date"], "2026-08-07")

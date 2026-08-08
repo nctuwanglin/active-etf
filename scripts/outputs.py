@@ -45,6 +45,12 @@ def load_prev_snapshot(history_dir, before_date):
     return json.loads((history_dir / (candidates[-1] + ".json")).read_text())
 
 
+def load_snapshot(history_dir, date):
+    """讀取指定資料日的快照(同一日重跑時用來避免蓋掉先前抓到的較新資料)。"""
+    p = Path(history_dir) / (date + ".json")
+    return json.loads(p.read_text()) if p.exists() else None
+
+
 def should_skip(data_date, last_counts_path):
     """資料日 ≤ 上次已處理日 → True(呼叫端須 log「跳過更新」)。"""
     p = Path(last_counts_path)
