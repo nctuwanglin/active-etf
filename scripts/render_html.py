@@ -434,6 +434,17 @@ paintTab1(); paintTab2(); paintRanking(); lookup(''); tab(0);
 """
 
 
+def _days_between(older, newer):
+    """兩個 YYYY-MM-DD 相差幾天;無法解析或非落後回 0。"""
+    import datetime
+    try:
+        a = datetime.date.fromisoformat(older)
+        b = datetime.date.fromisoformat(newer)
+    except (TypeError, ValueError):
+        return 0
+    return max((b - a).days, 0)
+
+
 def render(active, registry):
     date = active["updated"]
     etfs = active["etfs"]
@@ -450,9 +461,20 @@ def render(active, registry):
             t, label, GLYPH[t])
         for t, label in (("ADD", "新增"), ("INCREASE", "加碼"),
                          ("DECREASE", "減碼"), ("REMOVE", "剔除")))
-    stale_note = ('<div class="note" style="margin-top:.5rem">⚠️ '
-                  + "、".join(stale) + " 今日抓取失敗,顯示前一日持股(不列入異動計算)。</div>"
-                  ) if stale else ""
+    # 標出每檔實際停在哪一天。只說「顯示前一日持股」會低估——投信站台若持續
+    # 抓不到,可能已經停很多天,使用者有權知道自己在看多舊的資料。
+    if stale:
+        parts = []
+        for c in stale:
+            d = (etfs[c] or {}).get("data_date")
+            behind = _days_between(d, date)
+            parts.append("{}(停在 {}{})".format(
+                c, d or "—", "、落後 {} 天".format(behind) if behind else ""))
+        stale_note = ('<div class="note" style="margin-top:.5rem">⚠️ '
+                      + "、".join(parts)
+                      + ';該檔顯示最後一次成功抓到的持股,不列入異動計算。</div>')
+    else:
+        stale_note = ""
 
     return """<!DOCTYPE html>
 <html lang="zh-Hant">

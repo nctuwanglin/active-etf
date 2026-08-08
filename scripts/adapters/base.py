@@ -70,6 +70,17 @@ def _request(method, url, **kw):
     raise AdapterError("{} 抓取失敗: {}".format(url, last))
 
 
+# 常見圖檔的起始位元組。投信站台若啟用機器人防護,會用 HTTP 200 回一張驗證圖
+# 而不是 JSON——若不辨識,錯誤訊息會變成「回非 JSON(改版?)」而誤導成程式壞掉。
+_IMAGE_MAGIC = (b"\x89PNG", b"\xff\xd8\xff", b"GIF8")
+
+
+def is_bot_challenge(resp):
+    """回應是圖片(而非預期的資料)→ 視為站方的機器人驗證挑戰。"""
+    body = resp.content[:8]
+    return any(body.startswith(m) for m in _IMAGE_MAGIC)
+
+
 def validate_holdings(holdings, etf_code):
     """空資料/權重合計異常/負股數 → AdapterError;回傳代號正規化後的清單。"""
     if not holdings:

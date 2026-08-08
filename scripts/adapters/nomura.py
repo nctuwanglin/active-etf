@@ -15,8 +15,8 @@
 """
 import datetime
 
-from .base import (ADAPTERS, AdapterError, Holding, post, to_num,
-                   validate_holdings)
+from .base import (ADAPTERS, AdapterError, Holding, is_bot_challenge, post,
+                   to_num, validate_holdings)
 
 TRADEINFO = "https://www.nomurafunds.com.tw/API/ETFAPI/api/Fund/GetFundTradeInfo"
 
@@ -49,6 +49,13 @@ def fetch_holdings(etf):
         q = (day - datetime.timedelta(days=back)).strftime("%Y-%m-%d")
         r = post(TRADEINFO, json={"Type": 1, "Keyword": "", "FundNo": code, "Date": q},
                  headers={"Content-Type": "application/json"})
+        if is_bot_challenge(r):
+            # 2026-08-08 起野村全站(含首頁)對自動請求以 HTTP 200 回一張驗證圖。
+            # 這不是改版也不是程式壞掉,是站方擋自動存取——不嘗試繞過,直接讓
+            # 這幾檔走 stale 流程,並把原因說清楚以免被誤判為 adapter 需要修。
+            raise AdapterError(
+                "nomura: {} 網站啟用機器人驗證(回傳驗證圖非資料),暫時無法取得"
+                .format(code))
         try:
             d = r.json()
         except ValueError:
