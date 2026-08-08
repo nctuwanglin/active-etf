@@ -144,6 +144,34 @@ footer{border-top:1px solid var(--line);margin-top:2rem;padding:1rem 0 2rem;
 .visits b{color:var(--ink-dim);font-weight:700}
 .scroll{overflow-x:auto}
 @media(max-width:640px){.etf-grid{grid-template-columns:1fr}}
+
+/* ---------- 手機版:.rt 的表格轉成卡片 ----------
+   窄螢幕下橫向捲動的表格很難用:關鍵欄位(張數/金額)被推到畫面外,而且只要有
+   一欄會換行(例如共識榜的 ETF 清單),整列就被撐得極高、中間全是空白。
+   這裡把每一列改成一張卡片,欄位標籤取自 td 的 data-l,一份 HTML 兩種版型。 */
+@media(max-width:640px){
+  .rt{overflow-x:visible}
+  .rt table,.rt tbody,.rt tr,.rt td{display:block;width:auto}
+  .rt thead{display:none}
+  .rt tr{border:1px solid var(--line);border-radius:8px;
+    padding:.6rem .7rem;margin-bottom:.5rem;background:var(--panel-2)}
+  .rt tr:hover td{background:none}
+  .rt td{border:0;padding:.2rem 0;white-space:normal;text-align:left;
+    display:flex;justify-content:space-between;align-items:center;gap:.9rem}
+  .rt td::before{content:attr(data-l);color:var(--ink-mute);font-size:.72rem;
+    flex:none}
+  /* 第一欄(個股或 ETF)當卡片標題:不顯示標籤、獨佔一行 */
+  .rt td:first-child{display:block;font-size:.92rem;font-weight:600;
+    padding-bottom:.4rem;margin-bottom:.35rem;border-bottom:1px solid var(--line)}
+  .rt td:first-child::before{content:none}
+  .rt td.num.mono:not(:first-child){font-variant-numeric:tabular-nums}
+  /* 值為「—」的欄位在卡片上只是雜訊(個股反查每張卡都會多一行空的近期異動) */
+  .rt td.na{display:none}
+  /* ETF 清單是多個 span + 頓號,在 flex + space-between 下每個都成了獨立項目,
+     會被平均拉開。改成標籤獨立一行、代號在下方自然靠左排。 */
+  .rt td.etflist{display:block}
+  .rt td.etflist::before{display:block;margin-bottom:.25rem}
+}
 """
 
 JS = r"""
@@ -168,7 +196,6 @@ const seqColor = (w, max) => {
   const c = SEQ_LO.map((lo, i) => Math.round(lo + (SEQ_HI[i] - lo) * t));
   return 'rgb(' + c.join(',') + ')';
 };
-const etfName = c => (DATA.etfs[c] || {}).name || c;
 const dispoSet = new Set(DATA.crosslinks.dispo || []);
 const notes = DATA.crosslinks.notes || {};
 
@@ -206,7 +233,7 @@ function renderConsensus() {
   const rows = [...c.increase.map(x => ({...x, dir: 'inc'})).sort(byAmount),
                 ...c.decrease.map(x => ({...x, dir: 'dec'})).sort(byAmount)];
   if (!rows.length) return '<div class="empty">今日沒有 2 檔以上 ETF 同步進出的標的</div>';
-  return '<div class="scroll"><table><thead><tr><th>個股</th><th>方向</th>' +
+  return '<div class="scroll rt"><table><thead><tr><th>個股</th><th>方向</th>' +
     '<th class="num">檔數</th><th class="num">張數</th><th class="num">金額</th>' +
     '<th>ETF</th></tr></thead><tbody>' +
     rows.map(r => {
@@ -215,16 +242,16 @@ function renderConsensus() {
       const lots = r.shares_delta == null ? null : r.shares_delta / 1000;
       const px = (DATA.stocks[r.code] || {}).close;
       const amt = (r.shares_delta != null && px) ? r.shares_delta * px : null;  // 帶正負號
-      return '<tr><td>' + stockCell(r.code, r.name) + '</td>' +
-      '<td><span class="pill ' + (r.dir === 'inc'
+      return '<tr><td data-l="個股">' + stockCell(r.code, r.name) + '</td>' +
+      '<td data-l="方向"><span class="pill ' + (r.dir === 'inc'
         ? 'p-inc"><span class="g">▲</span>同步加碼' : 'p-dec"><span class="g">▼</span>同步減碼') +
-      '</span></td><td class="num ' + cls + '">' + r.etfs.length + '</td>' +
-      '<td class="num mono ' + cls + '">' +
+      '</span></td><td data-l="檔數" class="num ' + cls + '">' + r.etfs.length + '</td>' +
+      '<td data-l="張數" class="num mono ' + cls + '">' +
         (lots == null ? '—' : signed(Math.round(lots).toLocaleString('en-US'), lots)) +
-      '</td><td class="num mono ' + cls + '">' +
+      '</td><td data-l="金額" class="num mono ' + cls + '">' +
         (amt == null ? '—' : signed(money(Math.abs(amt)), amt)) +
-      '</td><td style="white-space:normal">' +
-      r.etfs.map(e => '<span class="mono">' + e + '</span> ' + etfName(e)).join('、') +
+      '</td><td data-l="ETF" class="etflist" style="white-space:normal">' +
+      r.etfs.map(e => '<span class="mono">' + e + '</span>').join('、') +
       '</td></tr>';
     }).join('') + '</tbody></table></div>';
 }
@@ -238,17 +265,19 @@ function renderEvents() {
   const order = {ADD: 0, INCREASE: 1, DECREASE: 2, REMOVE: 3};
   rows.sort((a, b) => order[a.type] - order[b.type] ||
     Math.abs(b.weight_delta || b.weight || 0) - Math.abs(a.weight_delta || a.weight || 0));
-  return '<div class="scroll"><table><thead><tr><th>ETF</th><th>個股</th><th>異動</th>' +
+  return '<div class="scroll rt"><table><thead><tr><th>ETF</th><th>個股</th><th>異動</th>' +
     '<th class="num">權重</th><th class="num">權重變化</th><th class="num">股數變化</th>' +
     '</tr></thead><tbody>' + rows.map(e => {
       const dw = e.weight_delta, ds = e.shares_delta_pct;
       const dir = (e.type === 'ADD' || e.type === 'INCREASE') ? 'up' : 'down';
-      return '<tr><td><span class="mono">' + e.etf + '</span> <span style="color:var(--ink-dim)">' +
-        etfName(e.etf) + '</span></td><td>' + stockCell(e.code, e.name) + '</td>' +
-        '<td>' + pill(e.type) + '</td>' +
-        '<td class="num mono">' + (e.weight != null ? pct(e.weight) : pct(e.prev_weight)) + '</td>' +
-        '<td class="num mono ' + dir + '">' + (dw != null ? (dw > 0 ? '+' : '') + dw.toFixed(2) : '—') + '</td>' +
-        '<td class="num mono ' + dir + '">' + (ds != null ? (ds > 0 ? '+' : '') + ds.toFixed(1) + '%' : '—') + '</td></tr>';
+      return '<tr><td data-l="ETF"><span class="mono">' + e.etf + '</span></td>' +
+        '<td data-l="個股">' + stockCell(e.code, e.name) + '</td>' +
+        '<td data-l="異動">' + pill(e.type) + '</td>' +
+        '<td data-l="權重" class="num mono">' + (e.weight != null ? pct(e.weight) : pct(e.prev_weight)) + '</td>' +
+        '<td data-l="權重變化" class="num mono ' + dir + (dw == null ? ' na' : '') + '">' +
+          (dw != null ? (dw > 0 ? '+' : '') + dw.toFixed(2) : '—') + '</td>' +
+        '<td data-l="股數變化" class="num mono ' + dir + (ds == null ? ' na' : '') + '">' +
+          (ds != null ? (ds > 0 ? '+' : '') + ds.toFixed(1) + '%' : '—') + '</td></tr>';
     }).join('') + '</tbody></table></div>';
 }
 
@@ -336,15 +365,16 @@ function lookup(q) {
   $('#lookup').innerHTML = '<h2 style="margin:.2rem 0 .8rem">' + stockCell(code, s.name) +
     ' <span class="hint" style="color:var(--ink-mute);font-size:.76rem">被 ' + rows.length +
     ' 檔持有 · 合計權重 ' + s.total_weight.toFixed(2) + '%</span></h2>' +
-    '<div class="scroll"><table><thead><tr><th>ETF</th><th class="num">權重</th>' +
+    '<div class="scroll rt"><table><thead><tr><th>ETF</th><th class="num">權重</th>' +
     '<th class="num">股數</th><th>近期異動</th></tr></thead><tbody>' +
     rows.map(r => {
       const ev = evs.find(e => e.etf === r.etf);
       const tag = ev ? pill(ev.type) +
         ' <span style="color:var(--ink-mute);font-size:.72rem">' + ev.date + '</span>' : '—';
-      return '<tr><td><span class="mono">' + r.etf + '</span> ' + etfName(r.etf) + '</td>' +
-        '<td class="num mono">' + r.weight.toFixed(2) + '%</td>' +
-        '<td class="num mono">' + fmt(r.shares) + '</td><td>' + tag + '</td></tr>';
+      return '<tr><td data-l="ETF"><span class="mono">' + r.etf + '</span></td>' +
+        '<td data-l="權重" class="num mono">' + r.weight.toFixed(2) + '%</td>' +
+        '<td data-l="股數" class="num mono">' + fmt(r.shares) + '</td>' +
+        '<td data-l="近期異動"' + (ev ? '' : ' class="na"') + '>' + tag + '</td></tr>';
     }).join('') + '</tbody></table></div>';
 }
 
@@ -396,8 +426,9 @@ def render(active, registry):
     n_cons = len(active["consensus"]["increase"]) + len(active["consensus"]["decrease"])
     stale = [c for c, e in etfs.items() if e["status"] == "stale"]
 
-    opts = "".join('<option value="{}">{} {}</option>'.format(c, c, e["name"])
-                   for c, e in sorted(tracked.items()))
+    # 下拉也只顯示代號(使用者要求除「各檔 ETF」頁外都不出現中文名)
+    opts = "".join('<option value="{0}">{0}</option>'.format(c)
+                   for c in sorted(tracked))
     chips = "".join(
         '<span class="chip" data-t="{0}"><span class="g">{2}</span>{1}</span>'.format(
             t, label, GLYPH[t])
