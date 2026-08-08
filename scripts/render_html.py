@@ -111,6 +111,8 @@ input:focus,select:focus{outline:none;border-color:var(--blue)}
 .chip[data-t="ADD"],.chip[data-t="INCREASE"]{--c:var(--up)}
 .chip[data-t="REMOVE"],.chip[data-t="DECREASE"]{--c:var(--down)}
 .chip-hint{color:var(--ink-mute);font-size:.72rem;margin-left:.15rem}
+/* 排行名次:併在個股欄前面,不另闢一欄 */
+.rank{display:inline-block;min-width:1.6rem;color:var(--ink-mute);font-size:.76rem}
 .etf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:.85rem}
 .etf-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:.9rem}
 .etf-card h3{margin:0 0 .15rem;font-size:.92rem}
@@ -337,19 +339,33 @@ function paintTab2() {
 }
 
 /* ---------- Tab 3:個股反查 ---------- */
+// 被全部 ETF 持有的個股,逐一列出 22 個代號等於沒有資訊——排行前十幾乎都是這樣,
+// 每張卡重複同一串代號、佔掉五行。這種情況改講「全部 N 檔」。
+const TRACKED_N = Object.values(DATA.etfs).filter(e => (e.holdings || []).length).length;
+function etfListCell(codes) {
+  if (TRACKED_N && codes.length === TRACKED_N)
+    return '<span style="color:var(--ink-mute)">全部 ' + TRACKED_N + ' 檔</span>';
+  return codes.map(c => '<span class="mono">' + c + '</span>').join('、');
+}
+
 function paintRanking() {
   const rows = Object.entries(DATA.stocks)
     .filter(([, s]) => s.etfs.length)
     .sort((a, b) => b[1].etfs.length - a[1].etfs.length ||
                     b[1].total_weight - a[1].total_weight).slice(0, 30);
-  $('#ranking').innerHTML = '<div class="scroll"><table><thead><tr><th>#</th><th>個股</th>' +
+  // 名次併進「個股」欄而不獨立成一欄:手機轉卡片時第一欄會變成卡片標題,
+  // 名次單獨一欄會佔掉整個標題行,個股名反而被降級成一般欄位。
+  $('#ranking').innerHTML = '<div class="scroll rt"><table><thead><tr><th>個股</th>' +
     '<th class="num">持有檔數</th><th class="num">合計權重</th><th>ETF</th></tr></thead><tbody>' +
-    rows.map(([code, s], i) => '<tr><td class="mono" style="color:var(--ink-mute)">' + (i + 1) +
-      '</td><td>' + stockCell(code, s.name) + '</td>' +
-      '<td class="num mono">' + s.etfs.length + '</td>' +
-      '<td class="num mono">' + s.total_weight.toFixed(2) + '%</td>' +
-      '<td style="white-space:normal;color:var(--ink-dim);font-size:.76rem">' +
-      s.etfs.map(x => x.etf).join('、') + '</td></tr>').join('') + '</tbody></table></div>';
+    rows.map(([code, s], i) =>
+      '<tr><td data-l="個股"><span class="rank mono">' + (i + 1) + '</span>' +
+      stockCell(code, s.name) + '</td>' +
+      '<td data-l="持有檔數" class="num mono">' + s.etfs.length + '</td>' +
+      '<td data-l="合計權重" class="num mono">' + s.total_weight.toFixed(2) + '%</td>' +
+      '<td data-l="ETF" class="etflist" ' +
+      'style="white-space:normal;color:var(--ink-dim);font-size:.76rem">' +
+      etfListCell(s.etfs.map(x => x.etf)) +
+      '</td></tr>').join('') + '</tbody></table></div>';
 }
 
 function lookup(q) {
