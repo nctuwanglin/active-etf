@@ -11,6 +11,9 @@ import json
 # 篩選 chip 的字符,與 JS 端 TYPE 表一致(綠↔紅對紅綠色盲不可靠,方向一律配字符)
 GLYPH = {"ADD": "✚", "INCREASE": "▲", "DECREASE": "▼", "REMOVE": "✕"}
 
+# 異動明細預設篩選(需與 JS 的 filterType 初值一致)
+DEFAULT_FILTER = "INCREASE"
+
 # Abacus 的命名空間,沿用 credit-card-guide 的做法(免註冊、純前端)
 COUNTER_NS = "nctuwanglin-active-etf"
 
@@ -113,6 +116,12 @@ input:focus,select:focus{outline:none;border-color:var(--blue)}
 .chip-hint{color:var(--ink-mute);font-size:.72rem;margin-left:.15rem}
 /* 排行名次:併在個股欄前面,不另闢一欄 */
 .rank{display:inline-block;min-width:1.6rem;color:var(--ink-mute);font-size:.76rem}
+/* 加碼/減碼左右並置。手機一欄寬度不夠放兩張表,改上下堆疊。 */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:860px){.cols{grid-template-columns:1fr;gap:1.2rem}}
+.colh{margin:0 0 .5rem;font-size:.82rem;font-weight:700;letter-spacing:.02em;
+  padding-bottom:.35rem;border-bottom:1px solid var(--line)}
+.colh.up{color:var(--up)}.colh.down{color:var(--down)}
 .etf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:.85rem}
 .etf-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:.9rem}
 .etf-card h3{margin:0 0 .15rem;font-size:.92rem}
@@ -214,48 +223,88 @@ const allEvents = [];
 for (const [etf, e] of Object.entries(DATA.etfs))
   for (const ev of e.events || []) allEvents.push({etf, ...ev});
 
-let filterType = '', filterEtf = '', filterQ = '';  // filterType 空字串=全部(單選)
+// 預設只看加碼:一次進來最想知道的是經理人買了什麼,再點一次該 chip 可看全部
+let filterType = 'INCREASE', filterEtf = '', filterQ = '';
 
-// 該檔今日的淨買賣金額(絕對值)。沒有收盤價就回 null,排序時排在最後。
-function consAmount(r) {
-  const px = (DATA.stocks[r.code] || {}).close;
-  return (r.shares_delta != null && px) ? Math.abs(r.shares_delta * px) : null;
+// 該檔今日的淨買賣金額(帶正負號)。沒有收盤價就回 null,排序時排在最後。
+function netAmount(code, sharesDelta) {
+  const px = (DATA.stocks[code] || {}).close;
+  return (sharesDelta != null && px) ? sharesDelta * px : null;
 }
 
-function renderConsensus() {
-  const c = DATA.consensus;
-  // 先分加碼/減碼兩組(加碼在前),組內再依金額由大到小
-  const byAmount = (a, b) => {
-    const x = consAmount(a), y = consAmount(b);
-    if (x == null && y == null) return b.etfs.length - a.etfs.length;
-    if (x == null) return 1;
-    if (y == null) return -1;
-    return y - x;
-  };
-  const rows = [...c.increase.map(x => ({...x, dir: 'inc'})).sort(byAmount),
-                ...c.decrease.map(x => ({...x, dir: 'dec'})).sort(byAmount)];
-  if (!rows.length) return '<div class="empty">今日沒有 2 檔以上 ETF 同步進出的標的</div>';
-  return '<div class="scroll rt"><table><thead><tr><th>個股</th><th>方向</th>' +
+// 金額由大到小(比絕對值);算不出金額的排最後,退而用檔數/張數當次要鍵。
+function byAmountDesc(a, b) {
+  const x = netAmount(a.code, a.shares_delta), y = netAmount(b.code, b.shares_delta);
+  if (x == null && y == null)
+    return Math.abs(b.shares_delta || 0) - Math.abs(a.shares_delta || 0);
+  if (x == null) return 1;
+  if (y == null) return -1;
+  return Math.abs(y) - Math.abs(x);
+}
+
+// 一列的共用欄位:張數 + 金額(兩張表共用,避免兩處算法分岔)
+function lotsAmtCells(r, cls) {
+  const lots = r.shares_delta == null ? null : r.shares_delta / 1000;
+  const amt = netAmount(r.code, r.shares_delta);
+  return '<td data-l="張數" class="num mono ' + cls + '">' +
+      (lots == null ? '—' : signed(Math.round(lots).toLocaleString('en-US'), lots)) +
+    '</td><td data-l="金額" class="num mono ' + cls + '">' +
+      (amt == null ? '—' : signed(money(Math.abs(amt)), amt)) + '</td>';
+}
+
+/* ---------- 今日異動金額排行 ---------- */
+// 把全體 ETF 的事件依個股彙總成「淨買賣股數」。同一檔股票可能在 A 檔 ETF 被加碼、
+// 在 B 檔被減碼,這裡取淨額——問「今天錢往哪邊流」時,淨額才是答案。
+// 與共識榜不同:共識榜要求 2 檔以上同方向,這裡只要有異動就算。
+const FLOW_TOP_N = 10;
+function dailyFlows() {
+  const m = {};
+  for (const [etf, e] of Object.entries(DATA.etfs))
+    for (const ev of e.events || []) {
+      const f = m[ev.code] || (m[ev.code] =
+        {code: ev.code, name: ev.name, shares_delta: 0, etfs: []});
+      f.shares_delta += ev.shares_delta || 0;
+      if (!f.etfs.includes(etf)) f.etfs.push(etf);
+    }
+  return Object.values(m).filter(f => f.shares_delta !== 0);
+}
+
+function renderFlowTable(rows, dir) {
+  if (!rows.length)
+    return '<div class="empty">今日沒有' + (dir === 'up' ? '淨買超' : '淨賣超') + '的標的</div>';
+  return '<div class="scroll rt"><table><thead><tr><th>個股</th>' +
+    '<th class="num">張數</th><th class="num">金額</th><th class="num">檔數</th>' +
+    '</tr></thead><tbody>' +
+    rows.map((r, i) =>
+      '<tr><td data-l="個股"><span class="rank mono">' + (i + 1) + '</span>' +
+      stockCell(r.code, r.name) + '</td>' + lotsAmtCells(r, dir) +
+      '<td data-l="檔數" class="num mono">' + r.etfs.length + '</td></tr>').join('') +
+    '</tbody></table></div>';
+}
+
+function paintFlows() {
+  const all = dailyFlows();
+  $('#flowUp').innerHTML = renderFlowTable(
+    all.filter(f => f.shares_delta > 0).sort(byAmountDesc).slice(0, FLOW_TOP_N), 'up');
+  $('#flowDown').innerHTML = renderFlowTable(
+    all.filter(f => f.shares_delta < 0).sort(byAmountDesc).slice(0, FLOW_TOP_N), 'down');
+}
+
+/* ---------- 經理人共識榜 ---------- */
+function renderConsensusTable(rows, dir) {
+  if (!rows.length)
+    return '<div class="empty">今日沒有 2 檔以上 ETF 同步' +
+      (dir === 'up' ? '加碼' : '減碼') + '的標的</div>';
+  return '<div class="scroll rt"><table><thead><tr><th>個股</th>' +
     '<th class="num">檔數</th><th class="num">張數</th><th class="num">金額</th>' +
     '<th>ETF</th></tr></thead><tbody>' +
-    rows.map(r => {
-      const cls = r.dir === 'inc' ? 'up' : 'down';
-      // shares_delta 是這幾檔 ETF 對該股的淨買賣股數,除以 1000 換算成張
-      const lots = r.shares_delta == null ? null : r.shares_delta / 1000;
-      const px = (DATA.stocks[r.code] || {}).close;
-      const amt = (r.shares_delta != null && px) ? r.shares_delta * px : null;  // 帶正負號
-      return '<tr><td data-l="個股">' + stockCell(r.code, r.name) + '</td>' +
-      '<td data-l="方向"><span class="pill ' + (r.dir === 'inc'
-        ? 'p-inc"><span class="g">▲</span>同步加碼' : 'p-dec"><span class="g">▼</span>同步減碼') +
-      '</span></td><td data-l="檔數" class="num ' + cls + '">' + r.etfs.length + '</td>' +
-      '<td data-l="張數" class="num mono ' + cls + '">' +
-        (lots == null ? '—' : signed(Math.round(lots).toLocaleString('en-US'), lots)) +
-      '</td><td data-l="金額" class="num mono ' + cls + '">' +
-        (amt == null ? '—' : signed(money(Math.abs(amt)), amt)) +
-      '</td><td data-l="ETF" class="etflist" style="white-space:normal">' +
+    rows.map(r =>
+      '<tr><td data-l="個股">' + stockCell(r.code, r.name) + '</td>' +
+      '<td data-l="檔數" class="num ' + dir + '">' + r.etfs.length + '</td>' +
+      lotsAmtCells(r, dir) +
+      '<td data-l="ETF" class="etflist" style="white-space:normal">' +
       r.etfs.map(e => '<span class="mono">' + e + '</span>').join('、') +
-      '</td></tr>';
-    }).join('') + '</tbody></table></div>';
+      '</td></tr>').join('') + '</tbody></table></div>';
 }
 
 function renderEvents() {
@@ -284,7 +333,12 @@ function renderEvents() {
 }
 
 function paintTab1() {
-  $('#consensus').innerHTML = renderConsensus();
+  paintFlows();
+  const c = DATA.consensus;
+  $('#consUp').innerHTML = renderConsensusTable(
+    [...c.increase].sort(byAmountDesc), 'up');
+  $('#consDown').innerHTML = renderConsensusTable(
+    [...c.decrease].sort(byAmountDesc), 'down');
   $('#events').innerHTML = renderEvents();
 }
 
@@ -468,8 +522,8 @@ def render(active, registry):
     opts = "".join('<option value="{0}">{0}</option>'.format(c)
                    for c in sorted(tracked))
     chips = "".join(
-        '<span class="chip" data-t="{0}"><span class="g">{2}</span>{1}</span>'.format(
-            t, label, GLYPH[t])
+        '<span class="chip{3}" data-t="{0}"><span class="g">{2}</span>{1}</span>'.format(
+            t, label, GLYPH[t], " on" if t == DEFAULT_FILTER else "")
         for t, label in (("ADD", "新增"), ("INCREASE", "加碼"),
                          ("DECREASE", "減碼"), ("REMOVE", "剔除")))
     # 標出每檔實際停在哪一天。只說「顯示前一日持股」會低估——投信站台若持續
@@ -519,8 +573,18 @@ def render(active, registry):
 
   <section>
     <div class="panel">
+      <h2>今日異動金額排行<span class="hint">全體主動式 ETF 對該股的淨買賣金額,各取前 10</span></h2>
+      <div class="cols">
+        <div><h3 class="colh up">▲ 增加</h3><div id="flowUp"></div></div>
+        <div><h3 class="colh down">▼ 減少</h3><div id="flowDown"></div></div>
+      </div>
+    </div>
+    <div class="panel">
       <h2>經理人共識榜<span class="hint">2 檔以上主動式 ETF 今日同方向調整的標的</span></h2>
-      <div id="consensus"></div>
+      <div class="cols">
+        <div><h3 class="colh up">▲ 同步加碼</h3><div id="consUp"></div></div>
+        <div><h3 class="colh down">▼ 同步減碼</h3><div id="consDown"></div></div>
+      </div>
     </div>
     <div class="panel">
       <h2>今日持股異動明細</h2>
