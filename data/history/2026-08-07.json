@@ -3157,7 +3157,7 @@
      "weight": 0.13
     }
    ],
-   "status": "stale"
+   "status": "ok"
   },
   "00981A": {
    "data_date": "2026-08-07",
@@ -4738,7 +4738,104 @@
   },
   "00985A": {
    "data_date": "2026-08-06",
-   "events": [],
+   "events": [
+    {
+     "code": "2059",
+     "name": "川湖科技",
+     "prev_shares": 50000,
+     "prev_weight": 4.71,
+     "shares": 31000,
+     "shares_delta": -19000,
+     "shares_delta_pct": -38.0,
+     "type": "DECREASE",
+     "weight": 3.07,
+     "weight_delta": -1.64
+    },
+    {
+     "code": "4904",
+     "name": "遠傳電信",
+     "prev_shares": 2033000,
+     "prev_weight": 2.04,
+     "shares": 2988000,
+     "shares_delta": 955000,
+     "shares_delta_pct": 46.97,
+     "type": "INCREASE",
+     "weight": 2.99,
+     "weight_delta": 0.95
+    },
+    {
+     "code": "2412",
+     "name": "中華電信",
+     "prev_shares": 1495000,
+     "prev_weight": 2.04,
+     "shares": 2203000,
+     "shares_delta": 708000,
+     "shares_delta_pct": 47.36,
+     "type": "INCREASE",
+     "weight": 2.96,
+     "weight_delta": 0.92
+    },
+    {
+     "code": "6669",
+     "name": "緯穎科技服務",
+     "prev_shares": 40000,
+     "prev_weight": 2.45,
+     "shares": 43000,
+     "shares_delta": 3000,
+     "shares_delta_pct": 7.5,
+     "type": "INCREASE",
+     "weight": 2.64,
+     "weight_delta": 0.19
+    },
+    {
+     "code": "3008",
+     "name": "大立光電",
+     "prev_shares": 81000,
+     "prev_weight": 3.68,
+     "shares": 55000,
+     "shares_delta": -26000,
+     "shares_delta_pct": -32.1,
+     "type": "DECREASE",
+     "weight": 2.49,
+     "weight_delta": -1.19
+    },
+    {
+     "code": "2408",
+     "name": "南亞科技",
+     "prev_shares": 671000,
+     "prev_weight": 2.97,
+     "shares": 447000,
+     "shares_delta": -224000,
+     "shares_delta_pct": -33.38,
+     "type": "DECREASE",
+     "weight": 2.01,
+     "weight_delta": -0.96
+    },
+    {
+     "code": "2327",
+     "name": "國巨",
+     "prev_shares": 600000,
+     "prev_weight": 3.45,
+     "shares": 334000,
+     "shares_delta": -266000,
+     "shares_delta_pct": -44.33,
+     "type": "DECREASE",
+     "weight": 1.87,
+     "weight_delta": -1.58
+    },
+    {
+     "code": "6147",
+     "name": "頎邦科技",
+     "prev_shares": 1283000,
+     "prev_weight": 2.02,
+     "shares": 1019000,
+     "shares_delta": -264000,
+     "shares_delta_pct": -20.58,
+     "type": "DECREASE",
+     "weight": 1.51,
+     "weight_delta": -0.51
+    }
+   ],
    "holdings": [
     {
      "code": "2330",
@@ -5041,7 +5138,7 @@
      "weight": 0.02
     }
    ],
-   "status": "stale"
+   "status": "ok"
   },
   "00987A": {
    "data_date": "2026-08-10",
@@ -6301,15 +6398,15 @@
      "weight": 0.05
     },
     {
-     "code": "2449",
-     "name": "京元電子",
-     "shares": 4000,
-     "weight": 0.02
-    },
-    {
      "code": "2404",
      "name": "漢唐",
      "shares": 1000,
+     "weight": 0.02
+    },
+    {
+     "code": "2449",
+     "name": "京元電子",
+     "shares": 4000,
      "weight": 0.02
     },
     {
@@ -7006,7 +7103,200 @@
   },
   "00999A": {
    "data_date": "2026-08-06",
-   "events": [],
+   "events": [
+    {
+     "code": "2330",
+     "name": "台灣積體電路製造",
+     "prev_shares": 308000,
+     "prev_weight": 5.81,
+     "shares": 276000,
+     "shares_delta": -32000,
+     "shares_delta_pct": -10.39,
+     "type": "DECREASE",
+     "weight": 5.09,
+     "weight_delta": -0.72
+    },
+    {
+     "code": "2059",
+     "name": "川湖科技",
+     "prev_shares": 69000,
+     "prev_weight": 5.12,
+     "shares": 57000,
+     "shares_delta": -12000,
+     "shares_delta_pct": -17.39,
+     "type": "DECREASE",
+     "weight": 4.49,
+     "weight_delta": -0.63
+    },
+    {
+     "code": "2886",
+     "name": "兆豐金融控股",
+     "prev_shares": 4985000,
+     "prev_weight": 2.0,
+     "shares": 8326000,
+     "shares_delta": 3341000,
+     "shares_delta_pct": 67.02,
+     "type": "INCREASE",
+     "weight": 3.26,
+     "weight_delta": 1.26
+    },
+    {
+     "code": "2892",
+     "name": "第一金融控股",
+     "prev_shares": 5556000,
+     "prev_weight": 1.56,
+     "shares": 9596000,
+     "shares_delta": 4040000,
+     "shares_delta_pct": 72.71,
+     "type": "INCREASE",
+     "weight": 2.65,
+     "weight_delta": 1.09
+    },
+    {
+     "code": "3653",
+     "name": "健策精密工業",
+     "prev_shares": 95000,
+     "prev_weight": 3.23,
+     "shares": 75000,
+     "shares_delta": -20000,
+     "shares_delta_pct": -21.05,
+     "type": "DECREASE",
+     "weight": 2.6,
+     "weight_delta": -0.63
+    },
+    {
+     "code": "7769",
+     "name": "鴻勁精密",
+     "prev_shares": 62000,
+     "prev_weight": 3.17,
+     "shares": 51000,
+     "shares_delta": -11000,
+     "shares_delta_pct": -17.74,
+     "type": "DECREASE",
+     "weight": 2.57,
+     "weight_delta": -0.6
+    },
+    {
+     "code": "2880",
+     "name": "華南金融控股",
+     "prev_shares": 4114800,
+     "prev_weight": 1.41,
+     "shares": 6773800,
+     "shares_delta": 2659000,
+     "shares_delta_pct": 64.62,
+     "type": "INCREASE",
+     "weight": 2.33,
+     "weight_delta": 0.92
+    },
+    {
+     "code": "2408",
+     "name": "南亞科技",
+     "prev_shares": 587000,
+     "prev_weight": 2.05,
+     "shares": 487000,
+     "shares_delta": -100000,
+     "shares_delta_pct": -17.04,
+     "type": "DECREASE",
+     "weight": 1.74,
+     "weight_delta": -0.31
+    },
+    {
+     "code": "6223",
+     "name": "旺矽科技",
+     "prev_shares": 42000,
+     "prev_weight": 2.06,
+     "shares": 34000,
+     "shares_delta": -8000,
+     "shares_delta_pct": -19.05,
+     "type": "DECREASE",
+     "weight": 1.67,
+     "weight_delta": -0.39
+    },
+    {
+     "code": "3706",
+     "name": "神達控股",
+     "prev_shares": 1633000,
+     "prev_weight": 1.18,
+     "shares": 2114000,
+     "shares_delta": 481000,
+     "shares_delta_pct": 29.45,
+     "type": "INCREASE",
+     "weight": 1.53,
+     "weight_delta": 0.35
+    },
+    {
+     "code": "9941",
+     "name": "裕融企業",
+     "prev_shares": 1967000,
+     "prev_weight": 1.27,
+     "shares": 2169000,
+     "shares_delta": 202000,
+     "shares_delta_pct": 10.27,
+     "type": "INCREASE",
+     "weight": 1.38,
+     "weight_delta": 0.11
+    },
+    {
+     "code": "2441",
+     "name": "超豐電子",
+     "prev_shares": 941000,
+     "prev_weight": 0.87,
+     "shares": 1219000,
+     "shares_delta": 278000,
+     "shares_delta_pct": 29.54,
+     "type": "INCREASE",
+     "weight": 1.17,
+     "weight_delta": 0.3
+    },
+    {
+     "code": "9938",
+     "name": "台灣百和工業",
+     "prev_shares": 2103000,
+     "prev_weight": 0.7,
+     "shares": 1682000,
+     "shares_delta": -421000,
+     "shares_delta_pct": -20.02,
+     "type": "DECREASE",
+     "weight": 0.55,
+     "weight_delta": -0.15
+    },
+    {
+     "code": "2204",
+     "name": "中華汽車工業",
+     "prev_shares": 1981000,
+     "prev_weight": 0.8,
+     "shares": 990000,
+     "shares_delta": -991000,
+     "shares_delta_pct": -50.03,
+     "type": "DECREASE",
+     "weight": 0.39,
+     "weight_delta": -0.41
+    },
+    {
+     "code": "9802",
+     "name": "鈺齊國際",
+     "prev_shares": 728000,
+     "prev_weight": 0.4,
+     "shares": 510000,
+     "shares_delta": -218000,
+     "shares_delta_pct": -29.95,
+     "type": "DECREASE",
+     "weight": 0.28,
+     "weight_delta": -0.12
+    },
+    {
+     "code": "6670",
+     "name": "復盛應用科技",
+     "prev_shares": 122000,
+     "prev_weight": 0.25,
+     "shares": 61000,
+     "shares_delta": -61000,
+     "shares_delta_pct": -50.0,
+     "type": "DECREASE",
+     "weight": 0.13,
+     "weight_delta": -0.12
+    }
+   ],
    "holdings": [
     {
      "code": "2330",
@@ -7393,7 +7683,7 @@
      "weight": 0.13
     }
    ],
-   "status": "stale"
+   "status": "ok"
   }
  }
 }

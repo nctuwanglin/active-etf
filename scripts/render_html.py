@@ -11,8 +11,8 @@ import json
 # 篩選 chip 的字符,與 JS 端 TYPE 表一致(綠↔紅對紅綠色盲不可靠,方向一律配字符)
 GLYPH = {"ADD": "✚", "INCREASE": "▲", "DECREASE": "▼", "REMOVE": "✕"}
 
-# counterapi.dev 的命名空間,沿用 credit-card-guide 的做法(免帳號、純前端)
-COUNTER_NS = "wanglin-active-etf-2026"
+# Abacus 的命名空間,沿用 credit-card-guide 的做法(免註冊、純前端)
+COUNTER_NS = "nctuwanglin-active-etf"
 
 CSS = """
 *,*::before,*::after{box-sizing:border-box}
@@ -416,19 +416,30 @@ $('#evQ').oninput = e => { filterQ = e.target.value.trim(); $('#events').innerHT
 $('#lookupQ').oninput = e => lookup(e.target.value);
 paintTab1(); paintTab2(); paintRanking(); lookup(''); tab(0);
 
-/* 瀏覽計數:counterapi.dev,免帳號、純前端,與信用卡儀表板同一套做法。
-   /total/up 與 /day-YYYYMMDD/up 各遞增一次並回傳計數;抓不到就整塊不顯示,
-   不要在頁尾留一行壞掉的字。 */
+/* 瀏覽計數:Abacus(免註冊、免 API key),與信用卡儀表板同一套做法。
+   原本用的 CounterAPI v1 已於 2026/07 停用(回 410),故遷移過來。
+   - /hit/<ns>/<key> 遞增並回傳 {"value":N}
+   - 日計數以「台灣時間」換日:直接用 UTC 會變成早上 8 點才跨日
+   - 用 allSettled 而非 all:其中一個失敗時另一個仍顯示得出來
+   - 全部失敗就整塊不顯示,不要在頁尾留一行壞掉的字 */
 (function () {
-  const base = 'https://api.counterapi.dev/v1/__NS__';
-  const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const base = 'https://abacus.jasoncameron.dev/hit/__NS__';
+  const today = new Date(Date.now() + 8 * 3600 * 1000)
+    .toISOString().slice(0, 10).replace(/-/g, '');
   const el = $('#visits');
-  Promise.all([
-    fetch(base + '/total/up').then(r => r.json()),
-    fetch(base + '/day-' + today + '/up').then(r => r.json()),
+  const num = v => (v && typeof v.value === 'number')
+    ? v.value.toLocaleString('en-US') : null;
+  Promise.allSettled([
+    fetch(base + '/total').then(r => r.json()),
+    fetch(base + '/day-' + today).then(r => r.json()),
   ]).then(([total, day]) => {
-    el.innerHTML = '<span>今日瀏覽 <b>' + (day.count || 0).toLocaleString('en-US') +
-      '</b></span><span>累計瀏覽 <b>' + (total.count || 0).toLocaleString('en-US') + '</b></span>';
+    const t = total.status === 'fulfilled' ? num(total.value) : null;
+    const d = day.status === 'fulfilled' ? num(day.value) : null;
+    const parts = [];
+    if (d) parts.push('<span>今日瀏覽 <b>' + d + '</b></span>');
+    if (t) parts.push('<span>累計瀏覽 <b>' + t + '</b></span>');
+    if (parts.length) el.innerHTML = parts.join('');
+    else el.style.display = 'none';
   }).catch(() => { el.style.display = 'none'; });
 })();
 """
