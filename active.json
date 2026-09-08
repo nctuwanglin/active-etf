@@ -55,8 +55,7 @@
    "4908",
    "4939",
    "4991",
-   "5314",
-   "6226",
+   "6538",
    "6805",
    "6933",
    "8358"
@@ -100,6 +99,7 @@
    "3008": "https://nctuwanglin.github.io/stock-research-notes/3008-largan.html",
    "3017": "https://nctuwanglin.github.io/stock-research-notes/3017-avc.html",
    "3026": "https://nctuwanglin.github.io/stock-research-notes/3026-holystone.html",
+   "3030": "https://nctuwanglin.github.io/stock-research-notes/3030-test-research.html",
    "3037": "https://nctuwanglin.github.io/stock-research-notes/3037-unimicron.html",
    "3081": "https://nctuwanglin.github.io/stock-research-notes/3081-unia.html",
    "3189": "https://nctuwanglin.github.io/stock-research-notes/3189-kinsus.html",
@@ -6383,15 +6383,15 @@
      "weight": 1.04
     },
     {
-     "code": "8996",
-     "name": "高力",
-     "shares": 36000,
-     "weight": 0.95
-    },
-    {
      "code": "2481",
      "name": "強茂",
      "shares": 290000,
+     "weight": 0.95
+    },
+    {
+     "code": "8996",
+     "name": "高力",
+     "shares": 36000,
      "weight": 0.95
     },
     {
@@ -6479,15 +6479,15 @@
      "weight": 0.02
     },
     {
-     "code": "2317",
-     "name": "鴻海",
-     "shares": 1000,
-     "weight": 0.01
-    },
-    {
      "code": "9941",
      "name": "裕融",
      "shares": 7260,
+     "weight": 0.01
+    },
+    {
+     "code": "2317",
+     "name": "鴻海",
+     "shares": 1000,
      "weight": 0.01
     },
     {
