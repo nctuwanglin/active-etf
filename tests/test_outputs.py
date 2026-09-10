@@ -176,3 +176,100 @@ class CarryStaleNoRegressionTests(unittest.TestCase):
         ud.carry_stale(results, self._reg(), prev, None)
         self.assertEqual(results["00980A"]["status"], "ok")
         self.assertEqual(results["00980A"]["data_date"], "2026-08-07")
+
+
+class SnapshotMetaPersistenceTests(unittest.TestCase):
+    """B07:快照必須保存基本面,否則 stale 沿用時 NAV/規模/受益人數整組消失。
+
+    carry_stale 讀 best.get("meta"),但 write_snapshot 從來沒寫過 meta——
+    這個欄位永遠是 {}。既有 26 份快照全都沒有 meta,讀取端必須相容。
+    """
+
+    def _results(self):
+        from adapters.base import Holding
+        return {"00981A": {"status": "ok", "data_date": "2026-09-08",
+                           "holdings": [Holding("2330", "台積電", 1000, 9.5)],
+                           "events": [],
+                           "meta": {"scale": 1000.0, "nav_per_unit": 10.0,
+                                    "holders": 123, "nav_date": "2026-09-08"}}}
+
+    def test_snapshot_round_trip_keeps_meta(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            outputs.write_snapshot("2026-09-08", self._results(), tmp)
+            snap = outputs.load_snapshot(tmp, "2026-09-08")
+            m = snap["etfs"]["00981A"].get("meta") or {}
+            self.assertEqual(m.get("nav_per_unit"), 10.0)
+            self.assertEqual(m.get("holders"), 123)
+            self.assertEqual(m.get("nav_date"), "2026-09-08")
+
+    def test_carry_stale_preserves_fundamentals(self):
+        import tempfile
+        import update_dashboard as ud
+        reg = {"00981A": {"code": "00981A", "market": "tw", "status": "active"}}
+        with tempfile.TemporaryDirectory() as tmp:
+            outputs.write_snapshot("2026-09-08", self._results(), tmp)
+            prev = outputs.load_snapshot(tmp, "2026-09-08")
+            carried = {}
+            ud.carry_stale(carried, reg, prev, None)
+            self.assertEqual(carried["00981A"]["status"], "stale")
+            self.assertEqual(carried["00981A"]["meta"].get("nav_per_unit"), 10.0)
+
+    def test_reads_legacy_snapshot_without_meta(self):
+        """既有 26 份快照沒有 meta 欄位,不能因此炸掉。"""
+        import update_dashboard as ud
+        reg = {"00981A": {"code": "00981A", "market": "tw", "status": "active"}}
+        legacy = {"etfs": {"00981A": {"status": "ok", "data_date": "2026-09-07",
+                                      "holdings": [{"code": "2330", "name": "台積電",
+                                                    "shares": 1, "weight": 5.0}]}}}
+        carried = {}
+        ud.carry_stale(carried, reg, legacy, None)
+        self.assertEqual(carried["00981A"]["meta"], {})
+
+
+class NoDateRegressionTests(unittest.TestCase):
+    """B05:成功抓到「較舊」的資料時,不可覆蓋較新持股,也不可產生反向假事件。
+
+    carry_stale 只保護「抓取失敗」;抓取成功但拿到舊快取會直接採用。
+    compute_all_events 又只排除「日期相等」,於是 curr < prev 仍會算出事件——
+    方向剛好相反(把買回讀成賣出)。
+    """
+
+    def _reg(self):
+        return {"00981A": {"code": "00981A", "market": "tw", "status": "active"}}
+
+    def _snap(self, date, shares):
+        return {"etfs": {"00981A": {"status": "ok", "data_date": date,
+                                    "holdings": [{"code": "2330", "name": "台積電",
+                                                  "shares": shares, "weight": 9.5}]}}}
+
+    def test_older_successful_fetch_is_rejected(self):
+        import update_dashboard as ud
+        from adapters.base import Holding
+        results = {"00981A": {"status": "ok", "data_date": "2026-09-07",
+                              "holdings": [Holding("2330", "台積電", 500, 5.0)],
+                              "meta": {}}}
+        ud.reject_regressions(results, self._snap("2026-09-08", 1000))
+        r = results["00981A"]
+        self.assertEqual(r["data_date"], "2026-09-08", "不可倒退回 09-07")
+        self.assertEqual(r["holdings"][0].shares, 1000, "應保留較新的持股")
+        self.assertEqual(r["status"], "stale")
+
+    def test_newer_fetch_passes_through(self):
+        import update_dashboard as ud
+        from adapters.base import Holding
+        results = {"00981A": {"status": "ok", "data_date": "2026-09-09",
+                              "holdings": [Holding("2330", "台積電", 1200, 11.0)],
+                              "meta": {}}}
+        ud.reject_regressions(results, self._snap("2026-09-08", 1000))
+        self.assertEqual(results["00981A"]["data_date"], "2026-09-09")
+        self.assertEqual(results["00981A"]["status"], "ok")
+
+    def test_events_only_when_date_advances(self):
+        import update_dashboard as ud
+        results = {"00981A": {"status": "ok", "data_date": "2026-09-07",
+                              "holdings": [__import__("adapters.base", fromlist=["x"]).Holding(
+                                  "2330", "台積電", 500, 5.0)], "meta": {}}}
+        ud.compute_all_events(results, self._snap("2026-09-08", 1000))
+        self.assertEqual(results["00981A"]["events"], [],
+                         "日期倒退不可產生事件(會是方向相反的假事件)")

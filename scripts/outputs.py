@@ -17,7 +17,13 @@ def holdings_to_json(holdings):
 
 
 def write_snapshot(date, etf_results, history_dir):
-    """etf_results: {code: {status, data_date, holdings(list of Holding), events}}"""
+    """etf_results: {code: {status, data_date, holdings(list of Holding), events, meta}}
+
+    meta(規模/NAV/受益人數/nav_date)一定要一起存:抓取失敗時 carry_stale 會從
+    快照沿用,沒存 meta 的話持股留得住、基本面卻整組消失(ETF 卡片的規模與折溢價
+    會空掉,連排序都會跟著跳)。2026-09-08 的 26 份既有快照都沒有這個欄位,
+    讀取端一律要能容忍缺漏。
+    """
     history_dir = Path(history_dir)
     history_dir.mkdir(parents=True, exist_ok=True)
     doc = {"date": date, "etfs": {}}
@@ -27,6 +33,7 @@ def write_snapshot(date, etf_results, history_dir):
             "data_date": r.get("data_date"),
             "holdings": holdings_to_json(r.get("holdings") or []),
             "events": r.get("events") or [],
+            "meta": r.get("meta") or {},
         }
     path = history_dir / "{}.json".format(date)
     _dump(doc, path)

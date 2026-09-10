@@ -107,6 +107,30 @@ def carry_stale(results, reg, prev_snapshot, today_snapshot=None):
         log("  ↺ {}: 沿用 {} 快照(標記 stale)".format(code, best.get("data_date")))
 
 
+def reject_regressions(results, prev_snapshot):
+    """抓取「成功但比既有快照更舊」時,退回既有快照並標 stale。
+
+    carry_stale 只擋抓取失敗;投信偶爾會回一份舊快取(HTTP 200、內容完整),
+    那種情況下持股會倒退,compute_events 還會算出方向相反的假事件——
+    把「其實沒動」讀成大額賣出。日期沒有前進就一律不採用這次的結果。
+    """
+    prev_etfs = (prev_snapshot or {}).get("etfs") or {}
+    for code, r in sorted(results.items()):
+        if r.get("status") != "ok":
+            continue
+        prev = prev_etfs.get(code)
+        if not prev or not prev.get("holdings"):
+            continue
+        pd_, cd = prev.get("data_date") or "", r.get("data_date") or ""
+        if not (pd_ and cd) or cd >= pd_:
+            continue
+        r["holdings"] = [base.Holding(**h) for h in prev["holdings"]]
+        r["data_date"] = pd_
+        r["meta"] = prev.get("meta") or {}
+        r["status"] = "stale"
+        log("  ⚠ {}: 抓到較舊資料({} < {}),保留既有快照不倒退".format(code, cd, pd_))
+
+
 def resolve_data_date(results):
     """各檔資料日取眾數(單一投信延遲不影響整體判定)。"""
     dates = [r["data_date"] for r in results.values()
@@ -129,7 +153,10 @@ def compute_all_events(results, prev_snapshot):
             r["events"] = []
             continue
         prev = prev_etfs.get(code)
-        if not prev or not prev.get("holdings") or prev.get("data_date") == r.get("data_date"):
+        # 只有資料日「前進」才算事件。原本只排除相等,日期倒退時仍會比對,
+        # 產生方向相反的假事件(見 NoDateRegressionTests)。
+        pd_, cd = prev.get("data_date") or "", r.get("data_date") or ""
+        if not prev.get("holdings") or not (pd_ and cd) or cd <= pd_:
             r["events"] = []
             continue
         prev_map = {h["code"]: base.Holding(**h) for h in prev["holdings"]}
@@ -189,6 +216,7 @@ def main():
 
     prev_snapshot = outputs.load_prev_snapshot(HISTORY, data_date)
     # 同一資料日重跑時,本日既有快照可能比前日快照更新(見 carry_stale 說明)
+    reject_regressions(results, prev_snapshot)
     carry_stale(results, reg, prev_snapshot,
                 outputs.load_snapshot(HISTORY, data_date))
     compute_all_events(results, prev_snapshot)
