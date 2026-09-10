@@ -5,6 +5,27 @@
     fetch_holdings(etf: dict) -> (data_date, [Holding], meta)
 並以 ADAPTERS["<name>"] = fetch_holdings 註冊(name 同 registry 的 adapter 欄位)。
 
+各家 adapter 的「資料日」取自哪個欄位——**這張表是踩過坑才建的,改 adapter 前先看**。
+投信頁面上常同時有「公告(生效)日 T+1」與「持股/淨值基準日 T」,取錯會讓該檔比其他家
+整整多一天,共識榜就會把不同持股日的 ETF 併成「今日同步調整」。
+
+    投信        欄位                      語意
+    統一        pcf[0].TranDate           基準日
+    野村        CNavDtStr                 基準日(CPcfdate 是公告日,勿用)
+    安聯        CNavDt                    基準日(同上)
+    群益        data.pcf.date2            基準日(date1 是公告日,勿用)
+    中信        FundAssets[0].資料日期     基準日
+    復華        result[0].dDate           基準日
+    富邦        頁面「資料日期：」          基準日
+    凱基        頁面「持股比重 (日期)」     基準日(== LatestNAVDate,2026-09-10 查證)
+    永豐        頁面「資料日期：」          基準日
+    國泰        BuySale.preDateC          基準日(date 是公告生效日 T+1,勿用)
+    兆豐        查詢日期之後那個日期        基準日(查詢日期本身是公告生效日)
+    第一金      sdate                     基準日
+    聯博        holdings asOfDate         基準日(先取 basket.asOfDate 再帶入查詢)
+    摩根        sheet 標題 (YYYY-MM-DD)    公告日;無獨立基準日欄位,已知比基準日新
+    台新        NAV_DATE                  基準日(PUB_DATE 是公告生效日 T+1,勿用)
+
 meta 為該檔基本面 dict(缺漏欄位給 None,不影響主流程):
     scale        基金淨資產(元)
     units        已發行受益權單位總數

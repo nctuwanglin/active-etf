@@ -27,7 +27,25 @@ DETAIL = "https://www.tsit.com.tw/ETF/Home/ETFSeriesDetail/{}"
 ROW_RE = re.compile(
     r"<tr>\s*<td>\s*([0-9A-Z]{1,8}(?:\s+[A-Z]{2})?)\s*</td>\s*<td>\s*([^<]+?)\s*</td>"
     r"\s*<td>\s*([\d,]+)\s*</td>\s*<td>\s*([\d.]+)%\s*</td>")
-DATE_RE = re.compile(r'id="PUB_DATE"[^>]*value="(\d{4}-\d{2}-\d{2})"')
+# 頁面同時有兩個日期,語意不同,務必取 NAV_DATE:
+#   PUB_DATE = 2026-09-11  公告生效日(T+1)
+#   NAV_DATE = 2026/9/10   淨值/持股基準日(T)  ← 我們要的
+# 2026-09-10 實抓證據見 test_uses_nav_date_not_pub_date。原本誤取 PUB_DATE,
+# 使 00987A 的資料日比其他投信多一天,共識榜把不同持股日的 ETF 併成「今日」。
+# (凱基已查證非同類問題:其「持股比重 (日期)」== LatestNAVDate,勿一併更動。)
+NAV_DATE_RE = re.compile(r'id="NAV_DATE"[^>]*value="([^"]+)"')
+
+
+def parse_nav_date(raw):
+    """'2026/9/10 上午 12:00:00' → '2026-09-10';無法解析回 None。
+
+    月日未補零、後面還跟著中文時間,故不能用固定寬度比對。
+    """
+    m = re.match(r"\s*(\d{4})/(\d{1,2})/(\d{1,2})", raw or "")
+    if not m:
+        return None
+    y, mo, d = m.groups()
+    return "{}-{:02d}-{:02d}".format(y, int(mo), int(d))
 
 
 def normalize_code(raw):
@@ -44,10 +62,10 @@ def _meta_value(plain, label):
 def parse_detail(page_html, etf_code):
     """ETFSeriesDetail 頁 → (data_date, [Holding], meta)"""
     t = html.unescape(page_html)
-    m = DATE_RE.search(t)
-    if not m:
-        raise AdapterError("{}: 台新頁面找不到 PUB_DATE(改版?)".format(etf_code))
-    data_date = m.group(1)
+    m = NAV_DATE_RE.search(t)
+    data_date = parse_nav_date(m.group(1)) if m else None
+    if not data_date:
+        raise AdapterError("{}: 台新頁面找不到可解析的 NAV_DATE(改版?)".format(etf_code))
     i = t.find("股數")  # 股票表表頭;其前為期貨表
     seg = t[i:] if i >= 0 else t
     holdings = [Holding(code=normalize_code(c), name=n,
