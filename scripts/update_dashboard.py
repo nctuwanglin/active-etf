@@ -198,8 +198,11 @@ def main():
         return 1
     log("資料日:{}".format(data_date))
 
-    if not args.force and outputs.should_skip(data_date, LAST_COUNTS):
-        log("跳過更新:資料日 {} 未新於上次已處理日".format(data_date))
+    # 逐檔指紋比對:只有「每一檔的資料日、狀態、持股都與上次完全相同」才跳過。
+    # 舊做法只比全域資料日眾數,補跑時單檔前進或 stale 恢復都會被誤跳過。
+    if not args.force and outputs.should_skip_results(
+            results, outputs.load_fingerprint(LAST_COUNTS)):
+        log("跳過更新:逐檔資料與上次完全相同(資料日 {})".format(data_date))
         return 0
 
     counts = {c: len(r["holdings"]) for c, r in results.items() if r["status"] == "ok"}
@@ -235,7 +238,8 @@ def main():
     ACTIVE_JSON.write_text(
         json.dumps(active, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
     INDEX_HTML.write_text(render_html.render(active, reg))
-    outputs.update_last_counts(data_date, counts, LAST_COUNTS)
+    outputs.update_last_counts(data_date, counts, LAST_COUNTS,
+                               fingerprint=outputs.results_fingerprint(results))
     log("完成:{} 檔 ETF、{} 檔個股反向索引".format(
         len(active["etfs"]), len(active["stocks"])))
     return 0

@@ -273,3 +273,47 @@ class NoDateRegressionTests(unittest.TestCase):
         ud.compute_all_events(results, self._snap("2026-09-08", 1000))
         self.assertEqual(results["00981A"]["events"], [],
                          "日期倒退不可產生事件(會是方向相反的假事件)")
+
+
+class PerEtfSkipGateTests(unittest.TestCase):
+    """B01:跳過與否要逐檔判斷,不能只看全體資料日的眾數。
+
+    原本 should_skip 只比全域眾數:第一輪寫入 09-08 後,18:00 補跑即使有 ETF
+    從 stale 恢復、或單檔日期前進,只要眾數仍是 09-08 就整批 return——
+    野村連續數日 stale 就是這樣卡住的。
+    """
+
+    def _res(self, pairs):
+        from adapters.base import Holding
+        return {c: {"status": "ok", "data_date": d,
+                    "holdings": [Holding("2330", "台積電", n, 9.5)], "meta": {}}
+                for c, d, n in pairs}
+
+    def test_identical_rerun_skips(self):
+        cur = self._res([("A", "2026-09-08", 100), ("B", "2026-09-08", 200)])
+        state = outputs.results_fingerprint(cur)
+        self.assertTrue(outputs.should_skip_results(cur, state))
+
+    def test_single_etf_date_advance_does_not_skip(self):
+        before = self._res([("A", "2026-09-08", 100), ("B", "2026-09-07", 200)])
+        state = outputs.results_fingerprint(before)
+        after = self._res([("A", "2026-09-08", 100), ("B", "2026-09-08", 250)])
+        self.assertFalse(outputs.should_skip_results(after, state),
+                         "單檔日期前進(眾數不變)也必須更新")
+
+    def test_stale_recovery_does_not_skip(self):
+        """野村情境:第一輪 stale,補跑成功抓到——眾數沒變但必須寫入。"""
+        from adapters.base import Holding
+        before = self._res([("A", "2026-09-08", 100)])
+        before["N"] = {"status": "stale", "data_date": "2026-09-05",
+                       "holdings": [Holding("2330", "台積電", 50, 5.0)], "meta": {}}
+        state = outputs.results_fingerprint(before)
+        after = self._res([("A", "2026-09-08", 100), ("N", "2026-09-08", 80)])
+        self.assertFalse(outputs.should_skip_results(after, state))
+
+    def test_holdings_change_same_date_does_not_skip(self):
+        """同日官方更正內容:日期一樣但持股不同,不可跳過。"""
+        before = self._res([("A", "2026-09-08", 100)])
+        state = outputs.results_fingerprint(before)
+        after = self._res([("A", "2026-09-08", 999)])
+        self.assertFalse(outputs.should_skip_results(after, state))

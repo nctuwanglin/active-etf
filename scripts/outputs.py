@@ -58,8 +58,35 @@ def load_snapshot(history_dir, date):
     return json.loads(p.read_text()) if p.exists() else None
 
 
+def results_fingerprint(etf_results):
+    """逐檔 {code: "data_date:狀態:持股雜湊"},作為「這批資料是否真的變了」的依據。
+
+    只比全域資料日的眾數不夠:眾數不變但單檔前進、stale 恢復、或同日官方更正
+    內容,都應該要更新。野村連續數日 stale 就是被眾數閘門擋住的
+    (第一輪寫入當日日期後,18:00 補跑必定跳過)。
+    """
+    import hashlib
+    out = {}
+    for code, r in sorted((etf_results or {}).items()):
+        rows = sorted((h.code, h.shares, round(h.weight, 4))
+                      for h in (r.get("holdings") or []))
+        digest = hashlib.sha256(repr(rows).encode("utf-8")).hexdigest()[:16]
+        out[code] = "{}:{}:{}".format(r.get("data_date") or "", r.get("status") or "", digest)
+    return out
+
+
+def should_skip_results(etf_results, last_fingerprint):
+    """逐檔指紋完全相同才跳過。任何一檔的日期/狀態/持股有變就要更新。"""
+    if not last_fingerprint:
+        return False
+    return results_fingerprint(etf_results) == last_fingerprint
+
+
 def should_skip(data_date, last_counts_path):
-    """資料日 ≤ 上次已處理日 → True(呼叫端須 log「跳過更新」)。"""
+    """資料日 ≤ 上次已處理日 → True(呼叫端須 log「跳過更新」)。
+
+    **已由 should_skip_results 取代為主要閘門**,保留供既有測試與回溯參考。
+    """
     p = Path(last_counts_path)
     if not p.exists():
         return False
@@ -81,8 +108,18 @@ def check_anomaly(counts, last_counts_path):
     return bad
 
 
-def update_last_counts(data_date, counts, last_counts_path):
-    _dump({"data_date": data_date, "counts": counts}, last_counts_path)
+def update_last_counts(data_date, counts, last_counts_path, fingerprint=None):
+    doc = {"data_date": data_date, "counts": counts}
+    if fingerprint is not None:
+        doc["fingerprint"] = fingerprint
+    _dump(doc, last_counts_path)
+
+
+def load_fingerprint(last_counts_path):
+    p = Path(last_counts_path)
+    if not p.exists():
+        return None
+    return json.loads(p.read_text()).get("fingerprint")
 
 
 def append_events(perf_stats_path, date, etf_results, quotes):
