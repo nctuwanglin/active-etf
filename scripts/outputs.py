@@ -159,6 +159,9 @@ def build_active_json(date, registry, etf_results, fundamentals, crosslinks=None
             "scale": f.get("scale"), "holders": f.get("holders"),
             "nav": f.get("nav_per_unit"), "close": f.get("close"),
             "premium_pct": f.get("premium_pct"),
+            # 折溢價只在 NAV 日 == 收盤價日時才有值;不一致時 premium_note 說明原因
+            "nav_date": f.get("nav_date"), "quote_date": f.get("quote_date"),
+            "premium_note": f.get("premium_note"),
             "holdings": holdings_to_json((r or {}).get("holdings") or []),
             "events": (r or {}).get("events") or [],
         }

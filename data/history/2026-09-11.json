@@ -351,6 +351,12 @@
      "weight": 0.08
     }
    ],
+   "meta": {
+    "holders": 136781.0,
+    "nav_per_unit": 14.74,
+    "scale": 28067563266.0,
+    "units": 1904640000.0
+   },
    "status": "ok"
   },
   "00401A": {
@@ -773,6 +779,12 @@
      "weight": 0.02
     }
    ],
+   "meta": {
+    "holders": null,
+    "nav_per_unit": 14.23,
+    "scale": 3520348803.0,
+    "units": 247395000.0
+   },
    "status": "ok"
   },
   "00403A": {
@@ -1093,6 +1105,12 @@
      "weight": 0.0
     }
    ],
+   "meta": {
+    "holders": 983715.0,
+    "nav_per_unit": 10.21,
+    "scale": 152832664403.0,
+    "units": 14974519000.0
+   },
    "status": "ok"
   },
   "00404A": {
@@ -1607,6 +1625,12 @@
      "weight": 7.031382
     }
    ],
+   "meta": {
+    "holders": null,
+    "nav_per_unit": 9.81,
+    "scale": 4075478860.0,
+    "units": 415295000.0
+   },
    "status": "ok"
   },
   "00405A": {
@@ -1927,6 +1951,12 @@
      "weight": 0.0008
     }
    ],
+   "meta": {
+    "holders": 160457.0,
+    "nav_per_unit": 8.61,
+    "scale": 26618755849.0,
+    "units": 3091745000.0
+   },
    "status": "ok"
   },
   "00406A": {
@@ -2417,6 +2447,12 @@
      "weight": 0.05
     }
    ],
+   "meta": {
+    "holders": null,
+    "nav_per_unit": 9.43,
+    "scale": 38645853845.0,
+    "units": 4098062000.0
+   },
    "status": "ok"
   },
   "00407A": {
@@ -2749,6 +2785,12 @@
      "weight": 0.04
     }
    ],
+   "meta": {
+    "holders": null,
+    "nav_per_unit": 9.55,
+    "scale": 24549261705.0,
+    "units": 2571239000.0
+   },
    "status": "ok"
   },
   "00408A": {
@@ -2877,15 +2919,15 @@
      "weight": 1.97
     },
     {
-     "code": "7769",
-     "name": "鴻勁",
-     "shares": 4500,
-     "weight": 1.88
-    },
-    {
      "code": "9941",
      "name": "裕融",
      "shares": 353200,
+     "weight": 1.88
+    },
+    {
+     "code": "7769",
+     "name": "鴻勁",
+     "shares": 4500,
      "weight": 1.88
     },
     {
@@ -3003,15 +3045,15 @@
      "weight": 0.89
     },
     {
-     "code": "2449",
-     "name": "京元電子",
-     "shares": 50000,
-     "weight": 0.87
-    },
-    {
      "code": "2345",
      "name": "智邦",
      "shares": 7000,
+     "weight": 0.87
+    },
+    {
+     "code": "2449",
+     "name": "京元電子",
+     "shares": 50000,
      "weight": 0.87
     },
     {
@@ -3069,6 +3111,12 @@
      "weight": 0.1
     }
    ],
+   "meta": {
+    "holders": null,
+    "nav_per_unit": 10.31,
+    "scale": 1511474208.0,
+    "units": 146634000.0
+   },
    "status": "ok"
   },
   "00410A": {
@@ -3256,6 +3304,12 @@
      "weight": 0.34
     }
    ],
+   "meta": {
+    "holders": null,
+    "nav_per_unit": 11.83,
+    "scale": 1861358575.0,
+    "units": 157360000.0
+   },
    "status": "ok"
   },
   "00980A": {
@@ -3563,6 +3617,12 @@
      "weight": 0.28
     }
    ],
+   "meta": {
+    "holders": 74264.0,
+    "nav_per_unit": 24.84,
+    "scale": 19694912917.0,
+    "units": 792730000.0
+   },
    "status": "ok"
   },
   "00981A": {
@@ -3870,6 +3930,12 @@
      "weight": 0.0
     }
    ],
+   "meta": {
+    "holders": 1013235.0,
+    "nav_per_unit": 29.41,
+    "scale": 278340707618.0,
+    "units": 9463709000.0
+   },
    "status": "ok"
   },
   "00982A": {
@@ -4213,6 +4279,12 @@
      "weight": 0.0
     }
    ],
+   "meta": {
+    "holders": 188628.0,
+    "nav_per_unit": 22.4,
+    "scale": 49627477588.0,
+    "units": 2215436000.0
+   },
    "status": "ok"
   },
   "00984A": {
@@ -4831,6 +4903,12 @@
      "weight": 0.0
     }
    ],
+   "meta": {
+    "holders": 64704.0,
+    "nav_per_unit": 15.61,
+    "scale": 9865309525.0,
+    "units": 631958000.0
+   },
    "status": "ok"
   },
   "00985A": {
@@ -5138,10 +5216,16 @@
      "weight": 0.0
     }
    ],
+   "meta": {
+    "holders": 47164.0,
+    "nav_per_unit": 23.1,
+    "scale": 10493223101.0,
+    "units": 454289000.0
+   },
    "status": "ok"
   },
   "00987A": {
-   "data_date": "2026-09-14",
+   "data_date": "2026-09-11",
    "events": [],
    "holdings": [
     {
@@ -5313,6 +5397,12 @@
      "weight": 0.2158
     }
    ],
+   "meta": {
+    "holders": null,
+    "nav_per_unit": 16.24,
+    "scale": 2486352913.0,
+    "units": 153143000.0
+   },
    "status": "ok"
   },
   "00991A": {
@@ -5657,6 +5747,12 @@
      "weight": 0.0
     }
    ],
+   "meta": {
+    "holders": null,
+    "nav_per_unit": 17.39,
+    "scale": 77618050696.0,
+    "units": 4463416000.0
+   },
    "status": "ok"
   },
   "00992A": {
@@ -5910,6 +6006,12 @@
      "weight": 0.2437
     }
    ],
+   "meta": {
+    "holders": 184681.0,
+    "nav_per_unit": 17.92,
+    "scale": 40635770753.0,
+    "units": 2267455000.0
+   },
    "status": "ok"
   },
   "00993A": {
@@ -6236,6 +6338,12 @@
      "weight": 0.07
     }
    ],
+   "meta": {
+    "holders": 48749.0,
+    "nav_per_unit": 13.47,
+    "scale": 10128555937.0,
+    "units": 752091000.0
+   },
    "status": "ok"
   },
   "00994A": {
@@ -6394,15 +6502,15 @@
      "weight": 1.54
     },
     {
-     "code": "3081",
-     "name": "聯亞",
-     "shares": 23000,
-     "weight": 1.44
-    },
-    {
      "code": "6805",
      "name": "富世達",
      "shares": 30000,
+     "weight": 1.44
+    },
+    {
+     "code": "3081",
+     "name": "聯亞",
+     "shares": 23000,
      "weight": 1.44
     },
     {
@@ -6484,15 +6592,15 @@
      "weight": 0.37
     },
     {
-     "code": "3661",
-     "name": "世芯-KY",
-     "shares": 4000,
-     "weight": 0.32
-    },
-    {
      "code": "2882",
      "name": "國泰金",
      "shares": 130000,
+     "weight": 0.32
+    },
+    {
+     "code": "3661",
+     "name": "世芯-KY",
+     "shares": 4000,
      "weight": 0.32
     },
     {
@@ -6514,6 +6622,12 @@
      "weight": 0.0
     }
    ],
+   "meta": {
+    "holders": null,
+    "nav_per_unit": 16.7,
+    "scale": 4494281125.0,
+    "units": 269190000.0
+   },
    "status": "ok"
   },
   "00995A": {
@@ -6839,6 +6953,12 @@
      "weight": 0.0
     }
    ],
+   "meta": {
+    "holders": null,
+    "nav_per_unit": 17.02,
+    "scale": 4647642752.0,
+    "units": 273035000.0
+   },
    "status": "ok"
   },
   "00996A": {
@@ -7152,6 +7272,12 @@
      "weight": 0.04
     }
    ],
+   "meta": {
+    "holders": null,
+    "nav_per_unit": 13.79,
+    "scale": 3955442791.0,
+    "units": 286899000.0
+   },
    "status": "ok"
   },
   "00999A": {
@@ -7483,6 +7609,12 @@
      "weight": 0.35
     }
    ],
+   "meta": {
+    "holders": 87659.0,
+    "nav_per_unit": 11.5,
+    "scale": 11544167012.0,
+    "units": 1003517000.0
+   },
    "status": "ok"
   }
  }

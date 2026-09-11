@@ -317,3 +317,41 @@ class PerEtfSkipGateTests(unittest.TestCase):
         state = outputs.results_fingerprint(before)
         after = self._res([("A", "2026-09-08", 999)])
         self.assertFalse(outputs.should_skip_results(after, state))
+
+
+class PremiumDateGuardTests(unittest.TestCase):
+    """B03:折溢價只在「NAV 日 == 收盤價日」時才算。
+
+    原本 quote_date 只被 log 出來就丟掉,舊 NAV 配最新收盤價仍會產生精確到
+    小數兩位的折溢價。實例:00980A 持股日 09-07、NAV 25.18,配 09-08 的
+    close 24.83 顯示 −1.39%——那不是同日折溢價,卻長得像。
+    """
+
+    def _r(self, data_date, nav):
+        return {"00980A": {"status": "ok", "data_date": data_date, "holdings": [],
+                           "meta": {"nav_per_unit": nav, "nav_date": data_date}}}
+
+    def test_same_day_computes_premium(self):
+        import update_dashboard as ud
+        f = ud.build_fundamentals(self._r("2026-09-08", 25.0),
+                                  {"00980A": 25.5}, "2026-09-08")
+        self.assertAlmostEqual(f["00980A"]["premium_pct"], 2.0, places=2)
+        self.assertIsNone(f["00980A"].get("premium_note"))
+
+    def test_cross_day_refuses_premium(self):
+        import update_dashboard as ud
+        f = ud.build_fundamentals(self._r("2026-09-07", 25.18),
+                                  {"00980A": 24.83}, "2026-09-08")
+        self.assertIsNone(f["00980A"]["premium_pct"], "跨日不可輸出折溢價")
+        self.assertIn("2026-09-07", f["00980A"]["premium_note"])
+        self.assertIn("2026-09-08", f["00980A"]["premium_note"])
+        self.assertEqual(f["00980A"]["close"], 24.83, "收盤價本身仍要保留")
+
+    def test_nav_date_defaults_to_holdings_date(self):
+        """adapter 未提供 nav_date 時,以持股基準日為準(PCF 同一份文件公告)。"""
+        import update_dashboard as ud
+        r = {"00980A": {"status": "ok", "data_date": "2026-09-08", "holdings": [],
+                        "meta": {"nav_per_unit": 25.0}}}
+        f = ud.build_fundamentals(r, {"00980A": 25.5}, "2026-09-08")
+        self.assertEqual(f["00980A"]["nav_date"], "2026-09-08")
+        self.assertAlmostEqual(f["00980A"]["premium_pct"], 2.0, places=2)

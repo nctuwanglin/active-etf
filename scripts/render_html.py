@@ -187,6 +187,11 @@ footer{border-top:1px solid var(--line);margin-top:2rem;padding:1rem 0 2rem;
 
 JS = r"""
 const $ = s => document.querySelector(s);
+// 一律用它包外部字串(投信基金名、個股名、使用者輸入)再塞進 innerHTML。
+// 這些值來自投信網頁,不是我們控制的;使用者輸入更是直接來自輸入框。
+const esc = v => String(v == null ? '' : v)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 const fmt = n => n == null ? '—' : n.toLocaleString('en-US');
 const pct = n => n == null ? '—' : n.toFixed(2) + '%';
 const money = n => n == null ? '—' : (n >= 1e8 ? (n/1e8).toFixed(1)+' 億'
@@ -374,8 +379,10 @@ function etfCard(code, e) {
     '<div class="etf-meta"><span>規模 <b>' + money(e.scale) + '</b></span>' +
     '<span>受益人 <b>' + fmt(e.holders) + '</b></span>' +
     '<span>淨值 <b>' + (e.nav != null ? e.nav.toFixed(2) : '—') + '</b></span>' +
-    '<span>折溢價 <b class="' + (prem > 0 ? 'up' : prem < 0 ? 'down' : '') + '">' +
-    (prem != null ? (prem > 0 ? '+' : '') + prem.toFixed(2) + '%' : '—') + '</b></span></div>' +
+    '<span>折溢價 <b class="' + (prem > 0 ? 'up' : prem < 0 ? 'down' : '') + '"' +
+    (e.premium_note ? ' title="' + esc(e.premium_note) + '"' : '') + '>' +
+    (prem != null ? (prem > 0 ? '+' : '') + prem.toFixed(2) + '%'
+                  : (e.premium_note ? '—*' : '—')) + '</b></span></div>' +
     bars + full + '</div>';
 }
 
@@ -427,7 +434,7 @@ function lookup(q) {
   if (!q) { $('#lookup').innerHTML = '<div class="empty">輸入股票代號或名稱查詢</div>'; return; }
   const hit = Object.entries(DATA.stocks).find(([c, s]) =>
     c === q || c.includes(q) || (s.name || '').includes(q));
-  if (!hit) { $('#lookup').innerHTML = '<div class="empty">「' + q +
+  if (!hit) { $('#lookup').innerHTML = '<div class="empty">「' + esc(q) +
     '」目前未被任何主動式 ETF 持有</div>'; return; }
   const [code, s] = hit;
   const rows = [...s.etfs].sort((a, b) => b.weight - a.weight);

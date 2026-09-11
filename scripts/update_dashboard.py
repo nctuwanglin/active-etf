@@ -166,16 +166,34 @@ def compute_all_events(results, prev_snapshot):
     log("異動事件合計 {} 筆".format(total))
 
 
-def build_fundamentals(results, etf_quotes):
-    """meta + ETF 市價 → 折溢價。"""
+def build_fundamentals(results, etf_quotes, quote_date=None):
+    """meta + ETF 市價 → 折溢價。**只在 NAV 日與收盤價日相同時才算折溢價。**
+
+    舊版把 quote_date 丟掉,於是舊 NAV 配最新收盤價仍會產生精確到小數兩位的
+    數字。實例:00980A 持股日 09-07、NAV 25.18,配 09-08 的 close 24.83 顯示
+    −1.39%——那不是同日折溢價,卻長得像。日期不一致時寧可留白並說明原因。
+
+    nav_date 若 adapter 沒給,以持股基準日為準:各投信的 PCF 是同一份文件
+    同時公告 NAV 與持股,兩者基準日相同。
+    """
     out = {}
     for code, r in results.items():
         meta = dict(r.get("meta") or {})
         close = etf_quotes.get(code)
         nav = meta.get("nav_per_unit")
+        nav_date = meta.get("nav_date") or r.get("data_date")
+        meta["nav_date"] = nav_date
         meta["close"] = close
-        meta["premium_pct"] = (round((close - nav) / nav * 100, 2)
-                               if close and nav else None)
+        meta["quote_date"] = quote_date
+        meta["premium_pct"] = None
+        meta["premium_note"] = None
+        if not (close and nav):
+            pass
+        elif quote_date and nav_date and quote_date != nav_date:
+            meta["premium_note"] = "NAV {} 與收盤價 {} 非同日,不計折溢價".format(
+                nav_date, quote_date)
+        else:
+            meta["premium_pct"] = round((close - nav) / nav * 100, 2)
         out[code] = meta
     return out
 
@@ -226,7 +244,7 @@ def main():
 
     quote_date, all_quotes = quotes_mod.fetch_all()
     log("收盤價:{} 共 {} 檔".format(quote_date, len(all_quotes)))
-    fundamentals = build_fundamentals(results, all_quotes)
+    fundamentals = build_fundamentals(results, all_quotes, quote_date)
     links = crosslinks_mod.fetch_crosslinks()
     log("交叉連結:處置中 {} 檔、研究筆記 {} 篇".format(
         len(links["dispo"]), len(links["notes"])))
