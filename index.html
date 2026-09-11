@@ -496,28 +496,76 @@ function paintRanking() {
 function lookup(q) {
   q = (q || '').trim();
   if (!q) { $('#lookup').innerHTML = '<div class="empty">輸入股票代號或名稱查詢</div>'; return; }
-  const hit = Object.entries(DATA.stocks).find(([c, s]) =>
-    c === q || c.includes(q) || (s.name || '').includes(q));
-  if (!hit) { $('#lookup').innerHTML = '<div class="empty">「' + esc(q) +
-    '」目前未被任何主動式 ETF 持有</div>'; return; }
-  const [code, s] = hit;
+  // 精確代號優先,其餘列為候選。原本用 .find() 只取第一筆,輸入「台」這種
+  // 部分名稱時會被鎖在某一檔上,選不到其他標的。
+  const all = Object.entries(DATA.stocks);
+  const exact = all.filter(([c]) => c === q);
+  const fuzzy = all.filter(([c, st]) => c !== q &&
+    (c.includes(q) || (st.name || '').includes(q)));
+  const pick = exact.length ? exact : fuzzy;
+  if (!pick.length) {
+    $('#lookup').innerHTML = '<div class="empty">查無「' + esc(q) +
+      '」——目前沒有主動式 ETF 持有,近期也沒有異動紀錄</div>';
+    return;
+  }
+  const [code, s] = pick[0];
+  const others = pick.slice(1, 9);
   const rows = [...s.etfs].sort((a, b) => b.weight - a.weight);
   const evs = s.recent_events || [];
+  // 已出清的 ETF 不會出現在 s.etfs,只走訪持有者會讓「剔除」完全消失。
+  const heldSet = new Set(rows.map(r => r.etf));
+  const gone = evs.filter(e => !heldSet.has(e.etf));
+
+  const cand = others.length
+    ? '<div class="note" style="margin:-.3rem 0 .7rem">其他符合:' +
+      others.map(([c, st]) =>
+        '<a href="#" class="cand" data-c="' + c + '"><span class="mono">' + c +
+        '</span> ' + esc(st.name) + '</a>').join('、') + '</div>'
+    : '';
+
+  const held = rows.length
+    ? '<div class="scroll rt"><table><thead><tr><th>ETF</th><th class="num">權重</th>' +
+      '<th class="num">股數</th><th>當日異動</th></tr></thead><tbody>' +
+      rows.map(r => {
+        const ev = evs.find(e => e.etf === r.etf);
+        const tag = ev ? pill(ev.type) +
+          ' <span style="color:var(--ink-mute);font-size:.72rem">' + ev.date + '</span>' : '—';
+        return '<tr><td data-l="ETF"><span class="mono">' + r.etf + '</span></td>' +
+          '<td data-l="權重" class="num mono">' + r.weight.toFixed(2) + '%</td>' +
+          '<td data-l="股數" class="num mono">' + fmt(r.shares) + '</td>' +
+          '<td data-l="當日異動"' + (ev ? '' : ' class="na"') + '>' + tag + '</td></tr>';
+      }).join('') + '</tbody></table></div>'
+    : '<div class="empty">目前沒有主動式 ETF 持有這檔</div>';
+
+  // 出清的另開一區——不然「某檔 ETF 今天把它賣光了」這個最重要的訊息會消失
+  const cleared = gone.length
+    ? '<h3 class="colh down" style="margin-top:1rem">已出清(不在上表)</h3>' +
+      '<div class="scroll rt"><table><thead><tr><th>ETF</th><th>當日異動</th>' +
+      '</tr></thead><tbody>' +
+      gone.map(e => '<tr><td data-l="ETF"><span class="mono">' + e.etf + '</span></td>' +
+        '<td data-l="當日異動">' + pill(e.type) +
+        ' <span style="color:var(--ink-mute);font-size:.72rem">' + e.date +
+        '</span></td></tr>').join('') + '</tbody></table></div>'
+    : '';
+
+  // total_value 一直有算卻沒顯示過;合計權重是跨基金相加,不是真實配置比例
+  const val = s.total_value != null
+    ? ' · 合計市值 <b>' + money(s.total_value) + '</b>' +
+      (s.close ? '<span style="color:var(--ink-mute)">(收盤 ' + s.close + ')</span>' : '')
+    : '';
   $('#lookup').innerHTML = '<h2 style="margin:.2rem 0 .8rem">' + stockCell(code, s.name) +
     ' <span class="hint" style="color:var(--ink-mute);font-size:.76rem">被 ' + rows.length +
-    ' 檔持有 · 合計權重 ' + s.total_weight.toFixed(2) + '%</span></h2>' +
-    '<div class="scroll rt"><table><thead><tr><th>ETF</th><th class="num">權重</th>' +
-    '<th class="num">股數</th><th>近期異動</th></tr></thead><tbody>' +
-    rows.map(r => {
-      const ev = evs.find(e => e.etf === r.etf);
-      const tag = ev ? pill(ev.type) +
-        ' <span style="color:var(--ink-mute);font-size:.72rem">' + ev.date + '</span>' : '—';
-      return '<tr><td data-l="ETF"><span class="mono">' + r.etf + '</span></td>' +
-        '<td data-l="權重" class="num mono">' + r.weight.toFixed(2) + '%</td>' +
-        '<td data-l="股數" class="num mono">' + fmt(r.shares) + '</td>' +
-        '<td data-l="近期異動"' + (ev ? '' : ' class="na"') + '>' + tag + '</td></tr>';
-    }).join('') + '</tbody></table></div>';
+    ' 檔持有 · 合計 ' + fmt(s.total_shares) + ' 股' + val +
+    ' · 權重加總 ' + s.total_weight.toFixed(2) + '%(跨基金相加,非真實配置比例)' +
+    '</span></h2>' + cand + held + cleared;
+
+  document.querySelectorAll('#lookup .cand').forEach(a => a.onclick = ev => {
+    ev.preventDefault();
+    $('#lookupQ').value = a.dataset.c;
+    lookup(a.dataset.c);
+  });
 }
+
 
 /* ---------- 初始化 ---------- */
 function tab(n) {
