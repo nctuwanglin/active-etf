@@ -182,9 +182,12 @@ def build_active_json(date, registry, etf_results, fundamentals, crosslinks=None
                 "etfs": [], "recent_events": []})
             s["recent_events"].append({"etf": code, "type": ev["type"],
                                        "date": date})
-            # shares_delta 累加成「今日全體主動式 ETF 對這檔的淨買賣股數」,
-            # 讓共識榜能顯示張數而不只是檔數。
-            delta = ev.get("shares_delta") or 0
+            # 累加成該股的「主動調整估算股數」。用校正後的 adjusted_shares_delta,
+            # 不用原始 shares_delta——後者含申購贖回造成的等比例增減,大額申購日
+            # 會與事件方向相反(INCREASE 卻是負張數)。沒有校正值時退回原始值。
+            delta = ev.get("adjusted_shares_delta")
+            if delta is None:
+                delta = ev.get("shares_delta") or 0
             if ev["type"] in ("INCREASE", "ADD"):
                 c = cons_inc.setdefault(ev["code"], {"name": ev["name"], "etfs": [],
                                                      "shares_delta": 0})

@@ -231,7 +231,8 @@ for (const [etf, e] of Object.entries(DATA.etfs))
 // 預設只看加碼:一次進來最想知道的是經理人買了什麼,再點一次該 chip 可看全部
 let filterType = 'INCREASE', filterEtf = '', filterQ = '';
 
-// 該檔今日的淨買賣金額(帶正負號)。沒有收盤價就回 null,排序時排在最後。
+// 該檔今日的「持股變化估值」(帶正負號)= 主動調整估算股數 × 收盤價。
+// 這不是實際成交金額:它只統計通過門檻的事件,且以收盤價估算,不是成交價。
 function netAmount(code, sharesDelta) {
   const px = (DATA.stocks[code] || {}).close;
   return (sharesDelta != null && px) ? sharesDelta * px : null;
@@ -258,9 +259,10 @@ function lotsAmtCells(r, cls) {
 }
 
 /* ---------- 今日異動金額排行 ---------- */
-// 把全體 ETF 的事件依個股彙總成「淨買賣股數」。同一檔股票可能在 A 檔 ETF 被加碼、
-// 在 B 檔被減碼,這裡取淨額——問「今天錢往哪邊流」時,淨額才是答案。
-// 與共識榜不同:共識榜要求 2 檔以上同方向,這裡只要有異動就算。
+// 把全體 ETF 的事件依個股彙總成「主動調整估算股數」。同一檔股票可能在 A 檔 ETF
+// 被加碼、在 B 檔被減碼,這裡取淨額。與共識榜不同:共識榜要求 2 檔以上同方向,
+// 這裡只要有異動就算。**只涵蓋通過門檻的事件**,未達門檻的變化不在內,
+// 所以不是「全體 ETF 對該股的真實淨買賣」。
 const FLOW_TOP_N = 10;
 function dailyFlows() {
   const m = {};
@@ -268,7 +270,9 @@ function dailyFlows() {
     for (const ev of e.events || []) {
       const f = m[ev.code] || (m[ev.code] =
         {code: ev.code, name: ev.name, shares_delta: 0, etfs: []});
-      f.shares_delta += ev.shares_delta || 0;
+      // 與 outputs 一致:優先用校正後的主動調整估算
+      f.shares_delta += (ev.adjusted_shares_delta != null
+        ? ev.adjusted_shares_delta : (ev.shares_delta || 0));
       if (!f.etfs.includes(etf)) f.etfs.push(etf);
     }
   return Object.values(m).filter(f => f.shares_delta !== 0);
@@ -628,7 +632,7 @@ def render(active, registry):
 
   <section>
     <div class="panel">
-      <h2>今日異動金額排行<span class="hint">全體主動式 ETF 對該股的淨買賣金額,各取前 10</span></h2>
+      <h2>今日持股變化估值排行<span class="hint">通過門檻的加減碼 × 收盤價估算(非實際成交金額),各取前 10</span></h2>
       <div class="cols">
         <div><h3 class="colh up">▲ 增加</h3><div id="flowUp"></div></div>
         <div><h3 class="colh down">▼ 減少</h3><div id="flowDown"></div></div>

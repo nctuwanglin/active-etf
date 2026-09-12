@@ -9,7 +9,7 @@
 import csv
 import io
 
-from adapters.base import get
+from adapters.base import AdapterError, get
 
 TWSE_STOCK_DAY = "https://www.twse.com.tw/exchangeReport/STOCK_DAY_ALL?response=json"
 TPEX_QUOTES = "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_quotes"
@@ -52,10 +52,39 @@ def parse_tpex_json(rows):
     return date_iso, out
 
 
+def merge_quotes(twse, tpex, failed):
+    """((date,dict) | None, (date,dict) | None, [失敗市場]) → (date, 合併 dict, 失敗清單)。
+
+    日期以 TWSE 為準(上市股票佔絕大多數);TWSE 掛掉才退而用 TPEx 的日期。
+    """
+    date_iso, out = None, {}
+    if twse:
+        date_iso, out = twse[0], dict(twse[1])
+    if tpex:
+        for code, close in tpex[1].items():
+            out.setdefault(code, close)
+        date_iso = date_iso or tpex[0]
+    return date_iso, out, failed
+
+
 def fetch_all():
-    """合併上市+上櫃收盤 → (date_iso, {code: close})。日期以 TWSE 為準。"""
-    date_iso, quotes = parse_twse_csv(get(TWSE_STOCK_DAY).text)
-    tpex_date, tpex = parse_tpex_json(get(TPEX_QUOTES).json())
-    for code, close in tpex.items():
-        quotes.setdefault(code, close)
-    return date_iso or tpex_date, quotes
+    """合併上市+上櫃收盤 → (date_iso, {code: close}, [失敗市場])。
+
+    **單一市場抓失敗不中斷整批。** 2026-09-13 實際發生過:持股 22 檔全部抓成功、
+    事件也算完了,卻因為 TPEx 回 IncompleteRead 讓整個流程在寫入前炸掉,
+    快照與 active.json 全停在舊版。持股才是主產品,報價只影響折溢價與市值估算,
+    不該有一票否決權。
+    """
+    twse = tpex = None
+    failed = []
+    try:
+        twse = parse_twse_csv(get(TWSE_STOCK_DAY).text)
+    except (AdapterError, ValueError) as e:
+        failed.append("TWSE")
+        print("  ⚠️ TWSE 報價抓取失敗(折溢價與市值將留白):{}".format(str(e)[:120]), flush=True)
+    try:
+        tpex = parse_tpex_json(get(TPEX_QUOTES).json())
+    except (AdapterError, ValueError) as e:
+        failed.append("TPEx")
+        print("  ⚠️ TPEx 報價抓取失敗(上櫃個股市值將留白):{}".format(str(e)[:120]), flush=True)
+    return merge_quotes(twse, tpex, failed)

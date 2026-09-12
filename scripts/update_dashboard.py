@@ -242,8 +242,10 @@ def main():
                 outputs.load_snapshot(HISTORY, data_date))
     compute_all_events(results, prev_snapshot)
 
-    quote_date, all_quotes = quotes_mod.fetch_all()
-    log("收盤價:{} 共 {} 檔".format(quote_date, len(all_quotes)))
+    quote_date, all_quotes, quote_failed = quotes_mod.fetch_all()
+    log("收盤價:{} 共 {} 檔{}".format(
+        quote_date, len(all_quotes),
+        "(來源失敗:{})".format("、".join(quote_failed)) if quote_failed else ""))
     fundamentals = build_fundamentals(results, all_quotes, quote_date)
     links = crosslinks_mod.fetch_crosslinks()
     log("交叉連結:處置中 {} 檔、研究筆記 {} 篇".format(

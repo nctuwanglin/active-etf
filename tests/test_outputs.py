@@ -355,3 +355,43 @@ class PremiumDateGuardTests(unittest.TestCase):
         f = ud.build_fundamentals(r, {"00980A": 25.5}, "2026-09-08")
         self.assertEqual(f["00980A"]["nav_date"], "2026-09-08")
         self.assertAlmostEqual(f["00980A"]["premium_pct"], 2.0, places=2)
+
+
+class QuoteFailureToleranceTests(unittest.TestCase):
+    """報價來源掛掉不該讓整批更新化為烏有。
+
+    2026-09-13 實際發生:持股 22 檔全部抓成功、事件也算完了(52 筆),
+    但 TPEx 回 IncompleteRead → AdapterError 直接往上炸,流程在寫入前中止,
+    快照與 active.json 全都停在舊版。持股才是主產品,報價只影響折溢價與估值。
+    """
+
+    def test_one_market_down_still_returns_other(self):
+        import quotes
+        calls = {}
+
+        def fake_get(url, **kw):
+            if "tpex" in url:
+                raise quotes.AdapterError("TPEx 掛了")
+            calls["twse"] = True
+            raise AssertionError("不該走到這裡")  # 由下面的 monkeypatch 取代
+
+        # 直接測合併邏輯:TWSE 有資料、TPEx 失敗
+        date, merged, failed = quotes.merge_quotes(
+            ("2026-09-11", {"2330": 100.0}), None, ["tpex"])
+        self.assertEqual(date, "2026-09-11")
+        self.assertEqual(merged["2330"], 100.0)
+        self.assertEqual(failed, ["tpex"])
+
+    def test_both_markets_down_returns_empty_not_raise(self):
+        import quotes
+        date, merged, failed = quotes.merge_quotes(None, None, ["twse", "tpex"])
+        self.assertIsNone(date)
+        self.assertEqual(merged, {})
+        self.assertEqual(failed, ["twse", "tpex"])
+
+    def test_twse_date_wins_when_both_present(self):
+        import quotes
+        date, merged, failed = quotes.merge_quotes(
+            ("2026-09-11", {"2330": 100.0}), ("2026-09-10", {"6488": 50.0}), [])
+        self.assertEqual(date, "2026-09-11")
+        self.assertEqual(sorted(merged), ["2330", "6488"])
