@@ -102,6 +102,13 @@ input:focus,select:focus{outline:none;border-color:var(--blue)}
 .chip[data-t="ADD"],.chip[data-t="INCREASE"]{--c:var(--up)}
 .chip[data-t="REMOVE"],.chip[data-t="DECREASE"]{--c:var(--down)}
 .chip-hint{color:var(--ink-mute);font-size:.72rem;margin-left:.15rem}
+/* 資料健康列:status=ok 只代表抓取成功,不代表資料最新,必須讓人看得出差別 */
+.health{display:flex;flex-wrap:wrap;gap:.4rem;margin:.2rem 0 .1rem}
+.hb{background:var(--panel-2);border:1px solid var(--line);border-radius:5px;
+  padding:.22rem .6rem;font-size:.73rem;color:var(--ink-mute)}
+.hb b{color:var(--ink-dim);font-weight:700;margin-left:.15rem}
+.hb.ok b{color:var(--up)}
+.hb.warn{border-color:rgba(250,178,25,.4)}.hb.warn b{color:var(--amber)}
 /* 排行名次:併在個股欄前面,不另闢一欄 */
 .rank{display:inline-block;min-width:1.6rem;color:var(--ink-mute);font-size:.76rem}
 /* 加碼/減碼左右並置。手機一欄寬度不夠放兩張表,改上下堆疊。 */
@@ -186,7 +193,7 @@ footer{border-top:1px solid var(--line);margin-top:2rem;padding:1rem 0 2rem;
     <div class="kpi k-move"><div class="n">52</div><div class="l">今日異動</div></div>
     <div class="kpi k-cons"><div class="n">7</div><div class="l">共識進出</div></div>
   </div>
-  
+  <div class="health"><span class="hb">最新持股日 <b>2026-09-11</b></span><span class="hb">行情日 <b>2026-09-11</b></span><span class="hb ok">成功 <b>22</b></span><span class="hb warn">來源落後 <b>6</b></span><span class="hb warn">折溢價留白 <b>6</b></span></div><div class="note" style="margin-top:.4rem">來源落後(抓取成功但投信尚未更新):00980A(2026-09-10)、00984A(2026-09-10)、00985A(2026-09-10)、00987A(2026-09-10)、00993A(2026-09-10)、00999A(2026-09-10);折溢價留白:NAV 日與行情日不同,不輸出跨日數字。</div>
 
   <nav>
     <button class="on">今日異動</button>
@@ -459,11 +466,24 @@ function paintTab2() {
   const pending = Object.entries(DATA.etfs).filter(([, e]) => !e.holdings.length);
   active.sort((a, b) => (b[1].scale || 0) - (a[1].scale || 0));
   let h = '<div class="etf-grid">' + active.map(([c, e]) => etfCard(c, e)).join('') + '</div>';
-  if (pending.length)
-    h += '<div class="panel" style="margin-top:1rem"><h2>已偵測、adapter 待補' +
-      '<span class="hint">新掛牌或尚未支援的投信,補上 adapter 後自動納入</span></h2>' +
-      pending.map(([c, e]) => '<span class="pill p-gray" style="margin:.2rem">' +
-        c + ' ' + e.name + '</span>').join('') + '</div>';
+  if (pending.length) {
+    // 不能把所有空 holdings 都叫「adapter 待補」:新掛牌但首次抓取失敗、
+    // 手動停用、當日無資料,跟「沒有 adapter」是完全不同的狀況。
+    const label = e => e.status === 'unsupported' ? '尚未支援此投信'
+                     : e.status === 'disabled' ? '已手動停用'
+                     : e.status === 'stale' ? '抓取失敗(無可沿用的快照)'
+                     : '本次無資料';
+    const groups = {};
+    pending.forEach(([c, e]) => (groups[label(e)] = groups[label(e)] || []).push([c, e]));
+    h += '<div class="panel" style="margin-top:1rem"><h2>未納入統計的 ETF' +
+      '<span class="hint">依原因分類;補上 adapter 或來源恢復後自動納入</span></h2>' +
+      Object.entries(groups).map(([g, items]) =>
+        '<div style="margin:.5rem 0"><div class="note" style="margin-bottom:.3rem">' +
+        esc(g) + '(' + items.length + ')</div>' +
+        items.map(([c, e]) => '<span class="pill p-gray" style="margin:.2rem">' +
+          c + ' ' + esc(e.name) + '</span>').join('') + '</div>').join('') +
+      '</div>';
+  }
   $('#etfs').innerHTML = h;
 }
 

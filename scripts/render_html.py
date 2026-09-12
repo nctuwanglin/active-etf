@@ -114,6 +114,13 @@ input:focus,select:focus{outline:none;border-color:var(--blue)}
 .chip[data-t="ADD"],.chip[data-t="INCREASE"]{--c:var(--up)}
 .chip[data-t="REMOVE"],.chip[data-t="DECREASE"]{--c:var(--down)}
 .chip-hint{color:var(--ink-mute);font-size:.72rem;margin-left:.15rem}
+/* 資料健康列:status=ok 只代表抓取成功,不代表資料最新,必須讓人看得出差別 */
+.health{display:flex;flex-wrap:wrap;gap:.4rem;margin:.2rem 0 .1rem}
+.hb{background:var(--panel-2);border:1px solid var(--line);border-radius:5px;
+  padding:.22rem .6rem;font-size:.73rem;color:var(--ink-mute)}
+.hb b{color:var(--ink-dim);font-weight:700;margin-left:.15rem}
+.hb.ok b{color:var(--up)}
+.hb.warn{border-color:rgba(250,178,25,.4)}.hb.warn b{color:var(--amber)}
 /* 排行名次:併在個股欄前面,不另闢一欄 */
 .rank{display:inline-block;min-width:1.6rem;color:var(--ink-mute);font-size:.76rem}
 /* 加碼/減碼左右並置。手機一欄寬度不夠放兩張表,改上下堆疊。 */
@@ -395,11 +402,24 @@ function paintTab2() {
   const pending = Object.entries(DATA.etfs).filter(([, e]) => !e.holdings.length);
   active.sort((a, b) => (b[1].scale || 0) - (a[1].scale || 0));
   let h = '<div class="etf-grid">' + active.map(([c, e]) => etfCard(c, e)).join('') + '</div>';
-  if (pending.length)
-    h += '<div class="panel" style="margin-top:1rem"><h2>已偵測、adapter 待補' +
-      '<span class="hint">新掛牌或尚未支援的投信,補上 adapter 後自動納入</span></h2>' +
-      pending.map(([c, e]) => '<span class="pill p-gray" style="margin:.2rem">' +
-        c + ' ' + e.name + '</span>').join('') + '</div>';
+  if (pending.length) {
+    // 不能把所有空 holdings 都叫「adapter 待補」:新掛牌但首次抓取失敗、
+    // 手動停用、當日無資料,跟「沒有 adapter」是完全不同的狀況。
+    const label = e => e.status === 'unsupported' ? '尚未支援此投信'
+                     : e.status === 'disabled' ? '已手動停用'
+                     : e.status === 'stale' ? '抓取失敗(無可沿用的快照)'
+                     : '本次無資料';
+    const groups = {};
+    pending.forEach(([c, e]) => (groups[label(e)] = groups[label(e)] || []).push([c, e]));
+    h += '<div class="panel" style="margin-top:1rem"><h2>未納入統計的 ETF' +
+      '<span class="hint">依原因分類;補上 adapter 或來源恢復後自動納入</span></h2>' +
+      Object.entries(groups).map(([g, items]) =>
+        '<div style="margin:.5rem 0"><div class="note" style="margin-bottom:.3rem">' +
+        esc(g) + '(' + items.length + ')</div>' +
+        items.map(([c, e]) => '<span class="pill p-gray" style="margin:.2rem">' +
+          c + ' ' + esc(e.name) + '</span>').join('') + '</div>').join('') +
+      '</div>';
+  }
   $('#etfs').innerHTML = h;
 }
 
@@ -585,20 +605,52 @@ def render(active, registry):
             t, label, GLYPH[t], " on" if t == DEFAULT_FILTER else "")
         for t, label in (("ADD", "新增"), ("INCREASE", "加碼"),
                          ("DECREASE", "減碼"), ("REMOVE", "剔除")))
-    # 標出每檔實際停在哪一天。只說「顯示前一日持股」會低估——投信站台若持續
-    # 抓不到,可能已經停很多天,使用者有權知道自己在看多舊的資料。
+    # ── 資料健康列 ────────────────────────────────────────────────────────
+    # status=ok 只代表「抓取成功」,不代表「資料是最新的」——實測常有 5 檔停在
+    # 前一交易日卻仍標 ok。使用者有權一眼看出自己在看多新的資料,所以把
+    # 「最新持股日、行情日、各狀態檔數、落後哪幾檔」直接放頁首。
+    tracked_dates = [e.get("data_date") for e in etfs.values()
+                     if e.get("status") in ("ok", "stale") and e.get("data_date")]
+    latest = max(tracked_dates) if tracked_dates else date
+    behind = sorted(c for c, e in etfs.items()
+                    if e.get("status") in ("ok", "stale")
+                    and e.get("data_date") and e["data_date"] < latest)
+    quote_dates = {e.get("quote_date") for e in etfs.values() if e.get("quote_date")}
+    qd = sorted(quote_dates)[-1] if quote_dates else "—"
+    n_ok = sum(1 for e in etfs.values() if e.get("status") == "ok")
+    n_stale = sum(1 for e in etfs.values() if e.get("status") == "stale")
+    n_unsup = sum(1 for e in etfs.values() if e.get("status") == "unsupported")
+    n_noprem = sum(1 for e in etfs.values() if e.get("premium_note"))
+
+    chips_health = ['<span class="hb">最新持股日 <b>{}</b></span>'.format(latest),
+                    '<span class="hb">行情日 <b>{}</b></span>'.format(qd),
+                    '<span class="hb ok">成功 <b>{}</b></span>'.format(n_ok)]
+    if n_stale:
+        chips_health.append('<span class="hb warn">沿用舊資料 <b>{}</b></span>'.format(n_stale))
+    if behind:
+        chips_health.append('<span class="hb warn">來源落後 <b>{}</b></span>'.format(len(behind)))
+    if n_unsup:
+        chips_health.append('<span class="hb">尚未支援 <b>{}</b></span>'.format(n_unsup))
+    if n_noprem:
+        chips_health.append('<span class="hb warn">折溢價留白 <b>{}</b></span>'.format(n_noprem))
+
+    detail = []
     if stale:
-        parts = []
-        for c in stale:
-            d = (etfs[c] or {}).get("data_date")
-            behind = _days_between(d, date)
-            parts.append("{}(停在 {}{})".format(
-                c, d or "—", "、落後 {} 天".format(behind) if behind else ""))
-        stale_note = ('<div class="note" style="margin-top:.5rem">⚠️ '
-                      + "、".join(parts)
-                      + ';該檔顯示最後一次成功抓到的持股,不列入異動計算。</div>')
-    else:
-        stale_note = ""
+        detail.append("沿用舊資料:" + "、".join(
+            "{}(停在 {}{})".format(
+                c, (etfs[c] or {}).get("data_date") or "—",
+                "、落後 {} 天".format(_days_between((etfs[c] or {}).get("data_date"), latest))
+                if _days_between((etfs[c] or {}).get("data_date"), latest) else "")
+            for c in stale))
+    if behind:
+        detail.append("來源落後(抓取成功但投信尚未更新):" + "、".join(
+            "{}({})".format(c, etfs[c].get("data_date")) for c in behind))
+    if n_noprem:
+        detail.append("折溢價留白:NAV 日與行情日不同,不輸出跨日數字")
+
+    stale_note = ('<div class="health">' + "".join(chips_health) + '</div>'
+                  + ('<div class="note" style="margin-top:.4rem">'
+                     + ";".join(detail) + "。</div>" if detail else ""))
 
     return """<!DOCTYPE html>
 <html lang="zh-Hant">
