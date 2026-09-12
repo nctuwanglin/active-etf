@@ -7,8 +7,22 @@ from pathlib import Path
 
 
 def _dump(obj, path):
-    Path(path).write_text(
-        json.dumps(obj, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
+    """原子寫入:先寫暫存檔再 rename。
+
+    直接 write_text 若在中途失敗(磁碟滿、程序被砍),會留下半截的 JSON,
+    下次讀取就整個炸掉——而這些是歷史快照與事件庫,壞了很難重建。
+    """
+    write_text_atomic(
+        path, json.dumps(obj, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
+
+
+def write_text_atomic(path, text):
+    """同目錄暫存檔 + os.replace(同檔案系統上為原子操作)。"""
+    import os
+    path = Path(path)
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(str(tmp), str(path))
 
 
 def holdings_to_json(holdings):
@@ -123,20 +137,32 @@ def load_fingerprint(last_counts_path):
 
 
 def append_events(perf_stats_path, date, etf_results, quotes):
-    """把當日事件(含事件日收盤價)去重後追加進事件庫。"""
+    """把當日事件寫入事件庫,**對「重算成功」的 ETF×日期做整組取代而非只追加**。
+
+    原本只追加、去重鍵 (date, etf, code, type):誤判的事件更正後仍留著、
+    close 修正無效、事件類型改變還會同時留下兩筆互相矛盾的紀錄。
+    這是「加碼後表現回測」的資料來源,錯誤累積越久越難補救。
+
+    只有 status == "ok"(這次真的重算過)的 ETF 才會被取代;stale / 抓取失敗
+    的 ETF 保留既有事件——暫時抓不到不代表那天的事件不存在。
+    """
     p = Path(perf_stats_path)
     doc = json.loads(p.read_text()) if p.exists() else {"events": []}
-    seen = {(e["date"], e["etf"], e["code"], e["type"]) for e in doc["events"]}
+    authoritative = {etf for etf, r in etf_results.items() if r.get("status") == "ok"}
+    # 先移除「本次重算過的 ETF 在這一天」的所有既有事件,再寫入新結果
+    kept = [e for e in doc["events"]
+            if not (e.get("date") == date and e.get("etf") in authoritative)]
     for etf, r in sorted(etf_results.items()):
+        if etf not in authoritative:
+            continue
         for ev in r.get("events") or []:
-            key = (date, etf, ev["code"], ev["type"])
-            if key in seen:
-                continue
-            seen.add(key)
-            doc["events"].append({
+            kept.append({
                 "date": date, "etf": etf, "code": ev["code"],
                 "type": ev["type"], "close": quotes.get(ev["code"]),
             })
+    kept.sort(key=lambda e: (e.get("date") or "", e.get("etf") or "",
+                             e.get("code") or "", e.get("type") or ""))
+    doc["events"] = kept
     _dump(doc, p)
     return doc
 

@@ -589,6 +589,19 @@ def _days_between(older, newer):
     return max((b - a).days, 0)
 
 
+def build_id_of(active):
+    """由 active.json 內容算出的確定性 build_id。
+
+    部署驗證只比「Updated YYYY-MM-DD」的話,同日修 UI 或補資料後即使線上仍是
+    舊版也會通過。改用內容雜湊,同日不同內容就驗得出來。
+    """
+    import hashlib
+    # 排除 build_id 自身,否則「先算再塞回去」會讓後續重算得到不同結果
+    payload = json.dumps({k: v for k, v in active.items() if k != "build_id"},
+                         ensure_ascii=False, sort_keys=True)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:12]
+
+
 def render(active, registry):
     date = active["updated"]
     etfs = active["etfs"]
@@ -657,6 +670,7 @@ def render(active, registry):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="build-id" content="{build_id}">
 <title>台股主動式ETF追蹤 | Updated {date}</title>
 <!-- AUTO:DATE:{date} -->
 <style>{css}</style>
@@ -740,7 +754,7 @@ def render(active, registry):
 <script>{js}</script>
 </body>
 </html>
-""".format(date=date, css=CSS, js=JS.replace("__NS__", COUNTER_NS),
+""".format(date=date, css=CSS, build_id=active.get("build_id") or build_id_of(active), js=JS.replace("__NS__", COUNTER_NS),
            chips=chips, opts=opts,
            stale_note=stale_note,
            n_etf=len(tracked), n_stock=len(active["stocks"]),

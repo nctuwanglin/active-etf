@@ -44,6 +44,10 @@ INDEX_HTML = ROOT / "index.html"
 
 TWSE_ALL = "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"
 
+# active.json 的 schema 版本。新增欄位採「相加不改名」,既有 key 語意不變,
+# 下游(個人績效儀表板 dashlib/related.py)不需同步改版即可繼續運作。
+SCHEMA_VERSION = 2
+
 
 def log(msg):
     print(msg, flush=True)
@@ -255,9 +259,14 @@ def main():
     outputs.append_events(PERF_STATS, data_date, results, all_quotes)
     active = outputs.build_active_json(data_date, reg, results, fundamentals, links,
                                        quotes=all_quotes)
-    ACTIVE_JSON.write_text(
+    # 順序重要:schema_version 先入,build_id 才涵蓋完整內容
+    active["schema_version"] = SCHEMA_VERSION
+    active["build_id"] = render_html.build_id_of(active)
+    # 產物一律原子寫入:中途失敗留下半截檔案的話,下游(績效儀表板)會直接解析失敗
+    outputs.write_text_atomic(
+        ACTIVE_JSON,
         json.dumps(active, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
-    INDEX_HTML.write_text(render_html.render(active, reg))
+    outputs.write_text_atomic(INDEX_HTML, render_html.render(active, reg))
     outputs.update_last_counts(data_date, counts, LAST_COUNTS,
                                fingerprint=outputs.results_fingerprint(results))
     log("完成:{} 檔 ETF、{} 檔個股反向索引".format(

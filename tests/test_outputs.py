@@ -395,3 +395,75 @@ class QuoteFailureToleranceTests(unittest.TestCase):
             ("2026-09-11", {"2330": 100.0}), ("2026-09-10", {"6488": 50.0}), [])
         self.assertEqual(date, "2026-09-11")
         self.assertEqual(sorted(merged), ["2330", "6488"])
+
+
+class PerfStatsUpsertTests(unittest.TestCase):
+    """B06:同日重算要能撤回/更正事件,不能只追加。
+
+    去重鍵是 (date, etf, code, type):誤判的事件更正後仍留著、close 修正無效、
+    類型改變還會同時留下兩筆互相矛盾的事件。這關係到「加碼後表現回測」的資料品質。
+    """
+
+    def _res(self, events):
+        return {"00981A": {"status": "ok", "data_date": "2026-09-08",
+                           "holdings": [], "events": events}}
+
+    def test_recompute_to_empty_removes_stale_event(self):
+        import tempfile
+        from pathlib import Path as _P
+        with tempfile.TemporaryDirectory() as tmp:
+            f = _P(tmp) / "perf.json"
+            outputs.append_events(f, "2026-09-08",
+                                  self._res([{"code": "2330", "type": "ADD"}]),
+                                  {"2330": 100.0})
+            outputs.append_events(f, "2026-09-08", self._res([]), {"2330": 100.0})
+            evs = json.loads(f.read_text())["events"]
+            self.assertEqual(evs, [], "更正為無事件時,舊事件必須消失")
+
+    def test_type_change_does_not_keep_both(self):
+        import tempfile
+        from pathlib import Path as _P
+        with tempfile.TemporaryDirectory() as tmp:
+            f = _P(tmp) / "perf.json"
+            outputs.append_events(f, "2026-09-08",
+                                  self._res([{"code": "2330", "type": "ADD"}]), {})
+            outputs.append_events(f, "2026-09-08",
+                                  self._res([{"code": "2330", "type": "INCREASE"}]), {})
+            types = [e["type"] for e in json.loads(f.read_text())["events"]]
+            self.assertEqual(types, ["INCREASE"], "不可同時留下 ADD 與 INCREASE")
+
+    def test_close_correction_applies(self):
+        import tempfile
+        from pathlib import Path as _P
+        with tempfile.TemporaryDirectory() as tmp:
+            f = _P(tmp) / "perf.json"
+            outputs.append_events(f, "2026-09-08",
+                                  self._res([{"code": "2330", "type": "ADD"}]), {})
+            outputs.append_events(f, "2026-09-08",
+                                  self._res([{"code": "2330", "type": "ADD"}]),
+                                  {"2330": 123.0})
+            self.assertEqual(json.loads(f.read_text())["events"][0]["close"], 123.0)
+
+    def test_failed_etf_keeps_existing_events(self):
+        """暫時抓取失敗不得刪掉既有有效事件。"""
+        import tempfile
+        from pathlib import Path as _P
+        with tempfile.TemporaryDirectory() as tmp:
+            f = _P(tmp) / "perf.json"
+            outputs.append_events(f, "2026-09-08",
+                                  self._res([{"code": "2330", "type": "ADD"}]), {})
+            stale = {"00981A": {"status": "stale", "data_date": "2026-09-08",
+                                "holdings": [], "events": []}}
+            outputs.append_events(f, "2026-09-08", stale, {})
+            self.assertEqual(len(json.loads(f.read_text())["events"]), 1)
+
+    def test_other_dates_untouched(self):
+        import tempfile
+        from pathlib import Path as _P
+        with tempfile.TemporaryDirectory() as tmp:
+            f = _P(tmp) / "perf.json"
+            outputs.append_events(f, "2026-09-05",
+                                  self._res([{"code": "1111", "type": "ADD"}]), {})
+            outputs.append_events(f, "2026-09-08", self._res([]), {})
+            dates = [e["date"] for e in json.loads(f.read_text())["events"]]
+            self.assertEqual(dates, ["2026-09-05"], "其他日期的事件不可被動到")

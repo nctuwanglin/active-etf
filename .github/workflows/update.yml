@@ -61,20 +61,28 @@ jobs:
           git push
 
       # Pages 部署間歇性失敗時 workflow 會綠燈但線上是舊資料（處置股儀表板已踩過兩次）。
-      # 以 repo 內 index.html 的資料日為基準驗證線上頁面，不符時依序：
-      # 等待 → Pages API 重建 → 空 commit 觸發全新部署 → 仍失敗才亮紅燈。
+      # **以內容雜湊 build_id 驗證，不是只比資料日**：同日修 UI 或補資料後，
+      # 線上即使仍是舊版，資料日也會相同而誤判成功。HTML 與 active.json 各自比對。
+      # 不符時依序：等待 → Pages API 重建 → 空 commit 觸發全新部署 → 仍失敗才亮紅燈。
       - name: Verify live deployment
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -u
           URL="https://nctuwanglin.github.io/active-etf/"
-          EXPECTED=$(grep -oE 'Updated [0-9]{4}-[0-9]{2}-[0-9]{2}' index.html | head -1)
-          echo "預期線上版本: $EXPECTED"
+          EXPECTED=$(grep -oE 'name="build-id" content="[0-9a-f]+"' index.html \
+                     | grep -oE '[0-9a-f]{12}' | head -1)
+          if [ -z "$EXPECTED" ]; then echo "::error::index.html 缺少 build-id"; exit 1; fi
+          echo "預期 build_id: $EXPECTED"
 
+          # HTML 與 JSON 都要對上才算部署成功
           check_live() {
-            curl -fsS --max-time 20 "${URL}?nocache=$(date +%s)" 2>/dev/null \
-              | grep -oE 'Updated [0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1
+            H=$(curl -fsS --max-time 20 "${URL}?nocache=$(date +%s)" 2>/dev/null \
+                | grep -oE 'name="build-id" content="[0-9a-f]+"' \
+                | grep -oE '[0-9a-f]{12}' | head -1)
+            J=$(curl -fsS --max-time 20 "${URL}active.json?nocache=$(date +%s)" 2>/dev/null \
+                | grep -oE '"build_id": *"[0-9a-f]+"' | grep -oE '[0-9a-f]{12}' | head -1)
+            if [ -n "$H" ] && [ "$H" = "$J" ]; then echo "$H"; else echo "html=$H json=$J"; fi
           }
 
           poll() {  # poll <次數> <間隔秒>

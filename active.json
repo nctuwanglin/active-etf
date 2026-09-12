@@ -1,4 +1,5 @@
 {
+ "build_id": "6083ce774c75",
  "consensus": {
   "decrease": [
    {
@@ -8013,6 +8014,7 @@
    "status": "ok"
   }
  },
+ "schema_version": 2,
  "stocks": {
   "1102": {
    "close": 35.3,

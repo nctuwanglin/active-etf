@@ -34,6 +34,7 @@ meta 為該檔基本面 dict(缺漏欄位給 None,不影響主流程):
 基本面一律取自各投信 PCF 原始回應——那是官方公告值,且與持股同一份資料,
 不另外去第三方湊。
 """
+import math
 import time
 from dataclasses import dataclass
 
@@ -110,13 +111,26 @@ def validate_holdings(holdings, etf_code):
     if not (WEIGHT_SUM_MIN <= total <= WEIGHT_SUM_MAX):
         raise AdapterError("{}: 權重合計 {:.2f} 超出 {}-{}".format(
             etf_code, total, WEIGHT_SUM_MIN, WEIGHT_SUM_MAX))
-    out = []
+    out, seen = [], set()
     for x in holdings:
         code = x.code.strip().upper()
+        # 空代號通常是把「現金」「合計」那種列當成持股抓進來了
+        if not code:
+            raise AdapterError("{}: 出現空的持股代號(誤抓合計/現金列?)".format(etf_code))
+        # 重複代號兩邊結論會不一致:diffengine 用 dict 會覆蓋(少算),
+        # 反查卻會累加(多算)。同一份資料算出兩種答案,寧可當場擋下。
+        if code in seen:
+            raise AdapterError("{}: 持股代號重複 {}".format(etf_code, code))
+        seen.add(code)
         if x.shares < 0:
             raise AdapterError("{}: {} 股數為負".format(etf_code, code))
+        w = float(x.weight)
+        if not math.isfinite(w) or not math.isfinite(float(x.shares)):
+            raise AdapterError("{}: {} 權重或股數非有限數值".format(etf_code, code))
+        if w > 100.0:
+            raise AdapterError("{}: {} 單筆權重 {:.2f} 超過 100%".format(etf_code, code, w))
         out.append(Holding(code=code, name=x.name.strip(), shares=int(x.shares),
-                           weight=float(x.weight)))
+                           weight=w))
     return out
 
 
