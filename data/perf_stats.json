@@ -15954,10 +15954,38 @@
    "type": "INCREASE"
   },
   {
-   "close": 35.2,
-   "code": "1102",
+   "close": 537.0,
+   "code": "2327",
    "date": "2026-09-15",
-   "etf": "00984A",
+   "etf": "00980A",
+   "type": "DECREASE"
+  },
+  {
+   "close": 726.0,
+   "code": "3026",
+   "date": "2026-09-15",
+   "etf": "00980A",
+   "type": "INCREASE"
+  },
+  {
+   "close": 2675.0,
+   "code": "3081",
+   "date": "2026-09-15",
+   "etf": "00980A",
+   "type": "DECREASE"
+  },
+  {
+   "close": 795.0,
+   "code": "3189",
+   "date": "2026-09-15",
+   "etf": "00980A",
+   "type": "INCREASE"
+  },
+  {
+   "close": 5440.0,
+   "code": "6223",
+   "date": "2026-09-15",
+   "etf": "00980A",
    "type": "DECREASE"
   },
   {
@@ -16101,13 +16129,6 @@
    "type": "DECREASE"
   },
   {
-   "close": 124.0,
-   "code": "3045",
-   "date": "2026-09-15",
-   "etf": "00984A",
-   "type": "DECREASE"
-  },
-  {
    "close": 795.0,
    "code": "3189",
    "date": "2026-09-15",
@@ -16143,8 +16164,8 @@
    "type": "INCREASE"
   },
   {
-   "close": 1980.0,
-   "code": "3665",
+   "close": 407.0,
+   "code": "3532",
    "date": "2026-09-15",
    "etf": "00984A",
    "type": "DECREASE"

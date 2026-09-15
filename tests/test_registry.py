@@ -51,20 +51,30 @@ class RegistryFileTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_new_code_unsupported(self):
+        # load_and_update 不再落盤(見 opt#7):呼叫端要自己決定何時 save_registry,
+        # 這裡手動存檔模擬「兩次獨立執行」。
         fetched = registry.detect_etfs(load_rows())
         fetched.append({"code": "00998A", "name": "主動未知投信基金", "market": "tw"})
         reg = registry.load_and_update(self.path, fetched)
         self.assertEqual(reg["00998A"]["status"], "unsupported")
         self.assertEqual(reg["00981A"]["status"], "active")
+        registry.save_registry(self.path, reg)
         reg2 = registry.load_and_update(self.path, fetched)
         self.assertEqual(reg2["00998A"]["status"], "unsupported")
         self.assertEqual(len(reg2), len(reg))
+
+    def test_load_and_update_does_not_write(self):
+        """純記憶體操作:不呼叫 save_registry 就不該有任何檔案落地。"""
+        fetched = registry.detect_etfs(load_rows())
+        registry.load_and_update(self.path, fetched)
+        self.assertFalse(self.path.exists(),
+                         "load_and_update 不應自行落盤(整批失敗前不可寫入 registry)")
 
     def test_manual_override_preserved(self):
         fetched = registry.detect_etfs(load_rows())
         reg = registry.load_and_update(self.path, fetched)
         reg["00981A"]["market"] = "foreign"  # 模擬手動覆寫
-        self.path.write_text(json.dumps(reg, ensure_ascii=False))
+        registry.save_registry(self.path, reg)
         reg2 = registry.load_and_update(self.path, fetched)
         self.assertEqual(reg2["00981A"]["market"], "foreign")
 
@@ -99,10 +109,25 @@ class ReclassifyTests(unittest.TestCase):
             }
             reg = json.loads(p.read_text())
             w = registry.reclassify_by_holdings(p, reg, results)
-            reg = json.loads(p.read_text())
+            # reclassify_by_holdings 不再落盤(見 opt#7),改判結果只反映在傳入的
+            # 記憶體物件裡;呼叫端要另外呼叫 save_registry 才會寫檔。
             self.assertEqual(reg["00981A"]["market"], "tw")
             self.assertEqual(reg["00990A"]["market"], "foreign")
             self.assertAlmostEqual(w["00990A"], 18.0, places=1)
+
+    def test_reclassify_does_not_write(self):
+        import tempfile
+        from adapters.base import Holding
+        with tempfile.TemporaryDirectory() as tmp:
+            p = self._reg(tmp)
+            before = p.read_text()
+            reg = json.loads(before)
+            results = {"00990A": {"status": "ok", "holdings": [
+                Holding("LITE US", "LUMENTUM", 100, 60.0),
+                Holding("2330", "台積電", 100, 18.0)]}}
+            registry.reclassify_by_holdings(p, reg, results)
+            self.assertEqual(p.read_text(), before,
+                             "reclassify_by_holdings 不應自行落盤")
 
     def test_tw_weight_ignores_foreign_codes(self):
         from adapters.base import Holding
@@ -123,8 +148,8 @@ class StatusDerivationTests(unittest.TestCase):
                 "code": "00980A", "name": "主動野村臺灣優選", "market": "tw",
                 "issuer": "野村", "adapter": "nomura", "status": "unsupported"}},
                 ensure_ascii=False))
-            registry.load_and_update(p, [])
-            self.assertEqual(json.loads(p.read_text())["00980A"]["status"], "active")
+            reg = registry.load_and_update(p, [])
+            self.assertEqual(reg["00980A"]["status"], "active")
 
     def test_disabled_is_preserved(self):
         import tempfile
@@ -134,8 +159,8 @@ class StatusDerivationTests(unittest.TestCase):
                 "code": "00981A", "name": "主動統一台股增長", "market": "tw",
                 "issuer": "統一", "adapter": "president", "status": "disabled"}},
                 ensure_ascii=False))
-            registry.load_and_update(p, [])
-            self.assertEqual(json.loads(p.read_text())["00981A"]["status"], "disabled")
+            reg = registry.load_and_update(p, [])
+            self.assertEqual(reg["00981A"]["status"], "disabled")
 
 
 class ReclassifyUpdatesInMemoryTests(unittest.TestCase):
@@ -155,3 +180,31 @@ class ReclassifyUpdatesInMemoryTests(unittest.TestCase):
             registry.reclassify_by_holdings(p, reg, results)
             self.assertEqual(reg["00986A"]["market"], "foreign")
             self.assertAlmostEqual(reg["00986A"]["tw_weight"], 8.9, places=1)
+
+
+class SaveRegistryTests(unittest.TestCase):
+    """opt#7:registry 寫入要原子化,且只在明確呼叫 save_registry 時才落盤——
+    不可在整批持股是否成功判定之前就先寫入(review 明確點名的問題)。
+    """
+
+    def test_save_registry_writes_file(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "reg.json"
+            registry.save_registry(p, {"00981A": {"code": "00981A", "market": "tw"}})
+            self.assertEqual(json.loads(p.read_text())["00981A"]["market"], "tw")
+
+    def test_save_registry_is_atomic_no_tmp_leftover(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "reg.json"
+            registry.save_registry(p, {"A": {"code": "A"}})
+            leftovers = list(Path(tmp).glob("*.tmp"))
+            self.assertEqual(leftovers, [], "不應留下暫存檔")
+
+    def test_save_registry_creates_parent_dir(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "nested" / "reg.json"
+            registry.save_registry(p, {"A": {"code": "A"}})
+            self.assertTrue(p.exists())

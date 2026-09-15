@@ -238,6 +238,10 @@ def main():
     if demoted:
         log("依實際持股改判為海外型(不列入台股型統計):{}".format(
             ", ".join("{} 台股僅{:.0f}%".format(c, tw_weights[c]) for c in demoted)))
+    # 此刻所有可能中止整批更新的檢查(空結果/無法判定資料日/跳過/檔數異常)
+    # 都已經通過,才是 registry.json 該落盤的時機——早於此處寫入,一旦後面
+    # 任何步驟失敗都會留下「registry 已更新、其他產物沒更新」的半殘狀態。
+    registry_mod.save_registry(REGISTRY_PATH, reg)
 
     prev_snapshot = outputs.load_prev_snapshot(HISTORY, data_date)
     # 同一資料日重跑時,本日既有快照可能比前日快照更新(見 carry_stale 說明)

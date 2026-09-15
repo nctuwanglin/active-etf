@@ -10,6 +10,8 @@ import json
 import re
 from pathlib import Path
 
+import outputs
+
 CODE_RE = re.compile(r"^00\d{3}A$")
 
 # 名稱含這些關鍵字視為海外型,排除於追蹤(registry 可手動覆寫 market)。
@@ -78,8 +80,9 @@ def reclassify_by_holdings(path, reg, results):
         if code in reg:
             reg[code]["market"] = "tw" if w >= TW_WEIGHT_MIN else "foreign"
             reg[code]["tw_weight"] = w
-    Path(path).write_text(
-        json.dumps(reg, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
+    # 不在此落盤(見 opt#7 / save_registry):呼叫端可能還在整批流程中途,
+    # 此時寫檔會讓 registry.json 比 active.json/index.html 早一步變更,
+    # 一旦後續步驟失敗就留下不一致的狀態。改判結果只反映在傳入的 reg 物件。
     return weights
 
 
@@ -111,9 +114,15 @@ def detect_etfs(rows):
 
 
 def load_and_update(path, fetched):
-    """讀取並更新 registry 檔。新代號加入;既有代號只補缺漏欄位,不覆寫。"""
+    """讀取並更新 registry(純記憶體操作,不落盤)。新代號加入;既有代號只補缺漏欄位。
+
+    **呼叫端要另外呼叫 save_registry 才會寫檔**——原本這裡會直接寫入,但
+    fetch_registry() 是整批流程最早呼叫的步驟,若持股後續全部抓取失敗
+    (fetch_all_holdings 回傳空),registry.json 卻已經被新偵測到的 ETF 清單
+    覆寫,等於整批失敗時仍留下一次「半成功」的寫入。分離讀取/更新與落盤,
+    讓呼叫端可以自己決定何時才算「這次執行真的成功了」。
+    """
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
     reg = json.loads(path.read_text()) if path.exists() else {}
     for e in fetched:
         code = e["code"]
@@ -135,5 +144,12 @@ def load_and_update(path, fetched):
         if entry.get("status") != "disabled":
             entry["status"] = ("active" if entry.get("adapter") in IMPLEMENTED_ADAPTERS
                                else "unsupported")
-    path.write_text(json.dumps(reg, ensure_ascii=False, indent=1, sort_keys=True) + "\n")
     return reg
+
+
+def save_registry(path, reg):
+    """原子寫入 registry.json。呼叫端應在確認整批更新成功後才呼叫這個函式。"""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    outputs.write_text_atomic(
+        path, json.dumps(reg, ensure_ascii=False, indent=1, sort_keys=True) + "\n")

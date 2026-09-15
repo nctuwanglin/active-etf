@@ -116,7 +116,7 @@
   "market": "tw",
   "name": "主動野村臺灣優選",
   "status": "active",
-  "tw_weight": 94.53
+  "tw_weight": 93.92
  },
  "00981A": {
   "adapter": "president",
@@ -155,7 +155,7 @@
   "market": "tw",
   "name": "主動安聯台灣高息",
   "status": "active",
-  "tw_weight": 96.9
+  "tw_weight": 96.86
  },
  "00985A": {
   "adapter": "nomura",
@@ -165,7 +165,7 @@
   "market": "tw",
   "name": "主動野村台灣50",
   "status": "active",
-  "tw_weight": 86.09
+  "tw_weight": 85.97
  },
  "00986A": {
   "adapter": "taishin",
@@ -244,7 +244,7 @@
   "market": "tw",
   "name": "主動安聯台灣",
   "status": "active",
-  "tw_weight": 97.59
+  "tw_weight": 97.55
  },
  "00994A": {
   "adapter": "firstsec",
@@ -294,6 +294,6 @@
   "market": "tw",
   "name": "主動野村臺灣高息",
   "status": "active",
-  "tw_weight": 92.59
+  "tw_weight": 91.85
  }
 }
