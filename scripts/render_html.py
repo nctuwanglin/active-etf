@@ -114,6 +114,10 @@ input:focus,select:focus{outline:none;border-color:var(--blue)}
 .chip[data-t="ADD"],.chip[data-t="INCREASE"]{--c:var(--up)}
 .chip[data-t="REMOVE"],.chip[data-t="DECREASE"]{--c:var(--down)}
 .chip-hint{color:var(--ink-mute);font-size:.72rem;margin-left:.15rem}
+/* 視覺隱藏但螢幕閱讀器讀得到:只用 placeholder 沒有真正的 label,輸入後
+   placeholder 消失,使用者(尤其螢幕閱讀器)無法得知欄位用途或已填的內容 */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 /* 資料健康列:status=ok 只代表抓取成功,不代表資料最新,必須讓人看得出差別 */
 .health{display:flex;flex-wrap:wrap;gap:.4rem;margin:.2rem 0 .1rem}
 .hb{background:var(--panel-2);border:1px solid var(--line);border-radius:5px;
@@ -542,8 +546,13 @@ document.querySelectorAll('nav button').forEach((b, i) =>
 document.querySelectorAll('#typeChips .chip').forEach(c => c.onclick = () => {
   const t = c.dataset.t;
   filterType = (filterType === t) ? '' : t;
-  document.querySelectorAll('#typeChips .chip').forEach(
-    x => x.classList.toggle('on', x.dataset.t === filterType));
+  document.querySelectorAll('#typeChips .chip').forEach(x => {
+    const on = x.dataset.t === filterType;
+    x.classList.toggle('on', on);
+    // <button> 原生就能 Tab/Enter/Space 操作(原本是 <span>,鍵盤使用者按不到);
+    // aria-pressed 讓螢幕閱讀器知道這是切換按鈕,而不只是普通按鈕
+    x.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
   $('#events').innerHTML = renderEvents();
 });
 $('#etfSel').onchange = e => { filterEtf = e.target.value; $('#events').innerHTML = renderEvents(); };
@@ -616,8 +625,10 @@ def render(active, registry):
     opts = "".join('<option value="{0}">{0}</option>'.format(c)
                    for c in sorted(tracked))
     chips = "".join(
-        '<span class="chip{3}" data-t="{0}"><span class="g">{2}</span>{1}</span>'.format(
-            t, label, GLYPH[t], " on" if t == DEFAULT_FILTER else "")
+        '<button type="button" class="chip{3}" data-t="{0}" '
+        'aria-pressed="{4}"><span class="g">{2}</span>{1}</button>'.format(
+            t, label, GLYPH[t], " on" if t == DEFAULT_FILTER else "",
+            "true" if t == DEFAULT_FILTER else "false")
         for t, label in (("ADD", "新增"), ("INCREASE", "加碼"),
                          ("DECREASE", "減碼"), ("REMOVE", "剔除")))
     # ── 資料健康列 ────────────────────────────────────────────────────────
@@ -717,7 +728,9 @@ def render(active, registry):
       <h2>今日持股異動明細</h2>
       <div class="controls">
         <span id="typeChips">{chips}</span><span class="chip-hint">(點選篩選一種,再點一次看全部)</span>
+        <label for="etfSel" class="sr-only">篩選 ETF</label>
         <select id="etfSel"><option value="">全部 ETF</option>{opts}</select>
+        <label for="evQ" class="sr-only">搜尋個股代號或名稱</label>
         <input id="evQ" placeholder="搜尋個股代號 / 名稱">
       </div>
       <div id="events"></div>
@@ -735,7 +748,8 @@ def render(active, registry):
   <section style="display:none">
     <div class="panel">
       <h2>個股反向查詢<span class="hint">查某檔股票被哪些主動式 ETF 持有、各佔多少</span></h2>
-      <div class="controls"><input id="lookupQ" placeholder="輸入股票代號或名稱,如 2330 或 台積電"></div>
+      <div class="controls"><label for="lookupQ" class="sr-only">輸入股票代號或名稱查詢</label>
+        <input id="lookupQ" placeholder="輸入股票代號或名稱,如 2330 或 台積電"></div>
       <div id="lookup"></div>
     </div>
     <div class="panel">

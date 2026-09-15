@@ -92,3 +92,40 @@ class EscapingTests(unittest.TestCase):
         m = re.search(r"function etfCard\(code, e\) \{(.*?)\n\}", self.js, re.S)
         self.assertIsNotNone(m, "找不到 etfCard 定義")
         self.assertIn("esc(e.name)", m.group(1))
+
+
+class KeyboardAccessibilityTests(unittest.TestCase):
+    """opt#4:chip 原本是可點擊 <span>,鍵盤使用者無法 Tab 到/用 Enter 切換;
+    輸入框只有 placeholder,螢幕閱讀器唸不出用途(輸入後 placeholder 消失,
+    使用者連自己填了什麼欄位都不知道)。
+    """
+
+    def setUp(self):
+        self.html = render_html.render(ACTIVE, {})
+        self.js = render_html.JS
+
+    def test_chips_are_buttons_not_spans(self):
+        # 用 data-t= 鎖定「篩選 chip 本身」,避免與 .chip-hint 那個純文字提示
+        # (class 也以 "chip" 開頭)誤判成同一種元素。
+        self.assertNotIn('<span class="chip" data-t=', self.html)
+        self.assertIn('<button type="button" class="chip" data-t="ADD"', self.html)
+
+    def test_chips_have_aria_pressed(self):
+        self.assertRegex(self.html, r'<button type="button" class="chip[^"]*" '
+                                    r'data-t="ADD" aria-pressed="(true|false)"')
+
+    def test_default_filter_chip_pressed_true(self):
+        # DEFAULT_FILTER = "INCREASE"
+        self.assertRegex(self.html,
+                         r'data-t="INCREASE" aria-pressed="true"')
+        self.assertRegex(self.html,
+                         r'data-t="ADD" aria-pressed="false"')
+
+    def test_click_handler_updates_aria_pressed(self):
+        self.assertIn("aria-pressed", self.js)
+        self.assertIn("setAttribute('aria-pressed'", self.js)
+
+    def test_search_inputs_have_labels(self):
+        self.assertIn('<label for="evQ"', self.html)
+        self.assertIn('<label for="lookupQ"', self.html)
+        self.assertIn('<label for="etfSel"', self.html)
