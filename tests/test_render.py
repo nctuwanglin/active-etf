@@ -61,3 +61,34 @@ class RenderTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class EscapingTests(unittest.TestCase):
+    """opt#4:外部字串(投信網站來的個股/ETF 名稱)要一律 escape 再塞進 innerHTML。
+
+    這些名稱不是使用者可控輸入,不是可被外部連結利用的漏洞,但仍是「未跳脫
+    路徑」——某天來源網站的名稱裡出現 < 或 & 就會破壞 DOM 結構甚至被解讀成標籤。
+    """
+
+    def setUp(self):
+        self.js = render_html.JS
+
+    def test_stock_cell_escapes_name(self):
+        """stockCell() 是全站顯示個股名稱的核心函式(共識榜/排行/反查/ETF卡片
+        完整持股表都靠它),name 參數必須經過 esc()。"""
+        m = re.search(r"function stockCell\(code, name\) \{(.*?)\n\}",
+                      self.js, re.S)
+        self.assertIsNotNone(m, "找不到 stockCell 定義")
+        body = m.group(1)
+        self.assertIn("esc(name", body,
+                     "stockCell 的 name 必須用 esc() 包住,否則六個呼叫點都沒防護")
+
+    def test_holding_bar_name_escaped(self):
+        """etfCard() 權重長條上的個股名稱(h.name)。"""
+        self.assertIn("esc(h.name)", self.js)
+
+    def test_etf_card_title_name_escaped(self):
+        """etfCard() 卡片標題的 ETF 名稱(e.name)。"""
+        m = re.search(r"function etfCard\(code, e\) \{(.*?)\n\}", self.js, re.S)
+        self.assertIsNotNone(m, "找不到 etfCard 定義")
+        self.assertIn("esc(e.name)", m.group(1))

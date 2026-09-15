@@ -223,7 +223,9 @@ const dispoSet = new Set(DATA.crosslinks.dispo || []);
 const notes = DATA.crosslinks.notes || {};
 
 function stockCell(code, name) {
-  let h = '<span class="mono">' + code + '</span> ' + (name || '');
+  // name 來自投信網站爬回來的資料,不是使用者輸入,但仍是外部字串——
+  // 一律 esc() 再塞進 innerHTML,不要賭它永遠乾淨。
+  let h = '<span class="mono">' + code + '</span> ' + esc(name || '');
   if (dispoSet.has(code)) h += ' <span class="pill p-dispo"><span class="g">!</span>處置</span>';
   if (notes[code]) h += ' <a href="' + notes[code] + '" target="_blank" title="研究筆記"'
     + ' class="pill p-note" style="text-decoration:none"><span class="g">◆</span>筆記</a>';
@@ -369,7 +371,7 @@ function etfCard(code, e) {
   const bars = top.map(h => {
     const mv = moves[h.code];
     return '<div class="bar-row' + (mv ? ' moved ' + mv : '') + '">' +
-      '<span class="nm">' + h.name + '</span>' +
+      '<span class="nm">' + esc(h.name) + '</span>' +
       '<span class="bar-track"><span class="bar-fill" style="width:' +
       (h.weight / max * 100).toFixed(1) + '%;--c:' + seqColor(h.weight, max) + '"></span></span>' +
       '<span class="pc mono">' + h.weight.toFixed(2) + '%</span></div>';
@@ -384,7 +386,7 @@ function etfCard(code, e) {
       '<tr><td>' + stockCell(h.code, h.name) + '</td><td class="num mono">' + fmt(h.shares) +
       '</td><td class="num mono">' + h.weight.toFixed(2) + '%</td></tr>').join('') +
     '</tbody></table></div></details>';
-  return '<div class="etf-card"><h3><span class="mono">' + code + '</span> ' + e.name + stale + '</h3>' +
+  return '<div class="etf-card"><h3><span class="mono">' + code + '</span> ' + esc(e.name) + stale + '</h3>' +
     '<div class="sub" style="font-size:.72rem">' + (e.issuer || '') + '投信 · 資料日 ' +
     (e.data_date || '—') + '</div>' +
     '<div class="etf-meta"><span>規模 <b>' + money(e.scale) + '</b></span>' +
