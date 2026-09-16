@@ -16416,6 +16416,27 @@
    "type": "REMOVE"
   },
   {
+   "close": 4530.0,
+   "code": "2454",
+   "date": "2026-09-16",
+   "etf": "00991A",
+   "type": "INCREASE"
+  },
+  {
+   "close": 5240.0,
+   "code": "3653",
+   "date": "2026-09-16",
+   "etf": "00991A",
+   "type": "DECREASE"
+  },
+  {
+   "close": 1415.0,
+   "code": "6274",
+   "date": "2026-09-16",
+   "etf": "00991A",
+   "type": "DECREASE"
+  },
+  {
    "close": 2805.0,
    "code": "3081",
    "date": "2026-09-16",
