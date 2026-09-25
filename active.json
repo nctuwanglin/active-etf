@@ -1,5 +1,5 @@
 {
- "build_id": "894f1b9b4c0c",
+ "build_id": "82a599e5dcd7",
  "consensus": {
   "decrease": [
    {
@@ -992,12 +992,12 @@
    ],
    "issuer": "摩根",
    "name": "主動摩根台灣鑫收",
-   "nav": 14.38,
+   "nav": 14.34,
    "nav_date": "2026-09-24",
    "premium_note": null,
-   "premium_pct": -0.7,
+   "premium_pct": -0.42,
    "quote_date": "2026-09-24",
-   "scale": 3766166244.0,
+   "scale": 3755128717.0,
    "status": "ok"
   },
   "00403A": {
