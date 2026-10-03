@@ -127,7 +127,7 @@ def validate_holdings(holdings, etf_code):
         w = float(x.weight)
         if not math.isfinite(w) or not math.isfinite(float(x.shares)):
             raise AdapterError("{}: {} 權重或股數非有限數值".format(etf_code, code))
-        if w > 100.0:
+        if w < 0 or w > 100.0:
             raise AdapterError("{}: {} 單筆權重 {:.2f} 超過 100%".format(etf_code, code, w))
         out.append(Holding(code=code, name=x.name.strip(), shares=int(x.shares),
                            weight=w))

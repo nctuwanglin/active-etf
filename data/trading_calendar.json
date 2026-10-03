@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "coverage_start": "2026-08-01",
+  "coverage_end": "2026-12-31",
+  "verified_on": "2026-10-03",
+  "source": "https://wwwc.twse.com.tw/zh/trading/holiday.html",
+  "corroborating_source": "https://www.tpex.org.tw/storage/eb_data/11509/11503027221.html",
+  "note": "TWSE 115 年例行休市表；臨時休市需補入 closed_dates，不以缺快照自動推定休市。未涵蓋的年度降級為觀測日。",
+  "closed_dates": ["2026-09-25", "2026-09-28", "2026-10-09", "2026-10-26", "2026-12-25"],
+  "open_dates": []
+}

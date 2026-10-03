@@ -9,11 +9,14 @@ on:
     # 佐證：週五 14:53 那次抓到的各檔資料日，到週六 16:55 再抓完全沒有一檔變新。
     #
     # GitHub scheduled workflows 為 best-effort，實測延遲 1-3 小時（設 09:17 實際
-    # 12:03、設 13:47 實際 14:53），故排兩班互為備援；腳本冪等且有「資料日未更新
-    # 就跳過」守則，重跑無害。
+    # 12:03、設 13:47 實際 14:53），故排兩班互為備援；腳本冪等；同日重跑仍會補齊報價與修正資料。
     - cron: "20 6 * * 1-5"   # 台灣 14:20 主跑（收盤後，實際約 15:20-17:20 觸發）
     - cron: "0 10 * * 1-5"   # 台灣 18:00 補跑（主跑失敗時當天仍補得回來）
   workflow_dispatch:
+
+concurrency:
+  group: active-etf-update
+  cancel-in-progress: false
 
 jobs:
   update-dashboard:
@@ -36,6 +39,9 @@ jobs:
 
       - name: Run adapter tests
         run: python -m unittest discover -s tests -q
+
+      - name: Test stock trend interactions
+        run: node tests/test_trends_ui.js
 
       - name: Run update script
         run: python scripts/update_dashboard.py
@@ -61,28 +67,22 @@ jobs:
           git push
 
       # Pages 部署間歇性失敗時 workflow 會綠燈但線上是舊資料（處置股儀表板已踩過兩次）。
-      # **以內容雜湊 build_id 驗證，不是只比資料日**：同日修 UI 或補資料後，
+      # **以完整檔案 SHA-256 驗證，不是只比資料日**：同日修 UI 或補資料後，
       # 線上即使仍是舊版，資料日也會相同而誤判成功。HTML 與 active.json 各自比對。
       # 不符時依序：等待 → Pages API 重建 → 空 commit 觸發全新部署 → 仍失敗才亮紅燈。
       - name: Verify live deployment
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          set -u
+          set -uo pipefail
           URL="https://nctuwanglin.github.io/active-etf/"
-          EXPECTED=$(grep -oE 'name="build-id" content="[0-9a-f]+"' index.html \
-                     | grep -oE '[0-9a-f]{12}' | head -1)
-          if [ -z "$EXPECTED" ]; then echo "::error::index.html 缺少 build-id"; exit 1; fi
-          echo "預期 build_id: $EXPECTED"
+          EXPECTED=$(sha256sum index.html active.json | awk '{print $1}' | tr '\n' ' ')
+          echo "預期 HTML/JSON SHA-256: $EXPECTED"
 
-          # HTML 與 JSON 都要對上才算部署成功
           check_live() {
-            H=$(curl -fsS --max-time 20 "${URL}?nocache=$(date +%s)" 2>/dev/null \
-                | grep -oE 'name="build-id" content="[0-9a-f]+"' \
-                | grep -oE '[0-9a-f]{12}' | head -1)
-            J=$(curl -fsS --max-time 20 "${URL}active.json?nocache=$(date +%s)" 2>/dev/null \
-                | grep -oE '"build_id": *"[0-9a-f]+"' | grep -oE '[0-9a-f]{12}' | head -1)
-            if [ -n "$H" ] && [ "$H" = "$J" ]; then echo "$H"; else echo "html=$H json=$J"; fi
+            H=$(curl -fsS --max-time 20 "${URL}?nocache=$(date +%s)" | sha256sum | cut -d' ' -f1) || return 1
+            J=$(curl -fsS --max-time 20 "${URL}active.json?nocache=$(date +%s)" | sha256sum | cut -d' ' -f1) || return 1
+            echo "$H $J "
           }
 
           poll() {  # poll <次數> <間隔秒>
