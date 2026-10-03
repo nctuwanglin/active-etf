@@ -26,3 +26,7 @@ Reviewed the entire working change against baseline `0b9643d` using an independe
 Actual desktop and narrow/mobile viewport visual verification cannot be performed through the browser tool because its local-page security denial remains in effect. No alternate browser/server workaround was attempted. User-side layout verification has been requested and remains pending. Unit DOM checks are not a substitute for visual verification.
 
 Live GitHub CI/Pages deployment can only be assessed after the authorized push; no claim of deployment success is made here.
+
+## User-requested tracking removal
+
+00996A is now disabled in registry by explicit user request. Fetching and stale carry-forward skip it; live active.json/index.html and all derived trends contain no 00996A. Registry intentionally changed for this request; all raw history remains unchanged. Follow-up verification: 204 Python tests and both JS suites pass.

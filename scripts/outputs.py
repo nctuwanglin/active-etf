@@ -269,7 +269,7 @@ def build_active_json(date, registry, etf_results, fundamentals, crosslinks=None
     quotes = quotes or {}
     etfs, stocks, cons_inc, cons_dec = {}, {}, {}, {}
     for code, reg in sorted(registry.items()):
-        if reg.get("market") != "tw":
+        if reg.get("market") != "tw" or reg.get("status") == "disabled":
             continue
         r = etf_results.get(code)
         f = (fundamentals or {}).get(code) or {}

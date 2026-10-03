@@ -270,11 +270,12 @@
  "00996A": {
   "adapter": "megafunds",
   "code": "00996A",
+  "disabled_reason": "使用者要求停止追蹤；兆豐網站自 2026-09-21 起拒絕 GitHub Actions 請求（HTTP 403）",
   "first_snapshot_date": null,
   "issuer": "兆豐",
   "market": "tw",
   "name": "主動兆豐台灣豐收",
-  "status": "active",
+  "status": "disabled",
   "tw_weight": 96.29
  },
  "00997A": {

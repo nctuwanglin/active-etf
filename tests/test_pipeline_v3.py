@@ -90,6 +90,18 @@ class PipelineRegressionTests(unittest.TestCase):
         with patch.dict(ud.base.ADAPTERS, {'test': lambda _: ('2026-99-01', [], {})}):
             self.assertEqual(ud.fetch_all_holdings(reg), {})
 
+    def test_disabled_etf_is_not_published_or_fetched(self):
+        reg = {'00996A': {'market': 'tw', 'status': 'disabled', 'adapter': 'megafunds'}}
+        r = {'00996A': result()}
+        active = outputs.build_active_json('2026-10-02', reg, r, {})
+        self.assertEqual(active['etfs'], {})
+        self.assertEqual(active['stocks'], {})
+        with patch.dict(ud.base.ADAPTERS, {'megafunds': lambda _: self.fail('disabled ETF fetched')}):
+            self.assertEqual(ud.fetch_all_holdings(reg), {})
+        stale = {}
+        ud.carry_stale(stale, reg, {'etfs': {'00996A': snapshot('2026-10-02')['etfs']['A']}})
+        self.assertEqual(stale, {})
+
     def test_first_observation_not_a_purchase(self):
         r = {'NEW': result()}
         ud.compute_all_events(r, snapshot('2026-10-01'))

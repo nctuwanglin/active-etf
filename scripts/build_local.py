@@ -33,7 +33,7 @@ def rebuild(root=ROOT):
     latest = outputs.load_latest_snapshot(root / 'data/history')
     results = {}
     for code, entry in latest['etfs'].items():
-        if reg.get(code, {}).get('market') != 'tw':
+        if reg.get(code, {}).get('market') != 'tw' or reg.get(code, {}).get('status') == 'disabled':
             continue
         results[code] = {**entry, 'holdings': [Holding(**h) for h in entry['holdings']]}
     ud.compute_all_events(results, outputs.load_baselines(root / 'data/history', results))
