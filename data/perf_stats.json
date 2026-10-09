@@ -9655,7 +9655,7 @@
   },
   {
    "adjusted_shares_delta": 3000,
-   "close": null,
+   "close": 3320.0,
    "code": "6510",
    "common_holdings_count": 28,
    "daily_comparable": true,
@@ -9668,7 +9668,7 @@
    "prev_shares": 22000,
    "prev_weight": 2.6418,
    "quality": "ok",
-   "quote_date": null,
+   "quote_date": "2026-10-08",
    "scale": 1.0,
    "shares": 25000,
    "shares_delta": 3000,
