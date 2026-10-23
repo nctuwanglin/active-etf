@@ -1,5 +1,5 @@
 {
- "build_id": "254b786be752",
+ "build_id": "9821379be7f6",
  "consensus": {
   "decrease": [
    {
@@ -11,17 +11,6 @@
     "from_date": "2026-10-21",
     "name": "國巨*",
     "shares_delta": -27000.0,
-    "to_date": "2026-10-22"
-   },
-   {
-    "code": "6669",
-    "etfs": [
-     "00400A",
-     "00982A"
-    ],
-    "from_date": "2026-10-21",
-    "name": "緯穎",
-    "shares_delta": -310631.334763,
     "to_date": "2026-10-22"
    }
   ],
@@ -61,8 +50,7 @@
    "3354",
    "3597",
    "4979",
-   "6716",
-   "8111"
+   "6716"
   ],
   "notes": {
    "1503": "https://nctuwanglin.github.io/stock-research-notes/1503-shihlin-electric.html",
@@ -149,76 +137,7 @@
   "00400A": {
    "close": 14.41,
    "data_date": "2026-10-22",
-   "events": [
-    {
-     "adjusted_shares_delta": 246401,
-     "code": "3406",
-     "common_holdings_count": 51,
-     "daily_comparable": true,
-     "from_date": "2026-10-21",
-     "method": "median-v1",
-     "name": "玉晶光",
-     "quality": "ok",
-     "scale": 1.0020634978378165,
-     "shares": 246401,
-     "shares_delta": 246401,
-     "to_date": "2026-10-22",
-     "type": "ADD",
-     "weight": 0.95
-    },
-    {
-     "adjusted_shares_delta": 279811,
-     "code": "6274",
-     "common_holdings_count": 51,
-     "daily_comparable": true,
-     "from_date": "2026-10-21",
-     "method": "median-v1",
-     "name": "台  燿",
-     "quality": "ok",
-     "scale": 1.0020634978378165,
-     "shares": 279811,
-     "shares_delta": 279811,
-     "to_date": "2026-10-22",
-     "type": "ADD",
-     "weight": 1.32
-    },
-    {
-     "adjusted_shares_delta": 33437,
-     "code": "7769",
-     "common_holdings_count": 51,
-     "daily_comparable": true,
-     "from_date": "2026-10-21",
-     "method": "median-v1",
-     "name": "鴻  勁",
-     "prev_shares": 8309,
-     "prev_weight": 0.12,
-     "quality": "ok",
-     "scale": 1.002063,
-     "shares": 41763,
-     "shares_delta": 33454,
-     "shares_delta_pct": 401.59,
-     "to_date": "2026-10-22",
-     "type": "INCREASE",
-     "weight": 0.7,
-     "weight_delta": 0.58
-    },
-    {
-     "adjusted_shares_delta": -220631.334763,
-     "code": "6669",
-     "common_holdings_count": 51,
-     "daily_comparable": true,
-     "from_date": "2026-10-21",
-     "method": "median-v1",
-     "name": "緯穎",
-     "prev_shares": 220177,
-     "prev_weight": 1.35,
-     "quality": "ok",
-     "scale": 1.0020634978378165,
-     "shares_delta": -220177,
-     "to_date": "2026-10-22",
-     "type": "REMOVE"
-    }
-   ],
+   "events": [],
    "holders": 136741.0,
    "holdings": [
     {
@@ -548,7 +467,7 @@
    "premium_pct": 0.56,
    "quote_date": "2026-10-22",
    "scale": 29929318108.0,
-   "status": "ok"
+   "status": "stale"
   },
   "00401A": {
    "close": 13.47,
@@ -895,12 +814,12 @@
    ],
    "issuer": "摩根",
    "name": "主動摩根台灣鑫收",
-   "nav": 13.71,
+   "nav": 13.43,
    "nav_date": "2026-10-22",
    "premium_note": null,
-   "premium_pct": -1.75,
+   "premium_pct": 0.3,
    "quote_date": "2026-10-22",
-   "scale": 3906350774.0,
+   "scale": 3834225434.0,
    "status": "ok"
   },
   "00403A": {
@@ -3010,15 +2929,15 @@
      "weight": 0.99
     },
     {
-     "code": "2449",
-     "name": "京元電子",
-     "shares": 47000,
-     "weight": 0.92
-    },
-    {
      "code": "3008",
      "name": "大立光",
      "shares": 2000,
+     "weight": 0.92
+    },
+    {
+     "code": "2449",
+     "name": "京元電子",
+     "shares": 47000,
      "weight": 0.92
     },
     {
@@ -3082,15 +3001,15 @@
      "weight": 0.51
     },
     {
-     "code": "6510",
-     "name": "精測",
-     "shares": 2000,
-     "weight": 0.46
-    },
-    {
      "code": "2344",
      "name": "華邦電",
      "shares": 40000,
+     "weight": 0.46
+    },
+    {
+     "code": "6510",
+     "name": "精測",
+     "shares": 2000,
      "weight": 0.46
     },
     {
@@ -6211,7 +6130,7 @@
    "premium_pct": 0.64,
    "quote_date": "2026-10-22",
    "scale": 2181637377.0,
-   "status": "ok"
+   "status": "stale"
   },
   "00991A": {
    "close": 16.67,
@@ -8303,12 +8222,6 @@
      "weight": 0.35
     },
     {
-     "code": "6488",
-     "name": "環球晶",
-     "shares": 15000,
-     "weight": 0.32
-    },
-    {
      "code": "6526",
      "name": "達發",
      "shares": 16000,
@@ -8318,6 +8231,12 @@
      "code": "3264",
      "name": "欣銓",
      "shares": 49000,
+     "weight": 0.32
+    },
+    {
+     "code": "6488",
+     "name": "環球晶",
+     "shares": 15000,
      "weight": 0.32
     },
     {
@@ -14132,15 +14051,7 @@
    ],
    "name": "玉晶光",
    "quote_date": "2026-10-22",
-   "recent_events": [
-    {
-     "date": "2026-10-22",
-     "etf": "00400A",
-     "from_date": "2026-10-21",
-     "to_date": "2026-10-22",
-     "type": "ADD"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 432401,
    "total_value": 501585160,
    "total_weight": 6.19
@@ -16426,13 +16337,6 @@
    "quote_date": "2026-10-22",
    "recent_events": [
     {
-     "date": "2026-10-22",
-     "etf": "00400A",
-     "from_date": "2026-10-21",
-     "to_date": "2026-10-22",
-     "type": "ADD"
-    },
-    {
      "date": "2026-10-21",
      "etf": "00980A",
      "from_date": "2026-10-20",
@@ -17108,13 +17012,6 @@
    "quote_date": "2026-10-22",
    "recent_events": [
     {
-     "date": "2026-10-22",
-     "etf": "00400A",
-     "from_date": "2026-10-21",
-     "to_date": "2026-10-22",
-     "type": "REMOVE"
-    },
-    {
      "date": "2026-10-21",
      "etf": "00980A",
      "from_date": "2026-10-20",
@@ -17512,13 +17409,6 @@
    "name": "鴻  勁",
    "quote_date": "2026-10-22",
    "recent_events": [
-    {
-     "date": "2026-10-22",
-     "etf": "00400A",
-     "from_date": "2026-10-21",
-     "to_date": "2026-10-22",
-     "type": "INCREASE"
-    },
     {
      "date": "2026-10-21",
      "etf": "00980A",
@@ -18145,6 +18035,6 @@
    "total_weight": 0.3
   }
  },
- "trend_build_id": "1b8a212e85a86405",
+ "trend_build_id": "7d668daefd352281",
  "updated": "2026-10-22"
 }
