@@ -1,5 +1,5 @@
 {
- "build_id": "9821379be7f6",
+ "build_id": "8f9e104bcd5a",
  "consensus": {
   "decrease": [
    {
@@ -50,7 +50,8 @@
    "3354",
    "3597",
    "4979",
-   "6716"
+   "6716",
+   "8111"
   ],
   "notes": {
    "1503": "https://nctuwanglin.github.io/stock-research-notes/1503-shihlin-electric.html",
