@@ -1,5 +1,5 @@
 {
- "build_id": "8f9e104bcd5a",
+ "build_id": "ecaaa97cca9d",
  "consensus": {
   "decrease": [
    {
@@ -2930,15 +2930,15 @@
      "weight": 0.99
     },
     {
-     "code": "3008",
-     "name": "大立光",
-     "shares": 2000,
-     "weight": 0.92
-    },
-    {
      "code": "2449",
      "name": "京元電子",
      "shares": 47000,
+     "weight": 0.92
+    },
+    {
+     "code": "3008",
+     "name": "大立光",
+     "shares": 2000,
      "weight": 0.92
     },
     {
@@ -3002,15 +3002,15 @@
      "weight": 0.51
     },
     {
-     "code": "2344",
-     "name": "華邦電",
-     "shares": 40000,
-     "weight": 0.46
-    },
-    {
      "code": "6510",
      "name": "精測",
      "shares": 2000,
+     "weight": 0.46
+    },
+    {
+     "code": "2344",
+     "name": "華邦電",
+     "shares": 40000,
      "weight": 0.46
     },
     {
@@ -3026,15 +3026,15 @@
      "weight": 0.38
     },
     {
-     "code": "6526",
-     "name": "達發",
-     "shares": 6000,
-     "weight": 0.35
-    },
-    {
      "code": "6691",
      "name": "洋基工程",
      "shares": 7000,
+     "weight": 0.35
+    },
+    {
+     "code": "6526",
+     "name": "達發",
+     "shares": 6000,
      "weight": 0.35
     },
     {
@@ -8223,18 +8223,6 @@
      "weight": 0.35
     },
     {
-     "code": "6526",
-     "name": "達發",
-     "shares": 16000,
-     "weight": 0.32
-    },
-    {
-     "code": "3264",
-     "name": "欣銓",
-     "shares": 49000,
-     "weight": 0.32
-    },
-    {
      "code": "6488",
      "name": "環球晶",
      "shares": 15000,
@@ -8244,6 +8232,18 @@
      "code": "6510",
      "name": "精測",
      "shares": 4000,
+     "weight": 0.32
+    },
+    {
+     "code": "3264",
+     "name": "欣銓",
+     "shares": 49000,
+     "weight": 0.32
+    },
+    {
+     "code": "6526",
+     "name": "達發",
+     "shares": 16000,
      "weight": 0.32
     },
     {
@@ -18036,6 +18036,6 @@
    "total_weight": 0.3
   }
  },
- "trend_build_id": "7d668daefd352281",
+ "trend_build_id": "b2024e5544d80ed9",
  "updated": "2026-10-22"
 }
