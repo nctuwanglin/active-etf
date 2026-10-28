@@ -104,3 +104,11 @@ class TrendsTests(unittest.TestCase):
         self.put('2026-09-29');self.put('2026-09-30',holdings(1050))
         raw=self.build();packed=trends.pack_trends(raw)
         self.assertEqual(trends.unpack_intervals(packed),raw['intervals'])
+
+    def test_typhoon_closure_oct23_keeps_adjacent_trading_interval(self):
+        from trading_calendar import adjacent
+        self.assertTrue(adjacent('2026-10-22','2026-10-27'))
+        self.put('2026-10-22');self.put('2026-10-27',holdings(1050))
+        w=self.build()['windows']['all']
+        self.assertEqual(w['cohort_etfs'],['A'])
+        self.assertEqual(w['stocks']['2330']['net_delta'],50)

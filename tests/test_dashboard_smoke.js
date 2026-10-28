@@ -41,3 +41,10 @@ assert(elements.get('trendRankTable').innerHTML.includes('data-stock='));
 elements.get('trendExport').click();
 assert.equal(blobs.length,1);
 (async()=>{const csv=await blobs[0].text();assert(csv.includes('included_in_fixed_cohort'));assert(csv.includes('2454'));console.log('Dashboard initialization/controls/export smoke checks passed (unit DOM; no visual assertions).');})();
+
+const emptyWindow=ctx.TREND_DATA.windows['5'];
+emptyWindow.cohort_etfs=[];
+for(const stock of Object.values(emptyWindow.stocks)) stock.net_delta=null;
+elements.get('trendRankWindow').onchange({target:{value:'5'}});
+assert(elements.get('trendRankTable').innerHTML.includes('沒有完整可比樣本'));
+assert(elements.get('trendRankTable').innerHTML.includes('不代表沒有加減碼'));

@@ -1,5 +1,5 @@
 {
- "build_id": "26ecfe91c876",
+ "build_id": "7680598963c4",
  "consensus": {
   "decrease": [],
   "increase": [
@@ -5322,7 +5322,7 @@
      "adjusted_shares_delta": 38000,
      "code": "6669",
      "common_holdings_count": 50,
-     "daily_comparable": false,
+     "daily_comparable": true,
      "from_date": "2026-10-22",
      "method": "median-v1",
      "name": "緯穎科技服務",
@@ -5342,7 +5342,7 @@
      "adjusted_shares_delta": 55000,
      "code": "6446",
      "common_holdings_count": 50,
-     "daily_comparable": false,
+     "daily_comparable": true,
      "from_date": "2026-10-22",
      "method": "median-v1",
      "name": "藥華醫藥",
@@ -5362,7 +5362,7 @@
      "adjusted_shares_delta": 404000,
      "code": "2344",
      "common_holdings_count": 50,
-     "daily_comparable": false,
+     "daily_comparable": true,
      "from_date": "2026-10-22",
      "method": "median-v1",
      "name": "華邦電子",
@@ -5382,7 +5382,7 @@
      "adjusted_shares_delta": 68000,
      "code": "6531",
      "common_holdings_count": 50,
-     "daily_comparable": false,
+     "daily_comparable": true,
      "from_date": "2026-10-22",
      "method": "median-v1",
      "name": "愛普科技",
@@ -5402,7 +5402,7 @@
      "adjusted_shares_delta": 35000,
      "code": "7750",
      "common_holdings_count": 50,
-     "daily_comparable": false,
+     "daily_comparable": true,
      "from_date": "2026-10-22",
      "method": "median-v1",
      "name": "新代科技",
@@ -16422,6 +16422,6 @@
    "total_weight": 0.31
   }
  },
- "trend_build_id": "cd7d3d07e2109cd4",
+ "trend_build_id": "6cdff972bf8edc5d",
  "updated": "2026-10-28"
 }

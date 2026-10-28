@@ -83,7 +83,7 @@
   function metrics(s,w) {
     const list=[['累積淨調整估算',formatLots(s.net_delta),'張',signClass(s.net_delta)],
       ['增持／減持總量',formatLots(s.positive_delta)+' / '+formatLots(s.negative_delta),'張',''],
-      ['淨增持／淨減持 ETF',s.increasing_etfs.length+' / '+s.decreasing_etfs.length,'家',''],
+      ['淨增持／淨減持 ETF',(s.net_delta==null?'—':s.increasing_etfs.length+' / '+s.decreasing_etfs.length),'家',''],
       ['固定可比樣本',s.cohort_etfs.length+' / '+w.expected_etf_count,'家','']];
     return '<div class="trend-metrics">'+list.map(([label,value,unit,cls])=>'<div><span>'+label+'</span><strong class="'+cls+'">'+value+'</strong><small>'+unit+'</small></div>').join('')+'</div>';
   }
@@ -130,7 +130,7 @@
     $('trendRankTable').innerHTML=rows.length?'<div class="scroll rt"><table><thead><tr><th>個股</th><th class="num">5 日淨調整（張）</th><th class="num">20 日淨調整（張）</th><th class="num">所選區間（張）</th><th class="num">增／減 ETF</th><th class="num">正向／有效日</th><th class="num">可比樣本</th></tr></thead><tbody>'+rows.slice(0,60).map(r=>{
       const v=k=>{const x=selectWindow(data,k);return x.available&&x.stocks[r.code]?x.stocks[r.code].net_delta:null;};
       return '<tr><td data-l="個股"><button class="trend-link" data-stock="'+esc(r.code)+'">'+esc(r.code)+' '+esc(data.stocks[r.code].name)+'</button></td><td data-l="5 日淨調整" class="num">'+formatLots(v('5'))+'</td><td data-l="20 日淨調整" class="num">'+formatLots(v('20'))+'</td><td data-l="所選區間" class="num '+signClass(r.net_delta)+'">'+formatLots(r.net_delta)+'</td><td data-l="增／減 ETF" class="num">'+r.increasing_etfs.length+' / '+r.decreasing_etfs.length+'</td><td data-l="正向／有效日" class="num">'+r.positive_days+' / '+w.dates.length+'</td><td data-l="可比樣本" class="num">'+r.cohort_etfs.length+' / '+w.expected_etf_count+'</td></tr>';
-    }).join('')+'</tbody></table></div>':'<div class="empty">此區間沒有符合方向且可比較的個股。</div>';
+    }).join('')+'</tbody></table></div>':'<div class="empty">'+(!w.available?'此區間歷史不足，請選擇較短期間。':!w.cohort_etfs.length?'此區間沒有完整可比樣本；資料日期缺漏或品質檢查未通過，不代表沒有加減碼。':'此區間沒有符合方向且可比較的個股。')+'</div>';
   }
   function changeWindow(value){key=value;day='';drawStock();drawRanking();}
   api.openStock=function(value){if(!data.stocks[value])return;code=value;drawStock();if(typeof root.tab==='function')root.tab(2);$('trendPanel').scrollIntoView({behavior:'auto',block:'start'});};
