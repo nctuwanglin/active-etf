@@ -1,5 +1,5 @@
 {
- "build_id": "1bf4205147f9",
+ "build_id": "427e23fe0d89",
  "consensus": {
   "decrease": [
    {
@@ -66,9 +66,12 @@
  },
  "crosslinks": {
   "dispo": [
+   "2466",
    "3354",
    "3441",
+   "4526",
    "4542",
+   "4577",
    "5205",
    "5475",
    "6751",
@@ -491,7 +494,7 @@
    "premium_pct": 0.29,
    "quote_date": "2026-10-30",
    "scale": 29821957829.0,
-   "status": "ok"
+   "status": "stale"
   },
   "00401A": {
    "close": 13.11,
@@ -5930,7 +5933,7 @@
    "premium_pct": 0.2,
    "quote_date": "2026-10-30",
    "scale": 2105110439.0,
-   "status": "ok"
+   "status": "stale"
   },
   "00991A": {
    "close": 16.21,
@@ -16353,6 +16356,6 @@
    "total_weight": 0.3
   }
  },
- "trend_build_id": "ddcc2875fd0fb3de",
+ "trend_build_id": "2b377297dfb387b9",
  "updated": "2026-10-30"
 }
