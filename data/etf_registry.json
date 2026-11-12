@@ -7,7 +7,7 @@
   "market": "tw",
   "name": "主動國泰動能高息",
   "status": "active",
-  "tw_weight": 93.09
+  "tw_weight": 92.84
  },
  "00401A": {
   "adapter": "jpmorgan",
@@ -17,7 +17,7 @@
   "market": "tw",
   "name": "主動摩根台灣鑫收",
   "status": "active",
-  "tw_weight": 92.97
+  "tw_weight": 92.79
  },
  "00402A": {
   "adapter": "allianz",
@@ -36,7 +36,7 @@
   "market": "tw",
   "name": "主動統一升級50",
   "status": "active",
-  "tw_weight": 85.04
+  "tw_weight": 84.67
  },
  "00404A": {
   "adapter": "ab",
@@ -46,7 +46,7 @@
   "market": "tw",
   "name": "主動聯博動能50",
   "status": "active",
-  "tw_weight": 87.8
+  "tw_weight": 88.04
  },
  "00405A": {
   "adapter": "fubon",
@@ -56,7 +56,7 @@
   "market": "tw",
   "name": "主動富邦台灣龍耀",
   "status": "active",
-  "tw_weight": 85.45
+  "tw_weight": 84.77
  },
  "00406A": {
   "adapter": "ctbc",
@@ -66,7 +66,7 @@
   "market": "tw",
   "name": "主動中信台灣收益",
   "status": "active",
-  "tw_weight": 85.5
+  "tw_weight": 84.56
  },
  "00407A": {
   "adapter": "kgi",
@@ -76,7 +76,7 @@
   "market": "tw",
   "name": "主動凱基台灣",
   "status": "active",
-  "tw_weight": 94.64
+  "tw_weight": 94.24
  },
  "00408A": {
   "adapter": "firstsec",
@@ -87,7 +87,7 @@
   "name": "主動第一金優股息",
   "source_id": "183",
   "status": "active",
-  "tw_weight": 87.78
+  "tw_weight": 88.34
  },
  "00409A": {
   "adapter": "fuhhwa",
@@ -106,7 +106,7 @@
   "market": "tw",
   "name": "主動永豐科技趨勢",
   "status": "active",
-  "tw_weight": 88.44
+  "tw_weight": 88.85
  },
  "00412A": {
   "adapter": "allianz",
@@ -118,6 +118,15 @@
   "status": "active",
   "tw_weight": 39.43
  },
+ "00413A": {
+  "adapter": "",
+  "code": "00413A",
+  "first_snapshot_date": null,
+  "issuer": "",
+  "market": "tw",
+  "name": "主動玉山關鍵科技",
+  "status": "unsupported"
+ },
  "00415A": {
   "adapter": "capital",
   "code": "00415A",
@@ -126,7 +135,7 @@
   "market": "tw",
   "name": "主動群益核心50",
   "status": "active",
-  "tw_weight": 96.48
+  "tw_weight": 96.3
  },
  "00416A": {
   "adapter": "taishin",
@@ -136,7 +145,17 @@
   "market": "tw",
   "name": "主動台新臺灣中小",
   "status": "active",
-  "tw_weight": 92.26
+  "tw_weight": 91.92
+ },
+ "00418A": {
+  "adapter": "fuhhwa",
+  "code": "00418A",
+  "first_snapshot_date": null,
+  "issuer": "復華",
+  "market": "tw",
+  "name": "主動復華台灣新星",
+  "status": "active",
+  "tw_weight": 94.1
  },
  "00980A": {
   "adapter": "nomura",
@@ -146,7 +165,7 @@
   "market": "tw",
   "name": "主動野村臺灣優選",
   "status": "active",
-  "tw_weight": 90.06
+  "tw_weight": 90.28
  },
  "00981A": {
   "adapter": "president",
@@ -156,7 +175,7 @@
   "market": "tw",
   "name": "主動統一台股增長",
   "status": "active",
-  "tw_weight": 93.15
+  "tw_weight": 93.0
  },
  "00982A": {
   "adapter": "capital",
@@ -166,7 +185,7 @@
   "market": "tw",
   "name": "主動群益台灣強棒",
   "status": "active",
-  "tw_weight": 97.45
+  "tw_weight": 98.72
  },
  "00983A": {
   "adapter": "ctbc",
@@ -185,7 +204,7 @@
   "market": "tw",
   "name": "主動安聯台灣高息",
   "status": "active",
-  "tw_weight": 95.27
+  "tw_weight": 96.77
  },
  "00985A": {
   "adapter": "nomura",
@@ -195,7 +214,7 @@
   "market": "tw",
   "name": "主動野村台灣50",
   "status": "active",
-  "tw_weight": 92.77
+  "tw_weight": 92.91
  },
  "00986A": {
   "adapter": "taishin",
@@ -215,7 +234,7 @@
   "market": "tw",
   "name": "主動台新優勢成長",
   "status": "active",
-  "tw_weight": 93.33
+  "tw_weight": 94.55
  },
  "00988A": {
   "adapter": "president",
@@ -254,7 +273,7 @@
   "market": "tw",
   "name": "主動復華未來50",
   "status": "active",
-  "tw_weight": 98.4
+  "tw_weight": 98.82
  },
  "00992A": {
   "adapter": "capital",
@@ -264,7 +283,7 @@
   "market": "tw",
   "name": "主動群益科技創新",
   "status": "active",
-  "tw_weight": 96.25
+  "tw_weight": 98.1
  },
  "00993A": {
   "adapter": "allianz",
@@ -274,7 +293,7 @@
   "market": "tw",
   "name": "主動安聯台灣",
   "status": "active",
-  "tw_weight": 94.31
+  "tw_weight": 94.91
  },
  "00994A": {
   "adapter": "firstsec",
@@ -285,7 +304,7 @@
   "name": "主動第一金台股優",
   "source_id": "182",
   "status": "active",
-  "tw_weight": 96.0
+  "tw_weight": 95.01
  },
  "00995A": {
   "adapter": "ctbc",
@@ -295,7 +314,7 @@
   "market": "tw",
   "name": "主動中信台灣卓越",
   "status": "active",
-  "tw_weight": 93.98
+  "tw_weight": 94.85
  },
  "00996A": {
   "adapter": "megafunds",
@@ -325,6 +344,6 @@
   "market": "tw",
   "name": "主動野村臺灣高息",
   "status": "active",
-  "tw_weight": 91.22
+  "tw_weight": 91.11
  }
 }
