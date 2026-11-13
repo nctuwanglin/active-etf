@@ -54,7 +54,7 @@ adjusted_delta = 本期股數 − 前期股數 × scale
 
 ## 本機命令
 
-使用已安裝 `requests` 的 Python 3.9+。目前唯一 Python runtime dependency 為 requests；圖表使用內嵌 SVG／JS，沒有 CDN 或前端框架。
+使用已安裝 `requests` 的 Python 3.9+。目前唯一 Python runtime dependency 為 requests；圖表使用內嵌 SVG／JS，沒有 CDN 或前端框架。本機預覽請用 HTTP 伺服器開（例如 `python3 -m http.server`），直接雙擊 `index.html` 時趨勢資料載不進來（瀏覽器禁止 file:// fetch）。
 
 ```bash
 # 不上網，不改 raw history／registry／perf_stats；重建目前頁面及衍生趨勢
@@ -69,7 +69,7 @@ node tests/test_dashboard_smoke.js
 scripts/run_local.sh
 ```
 
-`test_dashboard_smoke.js` 是無網路的單元 DOM 模擬，驗證頁面初始化、切換、CSV；**不是瀏覽器視覺／手機版面驗收**。GitHub 排程會執行 Python 與 JS 邏輯測試；實際更新程式仍只依賴 Python。
+`test_dashboard_smoke.js` 是無網路的單元 DOM 模擬（stub fetch 讀本機 `data/stock_trends.json`），驗證頁面初始化、趨勢檔延遲載入、載入前點選排隊、載入失敗、切換、CSV；**不是瀏覽器視覺／手機版面驗收**。斷言不得依賴目前累積的歷史天數。GitHub 排程會在更新後對新產出的頁面執行兩個 JS 測試；實際更新程式仍只依賴 Python。
 
 ## 資料檔與 API v3
 
@@ -78,7 +78,8 @@ scripts/run_local.sh
 - `data/stock_trends.json`：可刪除重建的趨勢資料，schema_version=1、method=median-v1。
 - `data/perf_stats.json`：事件庫；新版按 ETF／實際期間終點 upsert。首次正常更新將缺乏期間來源的舊事件原樣移至 `legacy_events`，避免與新版事件跨日期重複。下游分析請使用 `events`；`legacy_events` 僅供原始紀錄查核，不應併入買賣／績效加總。離線重建不動此檔。
 - `active.json`：最新反向索引，schema_version=3；保留舊欄位並增加事件期間、行情日、趨勢內容 hash。
-- `index.html`：自包含頁面；含精簡的完整趨勢和來源資訊，可離線開啟。資料增加後檔案會比舊版大。
+- `index.html`：頁面與當日資料（約 330 KB）；**不含趨勢資料**。2026-11-13 起趨勢改另檔載入——內嵌時頁面已長到 12 MB 且隨歷史天數持續變大。
+- `data/stock_trends.json`：個股累積趨勢，頁面以 `data/stock_trends.json?v=<trend_build_id>` 載入（內容變更時網址必變，避開快取）。部署驗證會一併比對此檔。
 - `docs/reviews/2026-10-03-migration.json`：離線重算品質／固定樣本／來源 hash 摘要。
 
 ### active.json 新增／修正語意
@@ -113,12 +114,14 @@ scripts/run_local.sh
 
 `windows["5"|"20"|"60"|"all"]` 包含 available、from_date、to_date、dates、cohort_etfs、excluded_etfs、stocks。每個股票包含 series、net_delta、positive_delta、negative_delta、contributions 與股票層級排除項目。
 
-完整區間以 `interval_table.fields/strings/rows` 無損字典編碼，降低單檔頁面大小；可使用 `trends.unpack_intervals()` 或 `ETFTrends.unpack()` 還原。日期／ETF／股票／品質欄位是 strings 索引；source_snapshot_refs 為兩個 strings 索引。其他欄位為原數值／null。內建 method=median-v1、calculation_version=1。
+完整區間以 `interval_table.fields/strings/rows` 無損字典編碼，降低檔案大小；可使用 `trends.unpack_intervals()` 或 `ETFTrends.unpack()` 還原。日期／ETF／股票／品質欄位是 strings 索引；source_snapshot_refs 為兩個 strings 索引。其他欄位為原數值／null。內建 method=median-v1、calculation_version=1。
 
 歷史整合時請由 code＋ETF＋from_date＋to_date＋方法版本識別一段變化，不要由觀測批次日期重複累加。正式歷史回補／遷移應先檢查品質報告，再另行執行。
 
 批次快照的新檔名日期採本批最新有效持股日，避免先更新的少數 ETF 被排除；它是資料上界而非抓取時間。CSV 的 `observed_date` 同樣是來源批次標籤。舊版超出批次標籤、無法確認來源的日期仍保守排除。
 
-00996A 已依使用者要求停止追蹤，registry 保留 `status: disabled`，避免自動偵測重新加入。後續不抓取、不顯示，也不納入持股反查與累積趨勢；原始歷史快照保留供查核。
+00996A（兆豐）2026-11-13 重新啟用。兆豐網站自 2026-09-21 起對 GitHub Actions 回 HTTP 403（本機直抓正常），因此 CI 排程抓不到時會沿用最新快照並在頁首標示 stale／落後天數；本機跑 `scripts/run_local.sh` 可補上最新資料。停用機制仍在：registry 設 `status: disabled` 即不抓取、不顯示。
+
+00413A（玉山）2026-11-13 起支援：`scripts/adapters/esun.py`，資料取自 esunam.com 的 ETFAPI JSON。
 
 2026-10-29 修正：依證交所公告加入 10/23 薔琵颱風臨時休市，使 10/22 → 10/27 視為相鄰交易日。休市來源保存在日曆的 `exceptional_closures`。無完整可比樣本時，排行榜明確提示資料不足，不解讀為沒有加減碼。

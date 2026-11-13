@@ -1,4 +1,7 @@
-/* Offline stock trends. Pure data functions are shared with Node regression tests. */
+/* Stock trends UI. Pure data functions are shared with Node regression tests.
+   趨勢資料不內嵌在 index.html(曾讓頁面長到 12 MB 且每天變大),改由
+   window.TREND_URL(data/stock_trends.json?v=<trend_build_id>)載入。
+   window.TREND_DATA 若已存在則直接使用(測試與相容用)。 */
 (function (root) {
   'use strict';
   const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -41,9 +44,29 @@
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.ETFTrends = api;
   if (typeof document === 'undefined') return;
-  const data = root.TREND_DATA || {stocks:{},windows:{}};
   const $ = id => document.getElementById(id);
   if (!$('trendPanel')) return;
+  // 資料載入前就被呼叫(反查頁「查看累積加減碼趨勢」)→ 先切頁並記下,載入後再開
+  let pending = null;
+  api.settled = false;
+  api.openStock = function(value){pending=value;if(typeof root.tab==='function')root.tab(2);$('trendPanel').scrollIntoView({behavior:'auto',block:'start'});};
+  function placeholder(msg){
+    $('trendBody').hidden=true;$('trendEmpty').hidden=false;$('trendEmpty').textContent=msg;
+    $('trendRankTable').innerHTML='<div class="empty">'+esc(msg)+'</div>';
+  }
+  if (root.TREND_DATA) {
+    api.settled = true; init(root.TREND_DATA); api.ready = Promise.resolve(root.TREND_DATA);
+  } else if (root.TREND_URL && typeof fetch === 'function') {
+    placeholder('趨勢資料載入中…');
+    api.ready = fetch(root.TREND_URL)
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(d => { root.TREND_DATA = d; api.settled = true; init(d); return d; })
+      .catch(err => { api.settled = true; placeholder('趨勢資料載入失敗（' + err.message + '），請重新整理頁面。'); return null; });
+  } else {
+    api.settled = true; init({stocks:{},windows:{}}); api.ready = Promise.resolve(null);
+  }
+
+  function init(data) {
   let key = '20', code = data.stocks['2330'] ? '2330' : Object.keys(data.stocks)[0], day = '', direction = 'buy', rankOrder = 'net';
   let decoded;
   const intervals = () => decoded || (decoded=unpack(data));
@@ -160,5 +183,7 @@
     const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
     const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=code+'-'+w.from_date+'-'+w.to_date+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   };
+  if (pending && data.stocks[pending]) code = pending;
   drawStock();drawRanking();
+  }
 })(typeof globalThis!=='undefined'?globalThis:this);

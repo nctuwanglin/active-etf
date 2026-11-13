@@ -474,6 +474,12 @@ function lookup(q) {
   const fuzzy = all.filter(([c, st]) => c !== q &&
     (c.includes(q) || (st.name || '').includes(q)));
   const pick = exact.length ? exact : fuzzy;
+  // 趨勢資料是另檔非同步載入;還沒載完就先等,免得把「已出清但有歷史」誤報成查無
+  const T = window.ETFTrends;
+  if (!pick.length && T && !T.settled && T.ready) {
+    $('#lookup').innerHTML = '<div class="note">歷史資料載入中…</div>';
+    T.ready.then(() => lookup(q)); return;
+  }
   if (!pick.length && window.TREND_DATA && window.TREND_DATA.stocks[q]) {
     window.ETFTrends.openStock(q);
     $('#lookup').innerHTML = '<div class="note">此股目前未持有，已開啟歷史趨勢。</div>'; return;
@@ -626,7 +632,7 @@ def build_id_of(active):
     return hashlib.sha256((payload + assets).encode("utf-8")).hexdigest()[:12]
 
 
-def render(active, registry, trend_data=None):
+def render(active, registry):
     date = active["updated"]
     etfs = active["etfs"]
     tracked = {c: e for c, e in etfs.items() if e["holdings"]}
@@ -795,7 +801,7 @@ def render(active, registry, trend_data=None):
   <div class="visits" id="visits"></div>
 </div>
 <script>const DATA = {data};</script>
-<script>window.TREND_DATA = {trend_data};</script>
+<script>window.TREND_URL = {trend_url};</script>
 <script>{js}</script>
 <script>{trend_js}</script>
 </body>
@@ -804,7 +810,9 @@ def render(active, registry, trend_data=None):
            trend_css=(ASSETS / "trends_ui.css").read_text(),
            trend_js=(ASSETS / "trends_ui.js").read_text(),
            trend_panel=(ASSETS / "trends_ui.html").read_text(),
-           trend_data=json.dumps(trend_data or {"windows": {}, "stocks": {}}, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c"),
+           # 趨勢資料另檔載入(內嵌曾讓 index.html 長到 12 MB);?v= 讓瀏覽器與 CDN
+           # 在內容變更時一定抓新檔
+           trend_url=json.dumps("data/stock_trends.json?v=" + (active.get("trend_build_id") or "")),
            chips=chips, opts=opts,
            stale_note=stale_note,
            n_etf=len(tracked), n_stock=len(active["stocks"]),

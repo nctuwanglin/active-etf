@@ -87,8 +87,12 @@ class PipelineRegressionTests(unittest.TestCase):
 
     def test_invalid_adapter_date_is_rejected(self):
         reg = {'A': {'market': 'tw', 'status': 'active', 'adapter': 'test'}}
-        with patch.dict(ud.base.ADAPTERS, {'test': lambda _: ('2026-99-01', [], {})}):
+        import contextlib, io
+        out = io.StringIO()  # 吞掉預期中的錯誤訊息,別讓它混進 CI log 像真的失敗
+        with patch.dict(ud.base.ADAPTERS, {'test': lambda _: ('2026-99-01', [], {})}), \
+                contextlib.redirect_stdout(out):
             self.assertEqual(ud.fetch_all_holdings(reg), {})
+        self.assertIn('無效資料日期', out.getvalue())
 
     def test_disabled_etf_is_not_published_or_fetched(self):
         reg = {'00996A': {'market': 'tw', 'status': 'disabled', 'adapter': 'megafunds'}}
@@ -225,7 +229,10 @@ class PipelineRegressionTests(unittest.TestCase):
 
     def test_trend_controls_and_payload_in_render(self):
         a={'updated':'2026-10-02','etfs':{},'stocks':{},'crosslinks':{},'consensus':{'increase':[],'decrease':[]}}
-        html=render_html.render(a,{},trend_data={'windows':{},'stocks':{}})
+        a['trend_build_id']='abc123'
+        html=render_html.render(a,{})
         self.assertTrue('id="trendWindow"' in html)
         self.assertTrue('id="trendExport"' in html)
-        self.assertTrue('window.TREND_DATA' in html)
+        # 趨勢資料另檔載入,不可再內嵌(曾讓 index.html 長到 12 MB)
+        self.assertIn('window.TREND_URL = "data/stock_trends.json?v=abc123"', html)
+        self.assertNotIn('window.TREND_DATA =', html)

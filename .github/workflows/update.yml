@@ -46,6 +46,10 @@ jobs:
       - name: Run update script
         run: python scripts/update_dashboard.py
 
+      # 對「這次產出」的頁面跑:趨勢檔延遲載入、控制項、CSV 匯出(單元 DOM,無網路)
+      - name: Smoke test rendered dashboard
+        run: node tests/test_dashboard_smoke.js index.html data/stock_trends.json
+
       - name: Check for changes
         id: diff
         run: |
@@ -76,13 +80,15 @@ jobs:
         run: |
           set -uo pipefail
           URL="https://nctuwanglin.github.io/active-etf/"
-          EXPECTED=$(sha256sum index.html active.json | awk '{print $1}' | tr '\n' ' ')
-          echo "預期 HTML/JSON SHA-256: $EXPECTED"
+          # 趨勢資料是另檔(data/stock_trends.json),也要驗,否則頁面可能拿到新版 HTML 配舊版趨勢
+          EXPECTED=$(sha256sum index.html active.json data/stock_trends.json | awk '{print $1}' | tr '\n' ' ')
+          echo "預期 HTML/JSON/趨勢 SHA-256: $EXPECTED"
 
           check_live() {
             H=$(curl -fsS --max-time 20 "${URL}?nocache=$(date +%s)" | sha256sum | cut -d' ' -f1) || return 1
             J=$(curl -fsS --max-time 20 "${URL}active.json?nocache=$(date +%s)" | sha256sum | cut -d' ' -f1) || return 1
-            echo "$H $J "
+            T=$(curl -fsS --max-time 60 "${URL}data/stock_trends.json?nocache=$(date +%s)" | sha256sum | cut -d' ' -f1) || return 1
+            echo "$H $J $T "
           }
 
           poll() {  # poll <次數> <間隔秒>

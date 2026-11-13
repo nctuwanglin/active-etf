@@ -22,7 +22,7 @@ def derived_outputs(root, active, registry, extra_docs=()):
     active['trend_build_id'] = hashlib.sha256(text.encode()).hexdigest()[:16]
     active['schema_version'] = 3
     active['build_id'] = render_html.build_id_of(active)
-    html = render_html.render(active, registry, packed)
+    html = render_html.render(active, registry)
     return raw, text, html
 
 
