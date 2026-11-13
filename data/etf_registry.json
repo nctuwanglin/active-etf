@@ -319,13 +319,13 @@
  "00996A": {
   "adapter": "megafunds",
   "code": "00996A",
-  "disabled_reason": "使用者要求停止追蹤；兆豐網站自 2026-09-21 起拒絕 GitHub Actions 請求（HTTP 403）",
   "first_snapshot_date": null,
   "issuer": "兆豐",
   "market": "tw",
   "name": "主動兆豐台灣豐收",
-  "status": "disabled",
-  "tw_weight": 96.29
+  "reenable_note": "2026-11-13 重新啟用:停用原因是兆豐 2026-09-21 起對 GitHub Actions 回 403,並非 adapter 失效(本機直抓正常)。若 CI 仍被擋,會走 stale 沿用並在頁首標示落後天數。",
+  "status": "active",
+  "tw_weight": 94.31
  },
  "00997A": {
   "adapter": "capital",
