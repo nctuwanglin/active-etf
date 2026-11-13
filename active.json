@@ -1,5 +1,5 @@
 {
- "build_id": "6c0c94a089d2",
+ "build_id": "4f8a975ce3e3",
  "consensus": {
   "decrease": [
    {
@@ -3962,7 +3962,7 @@
    "premium_pct": -0.32,
    "quote_date": "2026-11-13",
    "scale": 7484154913.0,
-   "status": "ok"
+   "status": "stale"
   },
   "00418A": {
    "close": 10.08,
@@ -6486,28 +6486,7 @@
   "00987A": {
    "close": 14.22,
    "data_date": "2026-11-13",
-   "events": [
-    {
-     "adjusted_shares_delta": 20000,
-     "code": "8358",
-     "common_holdings_count": 26,
-     "daily_comparable": true,
-     "from_date": "2026-11-12",
-     "method": "median-v1",
-     "name": "金居",
-     "prev_shares": 180000,
-     "prev_weight": 3.1543,
-     "quality": "ok",
-     "scale": 1.0,
-     "shares": 200000,
-     "shares_delta": 20000,
-     "shares_delta_pct": 11.11,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 3.4778,
-     "weight_delta": 0.3235
-    }
-   ],
+   "events": [],
    "holders": null,
    "holdings": [
     {
@@ -6675,7 +6654,7 @@
    "premium_pct": 0.28,
    "quote_date": "2026-11-13",
    "scale": 2165165266.0,
-   "status": "ok"
+   "status": "stale"
   },
   "00991A": {
    "close": 14.42,
@@ -8470,760 +8449,7 @@
   "00996A": {
    "close": 11.46,
    "data_date": "2026-11-13",
-   "events": [
-    {
-     "adjusted_shares_delta": -91245,
-     "code": "2330",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "台積電",
-     "prev_shares": 179000,
-     "prev_weight": 10.95,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 204000,
-     "shares_delta": 25000,
-     "shares_delta_pct": -30.9,
-     "to_date": "2026-11-13",
-     "type": "DECREASE",
-     "weight": 8.88,
-     "weight_delta": -2.07
-    },
-    {
-     "adjusted_shares_delta": 39374,
-     "code": "6510",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "精測",
-     "prev_shares": 41000,
-     "prev_weight": 3.59,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 107000,
-     "shares_delta": 66000,
-     "shares_delta_pct": 58.22,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 6.61,
-     "weight_delta": 3.02
-    },
-    {
-     "adjusted_shares_delta": -24224,
-     "code": "2383",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "台光電子",
-     "prev_shares": 45000,
-     "prev_weight": 5.47,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 50000,
-     "shares_delta": 5000,
-     "shares_delta_pct": -32.64,
-     "to_date": "2026-11-13",
-     "type": "DECREASE",
-     "weight": 3.9,
-     "weight_delta": -1.57
-    },
-    {
-     "adjusted_shares_delta": 20115,
-     "code": "3017",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "奇鋐科技",
-     "prev_shares": 26000,
-     "prev_weight": 2.22,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 63000,
-     "shares_delta": 37000,
-     "shares_delta_pct": 46.91,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 3.55,
-     "weight_delta": 1.33
-    },
-    {
-     "adjusted_shares_delta": 198718,
-     "code": "8021",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "尖點",
-     "prev_shares": 144000,
-     "prev_weight": 1.65,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 436233,
-     "shares_delta": 292233,
-     "shares_delta_pct": 83.67,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 3.11,
-     "weight_delta": 1.46
-    },
-    {
-     "adjusted_shares_delta": 29162,
-     "code": "3189",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "景碩科技",
-     "prev_shares": 106000,
-     "prev_weight": 2.19,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 204000,
-     "shares_delta": 98000,
-     "shares_delta_pct": 16.68,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 2.52,
-     "weight_delta": 0.33
-    },
-    {
-     "adjusted_shares_delta": 36645,
-     "code": "3037",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "欣興電子",
-     "prev_shares": 76000,
-     "prev_weight": 1.85,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 162000,
-     "shares_delta": 86000,
-     "shares_delta_pct": 29.23,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 2.36,
-     "weight_delta": 0.51
-    },
-    {
-     "adjusted_shares_delta": 18581,
-     "code": "7751",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "竑騰",
-     "prev_shares": 53000,
-     "prev_weight": 1.96,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 106000,
-     "shares_delta": 53000,
-     "shares_delta_pct": 21.26,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 2.24,
-     "weight_delta": 0.28
-    },
-    {
-     "adjusted_shares_delta": 1876525,
-     "code": "6770",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "力積電",
-     "prev_shares": 127000,
-     "prev_weight": 0.23,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 2086000,
-     "shares_delta": 1959000,
-     "shares_delta_pct": 895.82,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 2.2,
-     "weight_delta": 1.97
-    },
-    {
-     "adjusted_shares_delta": 343892,
-     "code": "2303",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "聯電",
-     "prev_shares": 496000,
-     "prev_weight": 1.92,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 1162000,
-     "shares_delta": 666000,
-     "shares_delta_pct": 42.03,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 2.19,
-     "weight_delta": 0.27
-    },
-    {
-     "adjusted_shares_delta": -7339,
-     "code": "6223",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "旺矽",
-     "prev_shares": 19000,
-     "prev_weight": 2.74,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 24000,
-     "shares_delta": 5000,
-     "shares_delta_pct": -23.42,
-     "to_date": "2026-11-13",
-     "type": "DECREASE",
-     "weight": 2.07,
-     "weight_delta": -0.67
-    },
-    {
-     "adjusted_shares_delta": 9932,
-     "code": "8046",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "南電",
-     "prev_shares": 54000,
-     "prev_weight": 1.48,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 99000,
-     "shares_delta": 45000,
-     "shares_delta_pct": 11.15,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 1.79,
-     "weight_delta": 0.31
-    },
-    {
-     "adjusted_shares_delta": -15988,
-     "code": "3653",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "健策",
-     "prev_shares": 20000,
-     "prev_weight": 2.75,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 17000,
-     "shares_delta": -3000,
-     "shares_delta_pct": -48.47,
-     "to_date": "2026-11-13",
-     "type": "DECREASE",
-     "weight": 1.68,
-     "weight_delta": -1.07
-    },
-    {
-     "adjusted_shares_delta": 44191,
-     "code": "6830",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "汎銓",
-     "prev_shares": 79000,
-     "prev_weight": 1.11,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 174495,
-     "shares_delta": 95495,
-     "shares_delta_pct": 33.91,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 1.53,
-     "weight_delta": 0.42
-    },
-    {
-     "adjusted_shares_delta": 31402,
-     "code": "3533",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "嘉澤端子",
-     "prev_shares": 4000,
-     "prev_weight": 0.16,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 38000,
-     "shares_delta": 34000,
-     "shares_delta_pct": 475.96,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 1.34,
-     "weight_delta": 1.18
-    },
-    {
-     "adjusted_shares_delta": -75758,
-     "code": "8996",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "高力",
-     "prev_shares": 72000,
-     "prev_weight": 2.56,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 43000,
-     "shares_delta": -29000,
-     "shares_delta_pct": -63.79,
-     "to_date": "2026-11-13",
-     "type": "DECREASE",
-     "weight": 1.15,
-     "weight_delta": -1.41
-    },
-    {
-     "adjusted_shares_delta": 31000,
-     "code": "6805",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "富世達",
-     "quality": "ok",
-     "scale": 1.6494117647058824,
-     "shares": 31000,
-     "shares_delta": 31000,
-     "to_date": "2026-11-13",
-     "type": "ADD",
-     "weight": 1.13
-    },
-    {
-     "adjusted_shares_delta": 54207,
-     "code": "6526",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "達發",
-     "prev_shares": 12000,
-     "prev_weight": 0.21,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 74000,
-     "shares_delta": 62000,
-     "shares_delta_pct": 273.87,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 1.04,
-     "weight_delta": 0.83
-    },
-    {
-     "adjusted_shares_delta": 30908,
-     "code": "2368",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "金像電",
-     "prev_shares": 14000,
-     "prev_weight": 0.36,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 54000,
-     "shares_delta": 40000,
-     "shares_delta_pct": 133.85,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 1.03,
-     "weight_delta": 0.67
-    },
-    {
-     "adjusted_shares_delta": 163696,
-     "code": "3042",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "晶技",
-     "prev_shares": 79000,
-     "prev_weight": 0.36,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 294000,
-     "shares_delta": 215000,
-     "shares_delta_pct": 125.63,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 0.78,
-     "weight_delta": 0.42
-    },
-    {
-     "adjusted_shares_delta": 103000,
-     "code": "8358",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "金居開發",
-     "quality": "ok",
-     "scale": 1.6494117647058824,
-     "shares": 103000,
-     "shares_delta": 103000,
-     "to_date": "2026-11-13",
-     "type": "ADD",
-     "weight": 0.72
-    },
-    {
-     "adjusted_shares_delta": 34000,
-     "code": "3167",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "大量",
-     "quality": "ok",
-     "scale": 1.6494117647058824,
-     "shares": 34000,
-     "shares_delta": 34000,
-     "to_date": "2026-11-13",
-     "type": "ADD",
-     "weight": 0.52
-    },
-    {
-     "adjusted_shares_delta": 139012,
-     "code": "2881",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "富邦金",
-     "prev_shares": 20000,
-     "prev_weight": 0.07,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 172000,
-     "shares_delta": 152000,
-     "shares_delta_pct": 421.4,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 0.52,
-     "weight_delta": 0.45
-    },
-    {
-     "adjusted_shares_delta": 195765,
-     "code": "2882",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "國泰金",
-     "prev_shares": 25000,
-     "prev_weight": 0.07,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 237000,
-     "shares_delta": 212000,
-     "shares_delta_pct": 474.75,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 0.5,
-     "weight_delta": 0.43
-    },
-    {
-     "adjusted_shares_delta": 23753,
-     "code": "3711",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "日月光投控",
-     "prev_shares": 5000,
-     "prev_weight": 0.08,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 32000,
-     "shares_delta": 27000,
-     "shares_delta_pct": 288.02,
-     "to_date": "2026-11-13",
-     "type": "INCREASE",
-     "weight": 0.36,
-     "weight_delta": 0.28
-    },
-    {
-     "adjusted_shares_delta": 5000,
-     "code": "3081",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "聯亞",
-     "quality": "ok",
-     "scale": 1.6494117647058824,
-     "shares": 5000,
-     "shares_delta": 5000,
-     "to_date": "2026-11-13",
-     "type": "ADD",
-     "weight": 0.19
-    },
-    {
-     "adjusted_shares_delta": 20000,
-     "code": "6672",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "騰輝電子-KY",
-     "quality": "ok",
-     "scale": 1.6494117647058824,
-     "shares": 20000,
-     "shares_delta": 20000,
-     "to_date": "2026-11-13",
-     "type": "ADD",
-     "weight": 0.19
-    },
-    {
-     "adjusted_shares_delta": -29287,
-     "code": "5269",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "祥碩科技",
-     "prev_shares": 22000,
-     "prev_weight": 0.82,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 7000,
-     "shares_delta": -15000,
-     "shares_delta_pct": -80.71,
-     "to_date": "2026-11-13",
-     "type": "DECREASE",
-     "weight": 0.15,
-     "weight_delta": -0.67
-    },
-    {
-     "adjusted_shares_delta": -16235,
-     "code": "2467",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "志聖工業",
-     "prev_shares": 25000,
-     "prev_weight": 0.33,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 25000,
-     "shares_delta": 0,
-     "shares_delta_pct": -39.37,
-     "to_date": "2026-11-13",
-     "type": "DECREASE",
-     "weight": 0.14,
-     "weight_delta": -0.19
-    },
-    {
-     "adjusted_shares_delta": -144240,
-     "code": "6239",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "力成",
-     "prev_shares": 102000,
-     "prev_weight": 0.72,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 24000,
-     "shares_delta": -78000,
-     "shares_delta_pct": -85.73,
-     "to_date": "2026-11-13",
-     "type": "DECREASE",
-     "weight": 0.11,
-     "weight_delta": -0.61
-    },
-    {
-     "adjusted_shares_delta": -147045,
-     "code": "3693",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "營邦",
-     "prev_shares": 94000,
-     "prev_weight": 1.65,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 8000,
-     "shares_delta": -86000,
-     "shares_delta_pct": -94.84,
-     "to_date": "2026-11-13",
-     "type": "DECREASE",
-     "weight": 0.11,
-     "weight_delta": -1.54
-    },
-    {
-     "adjusted_shares_delta": -156993,
-     "code": "2408",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "南科",
-     "prev_shares": 97000,
-     "prev_weight": 1.27,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 3000,
-     "shares_delta": -94000,
-     "shares_delta_pct": -98.12,
-     "to_date": "2026-11-13",
-     "type": "DECREASE",
-     "weight": 0.02,
-     "weight_delta": -1.25
-    },
-    {
-     "adjusted_shares_delta": -536306,
-     "code": "2344",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "華邦電",
-     "prev_shares": 330000,
-     "prev_weight": 1.47,
-     "quality": "ok",
-     "scale": 1.649412,
-     "shares": 8000,
-     "shares_delta": -322000,
-     "shares_delta_pct": -98.53,
-     "to_date": "2026-11-13",
-     "type": "DECREASE",
-     "weight": 0.02,
-     "weight_delta": -1.45
-    },
-    {
-     "adjusted_shares_delta": -282049.411765,
-     "code": "6831",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "邁科",
-     "prev_shares": 171000,
-     "prev_weight": 2.28,
-     "quality": "ok",
-     "scale": 1.6494117647058824,
-     "shares_delta": -171000,
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
-    },
-    {
-     "adjusted_shares_delta": -169889.411765,
-     "code": "3363",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "上詮",
-     "prev_shares": 103000,
-     "prev_weight": 1.75,
-     "quality": "ok",
-     "scale": 1.6494117647058824,
-     "shares_delta": -103000,
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
-    },
-    {
-     "adjusted_shares_delta": -107211.764706,
-     "code": "8210",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "勤誠興業",
-     "prev_shares": 65000,
-     "prev_weight": 1.46,
-     "quality": "ok",
-     "scale": 1.6494117647058824,
-     "shares_delta": -65000,
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
-    },
-    {
-     "adjusted_shares_delta": -41235.294118,
-     "code": "2360",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "致茂電子",
-     "prev_shares": 25000,
-     "prev_weight": 1.42,
-     "quality": "ok",
-     "scale": 1.6494117647058824,
-     "shares_delta": -25000,
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
-    },
-    {
-     "adjusted_shares_delta": -61028.235294,
-     "code": "6274",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "台燿",
-     "prev_shares": 37000,
-     "prev_weight": 1.26,
-     "quality": "ok",
-     "scale": 1.6494117647058824,
-     "shares_delta": -37000,
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
-    },
-    {
-     "adjusted_shares_delta": -8247.058824,
-     "code": "3131",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "弘塑科技",
-     "prev_shares": 5000,
-     "prev_weight": 0.3,
-     "quality": "ok",
-     "scale": 1.6494117647058824,
-     "shares_delta": -5000,
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
-    },
-    {
-     "adjusted_shares_delta": -4948.235294,
-     "code": "3665",
-     "common_holdings_count": 45,
-     "daily_comparable": false,
-     "from_date": "2026-09-18",
-     "method": "median-v1",
-     "name": "貿聯-KY",
-     "prev_shares": 3000,
-     "prev_weight": 0.16,
-     "quality": "ok",
-     "scale": 1.6494117647058824,
-     "shares_delta": -3000,
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
-    }
-   ],
+   "events": [],
    "holders": null,
    "holdings": [
     {
@@ -9535,7 +8761,7 @@
    "premium_pct": -0.43,
    "quote_date": "2026-11-13",
    "scale": 5399292019.0,
-   "status": "ok"
+   "status": "stale"
   },
   "00999A": {
    "close": 9.52,
@@ -10845,13 +10071,6 @@
      "from_date": "2026-11-11",
      "to_date": "2026-11-12",
      "type": "DECREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
     }
    ],
    "total_shares": 106690161,
@@ -11303,13 +10522,6 @@
      "from_date": "2026-11-11",
      "to_date": "2026-11-12",
      "type": "DECREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "DECREASE"
     }
    ],
    "total_shares": 49397032,
@@ -11385,15 +10597,7 @@
    ],
    "name": "華邦電子",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "DECREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 6577000,
    "total_value": 822125000,
    "total_weight": 5.177
@@ -11673,13 +10877,6 @@
      "from_date": "2026-11-12",
      "to_date": "2026-11-13",
      "type": "REMOVE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
     }
    ],
    "total_shares": 2345339,
@@ -11798,13 +10995,6 @@
      "date": "2026-11-13",
      "etf": "00991A",
      "from_date": "2026-11-12",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
      "to_date": "2026-11-13",
      "type": "INCREASE"
     }
@@ -12125,13 +11315,6 @@
      "from_date": "2026-11-11",
      "to_date": "2026-11-12",
      "type": "DECREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "DECREASE"
     }
    ],
    "total_shares": 12129173,
@@ -12301,13 +11484,6 @@
      "date": "2026-11-13",
      "etf": "00991A",
      "from_date": "2026-11-12",
-     "to_date": "2026-11-13",
-     "type": "DECREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
      "to_date": "2026-11-13",
      "type": "DECREASE"
     }
@@ -12741,15 +11917,7 @@
    ],
    "name": "志聖",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "DECREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 246000,
    "total_value": 75522000,
    "total_weight": 0.2842
@@ -13225,15 +12393,7 @@
    ],
    "name": "富邦金融控股",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 7808250,
    "total_value": 1261032375,
    "total_weight": 4.722
@@ -13280,15 +12440,7 @@
    ],
    "name": "國泰金融控股",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 16454000,
    "total_value": 1883983000,
    "total_weight": 7.2859
@@ -13946,13 +13098,6 @@
      "from_date": "2026-11-11",
      "to_date": "2026-11-12",
      "type": "INCREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
     }
    ],
    "total_shares": 17888479,
@@ -14234,15 +13379,7 @@
    ],
    "name": "欣興",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 53852629,
    "total_value": 42274313765,
    "total_weight": 89.4149
@@ -14259,15 +13396,7 @@
    ],
    "name": "晶技",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 294000,
    "total_value": 42189000,
    "total_weight": 0.78
@@ -14466,15 +13595,7 @@
    ],
    "name": "聯  亞",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "ADD"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 2664162,
    "total_value": 5621381820,
    "total_weight": 37.5704
@@ -14588,15 +13709,7 @@
    ],
    "name": "弘塑科技",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 93660,
    "total_value": 162500100,
    "total_weight": 1.19
@@ -14655,13 +13768,6 @@
      "date": "2026-11-13",
      "etf": "00994A",
      "from_date": "2026-11-12",
-     "to_date": "2026-11-13",
-     "type": "ADD"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
      "to_date": "2026-11-13",
      "type": "ADD"
     }
@@ -14762,15 +13868,7 @@
    ],
    "name": "景碩",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 16446013,
    "total_value": 10985936684,
    "total_weight": 34.7354
@@ -15039,15 +14137,7 @@
    ],
    "name": "上詮",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 92729,
    "total_value": 34912468,
    "total_weight": 1.6125
@@ -15457,13 +14547,6 @@
      "from_date": "2026-11-12",
      "to_date": "2026-11-13",
      "type": "INCREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
     }
    ],
    "total_shares": 443209,
@@ -15678,13 +14761,6 @@
      "from_date": "2026-11-11",
      "to_date": "2026-11-12",
      "type": "DECREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "DECREASE"
     }
    ],
    "total_shares": 6682436,
@@ -15850,13 +14926,6 @@
      "from_date": "2026-11-12",
      "to_date": "2026-11-13",
      "type": "INCREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
     }
    ],
    "total_shares": 9449181,
@@ -15875,15 +14944,7 @@
    ],
    "name": "營邦",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "DECREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 8000,
    "total_value": 5744000,
    "total_weight": 0.11
@@ -16059,13 +15120,6 @@
      "date": "2026-11-13",
      "etf": "00403A",
      "from_date": "2026-11-12",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
      "to_date": "2026-11-13",
      "type": "INCREASE"
     }
@@ -16425,15 +15479,7 @@
    ],
    "name": "祥碩科技",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "DECREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 7000,
    "total_value": 8155000,
    "total_weight": 0.15
@@ -17326,13 +16372,6 @@
      "from_date": "2026-11-12",
      "to_date": "2026-11-13",
      "type": "REMOVE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "DECREASE"
     }
    ],
    "total_shares": 6602108,
@@ -17361,15 +16400,7 @@
    ],
    "name": "力成",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "DECREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 3635000,
    "total_value": 914202500,
    "total_weight": 2.0406
@@ -17536,13 +16567,6 @@
      "from_date": "2026-11-12",
      "to_date": "2026-11-13",
      "type": "DECREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
     }
    ],
    "total_shares": 13862722,
@@ -17962,13 +16986,6 @@
      "from_date": "2026-11-12",
      "to_date": "2026-11-13",
      "type": "INCREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
     }
    ],
    "total_shares": 1313000,
@@ -18109,15 +17126,7 @@
    ],
    "name": "達發",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 430000,
    "total_value": 325080000,
    "total_weight": 2.8919
@@ -18375,15 +17384,7 @@
    ],
    "name": "騰輝電子-KY",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "ADD"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 2534000,
    "total_value": 1292340000,
    "total_weight": 3.5839
@@ -18471,15 +17472,7 @@
    ],
    "name": "力積電",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 3384000,
    "total_value": 192888000,
    "total_weight": 2.966
@@ -18571,15 +17564,7 @@
    ],
    "name": "富世達",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "ADD"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 3850000,
    "total_value": 7603750000,
    "total_weight": 25.1631
@@ -18596,15 +17581,7 @@
    ],
    "name": "汎銓",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 174495,
    "total_value": 82448888,
    "total_weight": 1.53
@@ -18621,15 +17598,7 @@
    ],
    "name": "邁科科技",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 129000,
    "total_value": 41667000,
    "total_weight": 0.23
@@ -18712,15 +17681,7 @@
    ],
    "name": "竑騰科技",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 197000,
    "total_value": 224580000,
    "total_weight": 2.85
@@ -18902,15 +17863,7 @@
    ],
    "name": "尖點",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 3944703,
    "total_value": 1518710655,
    "total_weight": 8.5622
@@ -19061,15 +18014,7 @@
    ],
    "name": "南電",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 26021000,
    "total_value": 25422517000,
    "total_weight": 61.6207
@@ -19162,15 +18107,7 @@
    ],
    "name": "勤誠興業",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "REMOVE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 745000,
    "total_value": 446255000,
    "total_weight": 1.1872
@@ -19269,22 +18206,7 @@
    ],
    "name": "金居",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00987A",
-     "from_date": "2026-11-12",
-     "to_date": "2026-11-13",
-     "type": "INCREASE"
-    },
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "ADD"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 1444000,
    "total_value": 543666000,
    "total_weight": 5.4837
@@ -19408,15 +18330,7 @@
    ],
    "name": "高力",
    "quote_date": "2026-11-13",
-   "recent_events": [
-    {
-     "date": "2026-11-13",
-     "etf": "00996A",
-     "from_date": "2026-09-18",
-     "to_date": "2026-11-13",
-     "type": "DECREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 6806000,
    "total_value": 9800640000,
    "total_weight": 35.2235
@@ -19507,6 +18421,6 @@
    "total_weight": 0.27
   }
  },
- "trend_build_id": "227f4c5657d8f6f9",
+ "trend_build_id": "18a658633e49137e",
  "updated": "2026-11-13"
 }
