@@ -119,13 +119,14 @@
   "tw_weight": 39.43
  },
  "00413A": {
-  "adapter": "",
+  "adapter": "esun",
   "code": "00413A",
   "first_snapshot_date": null,
-  "issuer": "",
+  "issuer": "玉山",
   "market": "tw",
   "name": "主動玉山關鍵科技",
-  "status": "unsupported"
+  "status": "active",
+  "tw_weight": 90.24
  },
  "00415A": {
   "adapter": "capital",
