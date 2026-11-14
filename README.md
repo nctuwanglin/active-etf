@@ -120,7 +120,7 @@ scripts/run_local.sh
 
 批次快照的新檔名日期採本批最新有效持股日，避免先更新的少數 ETF 被排除；它是資料上界而非抓取時間。CSV 的 `observed_date` 同樣是來源批次標籤。舊版超出批次標籤、無法確認來源的日期仍保守排除。
 
-00996A（兆豐）2026-11-13 重新啟用。兆豐網站自 2026-09-21 起對 GitHub Actions 回 HTTP 403（本機直抓正常），因此 CI 排程抓不到時會沿用最新快照並在頁首標示 stale／落後天數；本機跑 `scripts/run_local.sh` 可補上最新資料。停用機制仍在：registry 設 `status: disabled` 即不抓取、不顯示。
+00996A（兆豐）停止追蹤（registry `status: disabled`）：兆豐網站自 2026-09-21 起對 GitHub Actions 回 HTTP 403（本機直抓正常），且沒有其他公開官方來源（證交所 PCF 僅供券商查詢），無法由 GitHub 排程自動更新。2026-11-13 曾重新啟用試抓，CI 仍被擋，11-14 依使用者決定再次停用。停用的 ETF 不抓取、不顯示，也不納入持股反查與累積趨勢；原始歷史快照保留供查核。adapter（`megafunds.py`）保留，若兆豐解除封鎖，把 status 改回 `active` 即可。
 
 00413A（玉山）2026-11-13 起支援：`scripts/adapters/esun.py`，資料取自 esunam.com 的 ETFAPI JSON。
 
