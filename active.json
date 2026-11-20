@@ -1,5 +1,5 @@
 {
- "build_id": "8be02741f666",
+ "build_id": "0681c7325aae",
  "consensus": {
   "decrease": [
    {
@@ -61,17 +61,6 @@
     "to_date": "2026-11-20"
    },
    {
-    "code": "3661",
-    "etfs": [
-     "00416A",
-     "00982A"
-    ],
-    "from_date": "2026-11-19",
-    "name": "世芯-KY",
-    "shares_delta": 21000,
-    "to_date": "2026-11-20"
-   },
-   {
     "code": "6285",
     "etfs": [
      "00400A",
@@ -98,13 +87,16 @@
  "crosslinks": {
   "dispo": [
    "2466",
+   "3287",
    "3441",
    "3491",
    "4174",
+   "4534",
    "6108",
    "6140",
    "6697",
    "6751",
+   "7610",
    "7717",
    "8084"
   ],
@@ -3802,28 +3794,7 @@
   "00416A": {
    "close": 6.69,
    "data_date": "2026-11-20",
-   "events": [
-    {
-     "adjusted_shares_delta": 10000,
-     "code": "3661",
-     "common_holdings_count": 30,
-     "daily_comparable": true,
-     "from_date": "2026-11-19",
-     "method": "median-v1",
-     "name": "世芯-KY",
-     "prev_shares": 18000,
-     "prev_weight": 1.0953,
-     "quality": "ok",
-     "scale": 1.0,
-     "shares": 28000,
-     "shares_delta": 10000,
-     "shares_delta_pct": 55.56,
-     "to_date": "2026-11-20",
-     "type": "INCREASE",
-     "weight": 1.6859,
-     "weight_delta": 0.5906
-    }
-   ],
+   "events": [],
    "holders": null,
    "holdings": [
     {
@@ -4015,7 +3986,7 @@
    "premium_pct": -0.74,
    "quote_date": "2026-11-20",
    "scale": 5381211799.0,
-   "status": "ok"
+   "status": "stale"
   },
   "00418A": {
    "close": 7.23,
@@ -6996,28 +6967,7 @@
   "00987A": {
    "close": 10.32,
    "data_date": "2026-11-20",
-   "events": [
-    {
-     "adjusted_shares_delta": -20000,
-     "code": "2330",
-     "common_holdings_count": 24,
-     "daily_comparable": true,
-     "from_date": "2026-11-19",
-     "method": "median-v1",
-     "name": "台積電",
-     "prev_shares": 90000,
-     "prev_weight": 11.0764,
-     "quality": "ok",
-     "scale": 1.0,
-     "shares": 70000,
-     "shares_delta": -20000,
-     "shares_delta_pct": -22.22,
-     "to_date": "2026-11-20",
-     "type": "DECREASE",
-     "weight": 9.3981,
-     "weight_delta": -1.6783
-    }
-   ],
+   "events": [],
    "holders": null,
    "holdings": [
     {
@@ -7173,7 +7123,7 @@
    "premium_pct": -0.1,
    "quote_date": "2026-11-20",
    "scale": 1489660268.0,
-   "status": "ok"
+   "status": "stale"
   },
   "00991A": {
    "close": 10.27,
@@ -10483,15 +10433,7 @@
    ],
    "name": "台積電",
    "quote_date": "2026-11-20",
-   "recent_events": [
-    {
-     "date": "2026-11-20",
-     "etf": "00987A",
-     "from_date": "2026-11-19",
-     "to_date": "2026-11-20",
-     "type": "DECREASE"
-    }
-   ],
+   "recent_events": [],
    "total_shares": 50036695,
    "total_value": 100073390000,
    "total_weight": 311.2781
@@ -14685,13 +14627,6 @@
    "recent_events": [
     {
      "date": "2026-11-20",
-     "etf": "00416A",
-     "from_date": "2026-11-19",
-     "to_date": "2026-11-20",
-     "type": "INCREASE"
-    },
-    {
-     "date": "2026-11-20",
      "etf": "00982A",
      "from_date": "2026-11-19",
      "to_date": "2026-11-20",
@@ -18170,6 +18105,6 @@
    "total_weight": 0.26
   }
  },
- "trend_build_id": "95ebe470f96b1ae4",
+ "trend_build_id": "5c46730a1033cf6c",
  "updated": "2026-11-20"
 }
